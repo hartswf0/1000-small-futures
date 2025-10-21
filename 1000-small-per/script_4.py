@@ -1,0 +1,194 @@
+
+# Create mechanics.json - Agent behaviors and simulation rules
+mechanics = {
+    "agent_loop": [
+        {
+            "step": "PerceiveEnvironment",
+            "canon": True,
+            "evidence": {
+                "q": "Thousand must learn the relevance of all it encounters",
+                "source": "pilarcorrias.com/exhibitions/350-ian-cheng-thousand-lives/"
+            },
+            "description": "Agent scans environment for objects within sensor range, extracts visual features (color, shape, texture, movement)"
+        },
+        {
+            "step": "InferRelevance",
+            "canon": True,
+            "evidence": {
+                "q": "attempts to reconcile Thousand's internal urges with the affordances (and threats) of Chalice's apartment environment",
+                "source": "pilarcorrias.com/exhibitions/350-ian-cheng-thousand-lives/"
+            },
+            "description": "Query inference engine for predicate inferences about objects: nourishing/toxic, threatening/safe, treasure/trash"
+        },
+        {
+            "step": "UpdateBeliefs",
+            "canon": True,
+            "evidence": {
+                "q": "Thousand must learn what is of relevance to its needs",
+                "source": "pilarcorrias.com/exhibitions/350-ian-cheng-thousand-lives/"
+            },
+            "description": "Learning occurs from surprising experiences; beliefs updated when expectations violated"
+        },
+        {
+            "step": "SelectMotive",
+            "canon": True,
+            "evidence": {
+                "q": "construct motives to pursue objects of relevance",
+                "source": "pilarcorrias.com/exhibitions/350-ian-cheng-thousand-lives/"
+            },
+            "description": "Demons compete based on urgency scores; active demon chosen by weighted hold mechanism"
+        },
+        {
+            "step": "PlanAct",
+            "canon": True,
+            "evidence": {
+                "q": "construct motives to pursue objects of relevance",
+                "source": "pilarcorrias.com/exhibitions/350-ian-cheng-thousand-lives/"
+            },
+            "description": "Active demon executes script toward Object of Attention (OOA)"
+        },
+        {
+            "step": "ObservePredictionError",
+            "canon": True,
+            "evidence": {
+                "q": "integrate feedback when its expectations misalign with reality",
+                "source": "pilarcorrias.com/exhibitions/350-ian-cheng-thousand-lives/"
+            },
+            "description": "Compare expectation vs outcome; calculate surprise magnitude; generate emotion signal"
+        },
+        {
+            "step": "ReviseBeliefsOrMintNewMotive",
+            "canon": True,
+            "evidence": {
+                "q": "integrate feedback when its expectations misalign with reality, and just keep going",
+                "source": "pilarcorrias.com/exhibitions/350-ian-cheng-thousand-lives/"
+            },
+            "description": "Surprise triggers belief update or generation of new goal; system metabolizes surprise into growth"
+        }
+    ],
+    "demons": [
+        {
+            "name": "Eater Demon",
+            "goal": "consume nourishing objects",
+            "predicates_of_interest": ["nourishing", "toxic"],
+            "canon": True,
+            "evidence": {"q": "BOB's AI architecture composed of congress of motivating 'demons'", "source": "iancheng.com/BOB"}
+        },
+        {
+            "name": "Flee Demon",
+            "goal": "escape threatening objects",
+            "predicates_of_interest": ["threatening", "safe"],
+            "canon": True,
+            "evidence": {"q": "congress of motivating 'demons'", "source": "iancheng.com/BOB"}
+        },
+        {
+            "name": "Explore Demon",
+            "goal": "investigate unknown objects",
+            "predicates_of_interest": ["unknown", "novel"],
+            "canon": True,
+            "evidence": {"q": "congress of motivating 'demons'", "source": "iancheng.com/BOB"}
+        },
+        {
+            "name": "Sleep Demon",
+            "goal": "rest and process beliefs",
+            "predicates_of_interest": ["exhaustion", "safety"],
+            "canon": True,
+            "evidence": {"q": "congress of motivating 'demons'", "source": "iancheng.com/BOB"}
+        },
+        {
+            "name": "Alert Demon",
+            "goal": "monitor for disruptions",
+            "predicates_of_interest": ["change", "threat"],
+            "canon": True,
+            "evidence": {"q": "congress of motivating 'demons'", "source": "iancheng.com/BOB"}
+        }
+    ],
+    "emotion_system": {
+        "valence": {
+            "range": "[-1.0 to +1.0]",
+            "description": "Negative to positive emotional quality",
+            "canon": True
+        },
+        "arousal": {
+            "range": "[0.0 to 1.0]",
+            "description": "Intensity magnitude of experience",
+            "canon": True
+        },
+        "triggers": {
+            "expectation_match": {"effect": "+valence bump", "description": "Progress toward goal"},
+            "expectation_violation": {"effect": "+arousal spike, valence flip", "description": "Surprise signal"}
+        }
+    },
+    "world_rules": [
+        {
+            "text": "Objects have no prescribed meaning; agents must infer through interaction",
+            "canon": True,
+            "evidence": {
+                "q": "Objects in the environment have no prescribed meaning",
+                "source_url": "pilarcorrias.com/exhibitions/350-ian-cheng-thousand-lives/"
+            }
+        },
+        {
+            "text": "Death and reincarnation with 20% belief retention",
+            "canon": True,
+            "evidence": {
+                "q": "Every time it dies, it gets reincarnated, retaining about 20 percent of the beliefs",
+                "source_url": "sources"
+            }
+        },
+        {
+            "text": "Chalice's appearances act as unpredictable force of nature",
+            "canon": True,
+            "evidence": {
+                "q": "sporadic appearances of Chalice challenge Thousand's AI model, demanding adaptations",
+                "source_url": "pilarcorrias.com/exhibitions/350-ian-cheng-thousand-lives/"
+            }
+        },
+        {
+            "text": "Simulation runs as slow story across many days",
+            "canon": True,
+            "evidence": {
+                "q": "Every perception, inference, motive, decision and action form the ongoing drama of Thousand's lifetime in a new kind of 'slow story' achieved only via simulation",
+                "source_url": "pilarcorrias.com/exhibitions/350-ian-cheng-thousand-lives/"
+            }
+        },
+        {
+            "text": "Real-time Unity rendering; each screening unique",
+            "canon": True,
+            "evidence": {
+                "q": "Life After BOB was built in Unity and presented live",
+                "source_url": "sources"
+            }
+        }
+    ],
+    "aesthetic": {
+        "color_palette": {
+            "red": {
+                "usage": "Dramatic lighting, sunrise/sunset, emotional intensity, urgency signals",
+                "valence": "High arousal moments",
+                "canon": True,
+                "evidence": {"q": "rich saturated reds casting dramatic elongated shadows", "source": "sources"}
+            },
+            "glowing": {
+                "usage": "Object importance, feedback loops, emotional highlights, surprise markers",
+                "description": "Soft radiant effects around significant objects or during expectation violations",
+                "canon": True
+            },
+            "black_and_white": {
+                "usage": "Base palette providing neutral high-contrast backdrop",
+                "description": "Minimalist foundation emphasizing ambiguity and open-endedness",
+                "canon": True,
+                "evidence": {"q": "stark black and white providing high-contrast backdrop", "source": "sources"}
+            }
+        }
+    }
+}
+
+with open('mechanics.json', 'w') as f:
+    json.dump(mechanics, f, indent=2)
+
+print("mechanics.json created")
+print(f"\nAgent loop: {len(mechanics['agent_loop'])} steps")
+print(f"Demons defined: {len(mechanics['demons'])}")
+print(f"World rules: {len(mechanics['world_rules'])}")
+print(f"Aesthetic elements: {len(mechanics['aesthetic']['color_palette'])}")

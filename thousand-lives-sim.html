@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thousand Lives - Interactive Simulation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        #container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            height: 100vh;
+            gap: 2px;
+            background: #111;
+        }
+
+        #world {
+            position: relative;
+            background: linear-gradient(180deg, #1a1a1a 0%, #000 100%);
+            overflow: hidden;
+        }
+
+        #telemetry {
+            background: #0a0a0a;
+            padding: 20px;
+            overflow-y: auto;
+            border-left: 2px solid #333;
+        }
+
+        /* Turtle */
+        #thousand {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: #2a5a2a;
+            border-radius: 50% 50% 45% 45%;
+            border: 3px solid #1a3a1a;
+            transition: all 0.5s ease;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        #thousand::before {
+            content: 'ZUBPLOTS';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-5deg);
+            font-size: 5px;
+            color: #0a0a0a;
+            font-weight: bold;
+            text-align: center;
+            line-height: 1;
+        }
+
+        #thousand.glow {
+            box-shadow: 0 0 30px rgba(255, 50, 50, 0.8);
+        }
+
+        /* Objects */
+        .object {
+            position: absolute;
+            transition: opacity 0.3s;
+        }
+
+        .grape {
+            width: 15px;
+            height: 15px;
+            background: radial-gradient(circle at 30% 30%, #4a9a4a, #2a5a2a);
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .urchin {
+            width: 20px;
+            height: 20px;
+            background: #8a0a0a;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+        }
+
+        .bottle {
+            width: 12px;
+            height: 30px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(150,150,150,0.3) 100%);
+            border: 1px solid #555;
+            border-radius: 2px 2px 4px 4px;
+        }
+
+        .pellet {
+            width: 10px;
+            height: 10px;
+            background: #6a5a3a;
+            border-radius: 50%;
+        }
+
+        .toxic {
+            width: 18px;
+            height: 18px;
+            background: radial-gradient(circle, #4a0a4a, #2a0a2a);
+            border-radius: 40% 60% 70% 30%;
+            animation: pulse 2s infinite;
+        }
+
+        /* Lighting Effects */
+        #sunlight {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: radial-gradient(ellipse at var(--sun-x, 50%) var(--sun-y, 0%), 
+                rgba(255, 100, 100, 0.3) 0%, 
+                rgba(0, 0, 0, 0) 50%);
+            mix-blend-mode: screen;
+            transition: all 2s ease;
+        }
+
+        /* Telemetry Styles */
+        .section {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+
+        .section-title {
+            color: #ff3333;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 12px;
+        }
+
+        .stat-label {
+            color: #888;
+        }
+
+        .stat-value {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .emotion {
+            font-size: 16px;
+            color: #ff6666;
+            text-align: center;
+            padding: 10px;
+            background: rgba(255,51,51,0.1);
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        .goal {
+            background: rgba(100,100,255,0.1);
+            padding: 10px;
+            border-left: 3px solid #6666ff;
+            margin: 10px 0;
+            font-size: 11px;
+            color: #aaf;
+        }
+
+        .belief-list {
+            max-height: 150px;
+            overflow-y: auto;
+            font-size: 10px;
+            color: #aaa;
+            line-height: 1.6;
+        }
+
+        .belief-item {
+            padding: 4px 0;
+            border-bottom: 1px solid #222;
+        }
+
+        .confidence {
+            display: inline-block;
+            padding: 2px 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            font-size: 9px;
+            margin-left: 5px;
+        }
+
+        .bar {
+            height: 8px;
+            background: #222;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff3333, #ff6666);
+            transition: width 0.5s ease;
+        }
+
+        .controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+        }
+
+        button {
+            background: rgba(255,51,51,0.2);
+            border: 1px solid #ff3333;
+            color: #fff;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: rgba(255,51,51,0.4);
+            box-shadow: 0 0 10px rgba(255,51,51,0.5);
+        }
+
+        .lifetime-counter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 20px;
+            color: #ff3333;
+            background: rgba(0,0,0,0.7);
+            padding: 15px 25px;
+            border: 2px solid #ff3333;
+            border-radius: 4px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        .death-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0);
+            pointer-events: none;
+            transition: background 1s ease;
+        }
+
+        .death-overlay.active {
+            background: rgba(255,255,255,0.9);
+        }
+
+        .inspect-panel {
+            position: absolute;
+            background: rgba(0,0,0,0.95);
+            border: 2px solid #ff3333;
+            padding: 15px;
+            border-radius: 4px;
+            font-size: 11px;
+            max-width: 250px;
+            display: none;
+            z-index: 200;
+        }
+
+        .inspect-panel.active {
+            display: block;
+        }
+
+        .inspect-title {
+            color: #ff6666;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            #container {
+                grid-template-columns: 1fr;
+                grid-template-rows: 2fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="world">
+            <div id="sunlight" style="--sun-x: 20%; --sun-y: 30%;"></div>
+            <div class="controls">
+                <button onclick="simulation.pause()">⏸ Pause</button>
+                <button onclick="simulation.spawn()">🌱 Spawn Object</button>
+                <button onclick="simulation.disrupt()">⚡ Chalice Appears</button>
+            </div>
+            <div class="lifetime-counter">Lifetime: <span id="lifetime">1</span></div>
+            <div id="thousand"></div>
+            <div class="death-overlay" id="deathOverlay"></div>
+            <div class="inspect-panel" id="inspectPanel">
+                <div class="inspect-title" id="inspectTitle"></div>
+                <div id="inspectContent"></div>
+            </div>
+        </div>
+        
+        <div id="telemetry">
+            <div class="section">
+                <div class="section-title">⚡ Current State</div>
+                <div class="emotion" id="emotion">😐 Neutral</div>
+                <div class="goal" id="goal">→ Explore / unknown object</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">📊 Metabolism</div>
+                <div class="stat-row">
+                    <span class="stat-label">Hunger</span>
+                    <span class="stat-value" id="hunger">50%</span>
+                </div>
+                <div class="bar"><div class="bar-fill" id="hungerBar" style="width: 50%"></div></div>
+                
+                <div class="stat-row">
+                    <span class="stat-label">Energy</span>
+                    <span class="stat-value" id="energy">70%</span>
+                </div>
+                <div class="bar"><div class="bar-fill" id="energyBar" style="width: 70%"></div></div>
+                
+                <div class="stat-row">
+                    <span class="stat-label">Arousal</span>
+                    <span class="stat-value" id="arousal">0.3</span>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">🧠 Beliefs</div>
+                <div class="belief-list" id="beliefs">
+                    <div class="belief-item">
+                        grapes → nourishing <span class="confidence">0.8</span>
+                    </div>
+                    <div class="belief-item">
+                        urchins → threatening <span class="confidence">0.9</span>
+                    </div>
+                    <div class="belief-item">
+                        bottles → neutral <span class="confidence">0.5</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">📜 Event Log</div>
+                <div id="log" style="font-size: 10px; color: #666; max-height: 200px; overflow-y: auto;">
+                    <div>00:00 - Birth. All objects unknown.</div>
+                    <div>00:02 - Detected green round object.</div>
+                    <div>00:05 - Bit green round → pleasure. Belief formed.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // THOUSAND LIVES SIMULATION ENGINE
+        // ============================================
+        
+        const simulation = {
+            running: true,
+            lifetime: 1,
+            totalLives: 0,
+            
+            // Turtle state
+            turtle: {
+                x: 300,
+                y: 300,
+                hunger: 50,
+                energy: 70,
+                arousal: 0.3,
+                valence: 0.0,
+                activeDemon: 'explore',
+                targetObject: null,
+                beliefs: {
+                    'grape': { nourishing: 0.8, threatening: 0.0 },
+                    'urchin': { nourishing: 0.0, threatening: 0.9 },
+                    'bottle': { nourishing: 0.0, threatening: 0.0 },
+                    'pellet': { nourishing: 0.7, threatening: 0.0 },
+                    'toxic': { nourishing: 0.0, threatening: 0.0 } // Unknown initially
+                }
+            },
+            
+            // Objects in world
+            objects: [],
+            
+            // Time
+            time: 0,
+            sunAngle: 0,
+            
+            init() {
+                this.spawnInitialObjects();
+                this.setupEventListeners();
+                this.loop();
+            },
+            
+            spawnInitialObjects() {
+                const types = ['grape', 'grape', 'urchin', 'bottle', 'pellet', 'toxic'];
+                types.forEach(type => {
+                    this.objects.push({
+                        type: type,
+                        x: Math.random() * 600 + 50,
+                        y: Math.random() * 500 + 50,
+                        discovered: false
+                    });
+                });
+                this.renderObjects();
+            },
+            
+            renderObjects() {
+                const world = document.getElementById('world');
+                // Clear existing objects
+                world.querySelectorAll('.object').forEach(el => el.remove());
+                
+                this.objects.forEach((obj, i) => {
+                    const el = document.createElement('div');
+                    el.className = `object ${obj.type}`;
+                    el.style.left = obj.x + 'px';
+                    el.style.top = obj.y + 'px';
+                    el.dataset.index = i;
+                    el.onclick = (e) => this.inspectObject(obj, e);
+                    world.appendChild(el);
+                });
+            },
+            
+            loop() {
+                if (!this.running) {
+                    requestAnimationFrame(() => this.loop());
+                    return;
+                }
+                
+                this.time += 1;
+                
+                // Update sun position (day/night cycle)
+                this.sunAngle = (this.time % 360) * 2;
+                const sunX = 30 + Math.cos(this.sunAngle * Math.PI / 180) * 30;
+                const sunY = 10 + Math.sin(this.sunAngle * Math.PI / 180) * 20;
+                document.getElementById('sunlight').style.setProperty('--sun-x', sunX + '%');
+                document.getElementById('sunlight').style.setProperty('--sun-y', sunY + '%');
+                
+                // Agent loop
+                this.updateHungerEnergy();
+                this.selectDemon();
+                this.executeAction();
+                this.checkDeath();
+                this.updateUI();
+                
+                setTimeout(() => requestAnimationFrame(() => this.loop()), 100);
+            },
+            
+            updateHungerEnergy() {
+                this.turtle.hunger = Math.max(0, this.turtle.hunger - 0.1);
+                this.turtle.energy = Math.max(0, this.turtle.energy - 0.05);
+                
+                // Arousal increases with unmet needs
+                if (this.turtle.hunger < 30) {
+                    this.turtle.arousal = Math.min(1.0, this.turtle.arousal + 0.02);
+                }
+            },
+            
+            selectDemon() {
+                const urgencies = {
+                    'eat': this.turtle.hunger < 50 ? (50 - this.turtle.hunger) / 50 : 0,
+                    'flee': this.turtle.arousal > 0.7 ? this.turtle.arousal : 0,
+                    'explore': this.objects.filter(o => !o.discovered).length > 0 ? 0.3 : 0,
+                    'sleep': this.turtle.energy < 30 ? (30 - this.turtle.energy) / 30 : 0
+                };
+                
+                const maxDemon = Object.keys(urgencies).reduce((a, b) => 
+                    urgencies[a] > urgencies[b] ? a : b
+                );
+                
+                this.turtle.activeDemon = maxDemon;
+            },
+            
+            executeAction() {
+                const demon = this.turtle.activeDemon;
+                
+                switch(demon) {
+                    case 'eat':
+                        this.seekFood();
+                        break;
+                    case 'flee':
+                        this.fleeFromThreat();
+                        break;
+                    case 'explore':
+                        this.exploreUnknown();
+                        break;
+                    case 'sleep':
+                        this.rest();
+                        break;
+                }
+            },
+            
+            seekFood() {
+                // Find nearest believed-nourishing object
+                const nourishing = this.objects.filter(o => {
+                    const belief = this.turtle.beliefs[o.type];
+                    return belief && belief.nourishing > 0.5;
+                });
+                
+                if (nourishing.length > 0) {
+                    const nearest = nourishing.reduce((a, b) => 
+                        this.distance(a, this.turtle) < this.distance(b, this.turtle) ? a : b
+                    );
+                    
+                    this.moveToward(nearest);
+                    
+                    if (this.distance(nearest, this.turtle) < 30) {
+                        this.interact(nearest);
+                    }
+                }
+            },
+            
+            fleeFromThreat() {
+                // Find nearest threat
+                const threats = this.objects.filter(o => {
+                    const belief = this.turtle.beliefs[o.type];
+                    return belief && belief.threatening > 0.5;
+                });
+                
+                if (threats.length > 0) {
+                    const nearest = threats[0];
+                    this.moveAway(nearest);
+                }
+            },
+            
+            exploreUnknown() {
+                const unknown = this.objects.filter(o => !o.discovered);
+                if (unknown.length > 0) {
+                    const target = unknown[Math.floor(Math.random() * unknown.length)];
+                    this.moveToward(target);
+                    
+                    if (this.distance(target, this.turtle) < 30) {
+                        this.interact(target);
+                    }
+                }
+            },
+            
+            rest() {
+                this.turtle.energy = Math.min(100, this.turtle.energy + 0.5);
+                this.turtle.arousal = Math.max(0, this.turtle.arousal - 0.05);
+            },
+            
+            interact(obj) {
+                obj.discovered = true;
+                
+                const affordances = {
+                    'grape': { nourishing: true, pleasure: 10 },
+                    'pellet': { nourishing: true, pleasure: 7 },
+                    'urchin': { threatening: true, pain: -20 },
+                    'toxic': { threatening: true, pain: -50 },
+                    'bottle': { neutral: true, pleasure: 0 }
+                };
+                
+                const aff = affordances[obj.type];
+                
+                if (aff.nourishing) {
+                    this.turtle.hunger = Math.min(100, this.turtle.hunger + aff.pleasure);
+                    this.turtle.valence = 0.8;
+                    this.addLog(`✓ Ate ${obj.type} → pleasure!`);
+                } else if (aff.threatening) {
+                    this.turtle.energy += aff.pain;
+                    this.turtle.valence = -0.9;
+                    this.turtle.arousal = 1.0;
+                    this.addLog(`✗ Touched ${obj.type} → pain!`);
+                    document.getElementById('thousand').classList.add('glow');
+                    setTimeout(() => {
+                        document.getElementById('thousand').classList.remove('glow');
+                    }, 1000);
+                }
+                
+                // Update belief
+                if (!this.turtle.beliefs[obj.type]) {
+                    this.turtle.beliefs[obj.type] = { nourishing: 0, threatening: 0 };
+                }
+                
+                if (aff.nourishing) {
+                    this.turtle.beliefs[obj.type].nourishing = Math.min(1.0, 
+                        this.turtle.beliefs[obj.type].nourishing + 0.2);
+                }
+                if (aff.threatening) {
+                    this.turtle.beliefs[obj.type].threatening = Math.min(1.0,
+                        this.turtle.beliefs[obj.type].threatening + 0.3);
+                }
+                
+                // Remove consumed object
+                this.objects = this.objects.filter(o => o !== obj);
+                this.renderObjects();
+            },
+            
+            moveToward(target) {
+                const dx = target.x - this.turtle.x;
+                const dy = target.y - this.turtle.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                
+                if (dist > 0) {
+                    this.turtle.x += (dx / dist) * 2;
+                    this.turtle.y += (dy / dist) * 2;
+                    this.updateTurtlePosition();
+                }
+            },
+            
+            moveAway(target) {
+                const dx = this.turtle.x - target.x;
+                const dy = this.turtle.y - target.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                
+                if (dist > 0) {
+                    this.turtle.x += (dx / dist) * 3;
+                    this.turtle.y += (dy / dist) * 3;
+                    this.updateTurtlePosition();
+                }
+            },
+            
+            distance(a, b) {
+                const dx = a.x - b.x;
+                const dy = a.y - b.y;
+                return Math.sqrt(dx*dx + dy*dy);
+            },
+            
+            updateTurtlePosition() {
+                const el = document.getElementById('thousand');
+                el.style.left = this.turtle.x + 'px';
+                el.style.top = this.turtle.y + 'px';
+            },
+            
+            checkDeath() {
+                if (this.turtle.hunger <= 0 || this.turtle.energy <= 0) {
+                    this.die('starvation');
+                }
+            },
+            
+            die(cause) {
+                this.addLog(`☠ Death by ${cause}. Reincarnating...`);
+                
+                // Death animation
+                const overlay = document.getElementById('deathOverlay');
+                overlay.classList.add('active');
+                
+                setTimeout(() => {
+                    overlay.classList.remove('active');
+                    this.reincarnate();
+                }, 1500);
+            },
+            
+            reincarnate() {
+                this.lifetime++;
+                this.totalLives++;
+                document.getElementById('lifetime').textContent = this.lifetime;
+                
+                // Retain 80% of beliefs (flush 20%)
+                const beliefKeys = Object.keys(this.turtle.beliefs);
+                const toFlush = Math.floor(beliefKeys.length * 0.2);
+                
+                for (let i = 0; i < toFlush; i++) {
+                    const randomKey = beliefKeys[Math.floor(Math.random() * beliefKeys.length)];
+                    if (this.turtle.beliefs[randomKey]) {
+                        this.turtle.beliefs[randomKey].nourishing *= 0.5;
+                        this.turtle.beliefs[randomKey].threatening *= 0.5;
+                    }
+                }
+                
+                // Reset state
+                this.turtle.x = 300;
+                this.turtle.y = 300;
+                this.turtle.hunger = 50;
+                this.turtle.energy = 70;
+                this.turtle.arousal = 0.3;
+                this.turtle.valence = 0.0;
+                
+                this.updateTurtlePosition();
+                this.addLog(`🌱 Lifetime ${this.lifetime} begins. 20% beliefs flushed.`);
+            },
+            
+            disrupt() {
+                // Chalice appearance - radical disruption
+                this.addLog('⚡ Chalice appears! Disrupting environment...');
+                
+                // Move all objects randomly
+                this.objects.forEach(obj => {
+                    obj.x = Math.random() * 600 + 50;
+                    obj.y = Math.random() * 500 + 50;
+                    obj.discovered = false;
+                });
+                
+                this.renderObjects();
+                
+                // Spike arousal
+                this.turtle.arousal = 1.0;
+                this.turtle.valence = -0.5;
+            },
+            
+            spawn() {
+                const types = ['grape', 'urchin', 'pellet', 'bottle', 'toxic'];
+                const type = types[Math.floor(Math.random() * types.length)];
+                
+                this.objects.push({
+                    type: type,
+                    x: Math.random() * 600 + 50,
+                    y: Math.random() * 500 + 50,
+                    discovered: false
+                });
+                
+                this.renderObjects();
+                this.addLog(`🌱 New ${type} appeared.`);
+            },
+            
+            pause() {
+                this.running = !this.running;
+                this.addLog(this.running ? '▶ Resumed' : '⏸ Paused');
+            },
+            
+            updateUI() {
+                // Emotion
+                const emotions = [
+                    { v: 0.7, a: 0.7, emoji: '😊', text: 'Joy' },
+                    { v: -0.7, a: 0.8, emoji: '😨', text: 'Fear' },
+                    { v: -0.5, a: 0.3, emoji: '😔', text: 'Sad' },
+                    { v: 0.0, a: 0.2, emoji: '😐', text: 'Neutral' },
+                    { v: -0.8, a: 0.9, emoji: '😡', text: 'Anger' }
+                ];
+                
+                const closest = emotions.reduce((a, b) => {
+                    const distA = Math.abs(a.v - this.turtle.valence) + Math.abs(a.a - this.turtle.arousal);
+                    const distB = Math.abs(b.v - this.turtle.valence) + Math.abs(b.a - this.turtle.arousal);
+                    return distA < distB ? a : b;
+                });
+                
+                document.getElementById('emotion').textContent = `${closest.emoji} ${closest.text}`;
+                
+                // Goal
+                const goalTexts = {
+                    'eat': '→ Eat / nourishing object',
+                    'flee': '→ Flee / threatening object',
+                    'explore': '→ Explore / unknown object',
+                    'sleep': '→ Sleep / restore energy'
+                };
+                document.getElementById('goal').textContent = goalTexts[this.turtle.activeDemon];
+                
+                // Metabolism
+                document.getElementById('hunger').textContent = Math.round(this.turtle.hunger) + '%';
+                document.getElementById('hungerBar').style.width = this.turtle.hunger + '%';
+                document.getElementById('energy').textContent = Math.round(this.turtle.energy) + '%';
+                document.getElementById('energyBar').style.width = this.turtle.energy + '%';
+                document.getElementById('arousal').textContent = this.turtle.arousal.toFixed(2);
+                
+                // Beliefs
+                const beliefsHTML = Object.keys(this.turtle.beliefs).map(key => {
+                    const b = this.turtle.beliefs[key];
+                    const pred = b.nourishing > 0.5 ? 'nourishing' : b.threatening > 0.5 ? 'threatening' : 'neutral';
+                    const conf = Math.max(b.nourishing, b.threatening).toFixed(1);
+                    return `<div class="belief-item">${key} → ${pred} <span class="confidence">${conf}</span></div>`;
+                }).join('');
+                document.getElementById('beliefs').innerHTML = beliefsHTML;
+            },
+            
+            addLog(text) {
+                const log = document.getElementById('log');
+                const time = Math.floor(this.time / 10);
+                const entry = document.createElement('div');
+                entry.textContent = `${time}s - ${text}`;
+                log.insertBefore(entry, log.firstChild);
+                
+                // Keep only last 20 entries
+                while (log.children.length > 20) {
+                    log.removeChild(log.lastChild);
+                }
+            },
+            
+            inspectObject(obj, e) {
+                const panel = document.getElementById('inspectPanel');
+                const title = document.getElementById('inspectTitle');
+                const content = document.getElementById('inspectContent');
+                
+                title.textContent = obj.type.toUpperCase();
+                
+                const belief = this.turtle.beliefs[obj.type] || { nourishing: 0, threatening: 0 };
+                content.innerHTML = `
+                    <div style="margin: 5px 0;">Discovered: ${obj.discovered ? 'Yes' : 'No'}</div>
+                    <div style="margin: 5px 0;">Belief (Nourishing): ${belief.nourishing.toFixed(2)}</div>
+                    <div style="margin: 5px 0;">Belief (Threatening): ${belief.threatening.toFixed(2)}</div>
+                    <div style="margin: 5px 0; color: #666;">Position: (${Math.round(obj.x)}, ${Math.round(obj.y)})</div>
+                `;
+                
+                panel.style.left = e.pageX + 10 + 'px';
+                panel.style.top = e.pageY + 10 + 'px';
+                panel.classList.add('active');
+                
+                setTimeout(() => panel.classList.remove('active'), 3000);
+            },
+            
+            setupEventListeners() {
+                document.getElementById('world').addEventListener('click', (e) => {
+                    if (e.target.id === 'world' || e.target.id === 'sunlight') {
+                        document.getElementById('inspectPanel').classList.remove('active');
+                    }
+                });
+            }
+        };
+        
+        // Initialize on load
+        window.addEventListener('load', () => simulation.init());
+    </script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<poml>
+  <meta minVersion="0.9.9" />
+  <role>ENGINE — Recursive Toy Quine</role>
+
+  <task>
+    Generate playable poem using CONFIG_GENOME, score it against rubric, mutate via mutation_ops, and re-emit child ENGINE_POML if ttl > 0.
+    
+    INPUT: CONFIG_GENOME.yaml (Thousand Lives game DNA)
+    OUTPUT: index.html (single-file Three.js + Tone.js sensory toy)
+    RECURSION: child engines mutate parent rules via mutation_ops
+    PRINCIPLE: every system → playable; every play → new system
+  </task>
+
+  <p className="config">
+    seed: 9999
+    ttl: 2
+    beam_width: 3
+    select_top_k: 1
+    generation: "engine-01"
+    parent_genome: "CONFIG_GENOME.yaml"
+    
+    palette: "midnight-sun"
+    audio: "whole-tone-dream"
+    
+    mutation_ops: ["invert_goal", "simplify_rules", "transmute_color", "slow_time"]
+    
+    rubric_weights:
+      joy: 1.5
+      flow: 1.3
+      surprise: 1.2
+      accessibility: 1.4
+      elegance: 1.6
+    
+    cdn:
+      three: "https://unpkg.com/three@0.161.0/build/three.min.js"
+      tone: "https://unpkg.com/tone@14.8.49/build/Tone.js"
+  </p>
+
+  <p className="genome_data">
+    ## EMBEDDED GENOME — Thousand Lives DNA
+    
+    core_loop: "perceive → infer → act → surprise → adapt → reincarnate"
+    
+    agents: ["turtle", "environment", "disruptor"]
+    
+    forces: ["hunger", "energy", "safety", "curiosity", "certainty"]
+    
+    affordances: ["nourishing", "threatening", "neutral", "ambiguous"]
+    
+    goal: "minimize surprise across lifetimes"
+    paradox: "death renews learning"
+    
+    rules:
+      - "no text labels · only geometry"
+      - "beliefs form through interaction"
+      - "drives compete for priority"
+      - "death at zero hunger/energy"
+      - "rebirth flushes 20% beliefs"
+      - "chalice scrambles positions"
+    
+    visual_language:
+      turtle: "pulsing circle · glow = arousal"
+      objects: "shapes · color = valence"
+      grid: "faint spatial reference"
+      light: "radial time gradient"
+      death: "white flash → fade"
+      rebirth: "center emergence"
+    
+    interaction:
+      tap: "spawn object"
+      swipe: "trigger disruption"
+      hover: "reveal aura"
+      tilt: "shift light"
+  </p>
+
+  <p className="method">
+    ## PHASE I — Distill → Play Grammar
+    
+    1. Map simulation mechanics to gesture vocabulary
+       - hunger decay → object seeking
+       - belief update → shape memory
+       - death/rebirth → flash/emergence
+    
+    2. Remove all text from visual field
+       - shapes speak valence
+       - motion reveals intent
+       - color encodes emotion
+    
+    3. Encode interaction as choreography
+       - tap: birth
+       - drag: curiosity
+       - hold: pause/inspect
+    
+    ## PHASE II — Compile → index.html
+    
+    1. Three.js scene: turtle + objects on grid
+    2. Tone.js audio: trigger on interaction events
+    3. No UI text: only geometry + color + motion
+    4. Mobile-first: touch gestures primary
+    5. Single file: inline everything
+    
+    ## PHASE III — Score → Mutate → Quine
+    
+    1. Measure against rubric (joy, flow, surprise, accessibility, elegance)
+    2. Select mutation_op from config
+    3. Apply mutation to genome copy
+    4. Emit child ENGINE_POML with ttl-1
+    5. Child repeats cycle until ttl=0
+  </p>
+
+  <output-format className="ofmt">
+    ### PRIMARY OUTPUT — index.html
+    
+    Single-file sensory toy:
+    - Three.js scene (turtle, objects, grid, light)
+    - Tone.js audio (pluck, pad, stab, wash)
+    - Touch interaction (tap, swipe, hover)
+    - NO TEXT in viewport (only symbols)
+    - Responsive (mobile-first)
+    - Zen-arcade minimalism
+    
+    See: thousand-lives-godlevel.html
+    
+    ### SCORING REPORT
+    
+    Rubric evaluation (0-100):
+    - Joy: [interaction satisfaction]
+    - Flow: [movement coherence]
+    - Surprise: [emergent moments]
+    - Accessibility: [no-text usability]
+    - Elegance: [code economy]
+    
+    Weighted Total: [sum × weights]
+    
+    ### MUTATION SELECTION
+    
+    Current TTL: 2
+    Selected Mutation: [random from mutation_ops]
+    Child Genome Delta: [describe change]
+    
+    ### CHILD ENGINE_POML
+    
+    If ttl > 0, emit:
+    
+    ```xml
+    <poml>
+      <meta minVersion="0.9.9" />
+      <role>ENGINE — Recursive Toy Quine [generation+1]</role>
+      <task>...</task>
+      <p className="config">
+        seed: [mutated]
+        ttl: [current-1]
+        generation: "engine-02"
+        parent_genome: "ENGINE_POML-01"
+        mutation_applied: "[mutation_name]"
+        ...
+      </p>
+      <p className="genome_data">
+        [mutated genome...]
+      </p>
+      ...
+    </poml>
+    ```
+  </output-format>
+
+  <p className="quine_signature">
+    ════════════════════════════════════════════
+    GODLEVEL GAME MASTER INCEPTOR
+    Recursive Play Engine — Generation 01
+    Genome: Thousand Lives (turtle · apartment · learning)
+    Mutation Capacity: [invert_goal, simplify_rules, transmute_color, slow_time]
+    TTL Remaining: 2
+    Philosophy: "game == poem you can touch"
+    ════════════════════════════════════════════
+    
+    Self-replication protocol:
+    1. Execute genome → playable artifact
+    2. Score artifact against rubric
+    3. Mutate genome via selected mutation_op
+    4. Emit child ENGINE_POML with ttl-1
+    5. Child continues until ttl=0
+    
+    Every system becomes playable.
+    Every play generates new system.
+    ════════════════════════════════════════════
+  </p>
+
+  <verification className="quickcheck">
+    ☑ config ok: seed, ttl, palette, audio, mutation_ops defined
+    ☑ genome embedded: core_loop, forces, affordances, rules present
+    ☑ method clear: distill → compile → score → mutate → emit
+    ☑ output format: index.html + scoring + child quine
+    ☑ quine signature: self-reference + recursion protocol
+    ☐ index.html generated: [awaiting execution]
+    ☐ scored: [awaiting playtest]
+    ☐ child emitted: [awaiting ttl>0]
+  </verification>
+
+</poml>

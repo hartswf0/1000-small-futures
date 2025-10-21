@@ -1,0 +1,1835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Outside RAD · Thousand Futures Console</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='70' font-size='60'>✶</text></svg>">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+  <style>
+    :root {
+      --bg: #03180c;
+      --panel: rgba(6, 28, 20, 0.88);
+      --panel-dark: rgba(4, 20, 15, 0.92);
+      --border: rgba(34, 92, 68, 0.45);
+      --border-strong: rgba(86, 255, 159, 0.4);
+      --text: #aef3c1;
+      --text-muted: rgba(174, 243, 193, 0.65);
+      --accent: #56ff9f;
+      --accent-soft: rgba(86, 255, 159, 0.12);
+      --accent-glow: rgba(86, 255, 159, 0.35);
+      --danger: #ff5c7c;
+      --warning: #ffd66b;
+      --shadow: rgba(0, 0, 0, 0.45);
+      --column-width: min(100vw, 420px);
+      --font: 'Courier New', courier, monospace;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% -10%, rgba(86, 255, 159, 0.08), transparent 60%), var(--bg);
+      font-family: var(--font);
+      color: var(--text);
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow: hidden;
+      font-size: clamp(11px, 2.6vw, 13px);
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: rgba(5, 22, 18, 0.8);
+      color: var(--text);
+      padding: 9px 16px;
+      border-radius: 999px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-size: 0.7em;
+      transition: all 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    button:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(86, 255, 159, 0.18);
+    }
+
+    button:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .app-shell {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      overflow: hidden;
+    }
+
+    header {
+      flex-shrink: 0;
+      padding: 16px 20px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, rgba(5, 24, 18, 0.9), rgba(4, 18, 14, 0.9));
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      z-index: 2;
+    }
+
+    header h1 {
+      font-size: clamp(11px, 3vw, 14px);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    header h1 span {
+      font-size: 0.78em;
+      color: var(--text-muted);
+      padding: 4px 8px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: rgba(86, 255, 159, 0.08);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .header-actions button {
+      padding: 7px 14px;
+    }
+
+    main {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      gap: 1px;
+      overflow-x: auto;
+      background: rgba(3, 12, 9, 0.75);
+      scroll-snap-type: x mandatory;
+    }
+
+    main::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    main::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    main::-webkit-scrollbar-thumb {
+      background: rgba(86, 255, 159, 0.2);
+      border-radius: 3px;
+    }
+
+    .channel {
+      flex: 0 0 var(--column-width);
+      max-width: var(--column-width);
+      min-width: 290px;
+      border-right: 1px solid rgba(86, 255, 159, 0.08);
+      background: var(--panel-dark);
+      display: flex;
+      flex-direction: column;
+      scroll-snap-align: start;
+      backdrop-filter: blur(6px);
+      position: relative;
+    }
+
+    .channel-header {
+      padding: 20px 22px 16px;
+      border-bottom: 1px solid rgba(86, 255, 159, 0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .channel-header h2 {
+      font-size: 0.8em;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .channel-header span {
+      font-size: 0.68em;
+      color: var(--text-muted);
+      letter-spacing: 0.16em;
+    }
+
+    .channel-body {
+      flex: 1;
+      min-height: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    .channel-body::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .channel-body::-webkit-scrollbar-thumb {
+      background: rgba(86, 255, 159, 0.22);
+      border-radius: 3px;
+    }
+
+    .panel {
+      border: 1px solid rgba(86, 255, 159, 0.16);
+      border-radius: 12px;
+      background: rgba(4, 20, 15, 0.78);
+      box-shadow: inset 0 0 0 1px rgba(86, 255, 159, 0.08), 0 10px 26px rgba(0, 0, 0, 0.45);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      position: relative;
+    }
+
+    .panel h3 {
+      font-size: 0.72em;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+
+    .world-stage {
+      position: relative;
+      border-radius: 18px;
+      border: 1px solid rgba(86, 255, 159, 0.2);
+      background: linear-gradient(160deg, rgba(18, 54, 42, 0.85), rgba(6, 18, 14, 0.95));
+      box-shadow: inset 0 0 0 1px rgba(86, 255, 159, 0.08), 0 18px 42px rgba(0, 0, 0, 0.6);
+      overflow: hidden;
+      aspect-ratio: 16 / 10;
+      min-height: 220px;
+    }
+
+    .world-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(86, 255, 159, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(86, 255, 159, 0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      opacity: 0.85;
+    }
+
+    .world-light {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      mix-blend-mode: screen;
+      background: radial-gradient(circle at var(--sun-x, 60%) var(--sun-y, 20%), rgba(86, 255, 159, 0.16), transparent 55%);
+      transition: background 1.2s ease, opacity 1s ease;
+    }
+
+    .world-layer {
+      position: absolute;
+      inset: 0;
+    }
+
+    .turtle {
+      position: absolute;
+      width: 42px;
+      height: 42px;
+      transform: translate(-50%, -50%);
+      border-radius: 52% 56% 44% 48%;
+      background: radial-gradient(circle at 45% 35%, rgba(132, 255, 192, 0.35), transparent 55%), #153a2f;
+      border: 3px solid rgba(86, 255, 159, 0.38);
+      box-shadow: 0 0 12px rgba(86, 255, 159, 0.35);
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.52em;
+      letter-spacing: 0.2em;
+      color: rgba(174, 243, 193, 0.8);
+    }
+
+    .turtle::after {
+      content: 'THOUSAND';
+      position: absolute;
+      top: -20px;
+      font-size: 0.65em;
+      letter-spacing: 0.2em;
+      color: rgba(174, 243, 193, 0.6);
+    }
+
+    .turtle.glow {
+      animation: turtleGlow 1.2s ease;
+    }
+
+    @keyframes turtleGlow {
+      0%, 100% { box-shadow: 0 0 12px rgba(86, 255, 159, 0.35); }
+      50% { box-shadow: 0 0 30px rgba(255, 92, 124, 0.5); }
+    }
+
+    .world-object {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      padding: 7px 11px;
+      border-radius: 10px;
+      border: 1px solid rgba(86, 255, 159, 0.16);
+      background: rgba(5, 20, 15, 0.82);
+      color: rgba(174, 243, 193, 0.78);
+      font-size: 0.68em;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: opacity 0.6s ease, transform 0.45s ease;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .world-object[data-valence="positive"] {
+      border-color: rgba(158, 255, 167, 0.42);
+      color: rgba(158, 255, 167, 0.82);
+      background: rgba(16, 46, 32, 0.78);
+      box-shadow: 0 12px 22px rgba(86, 255, 159, 0.25);
+    }
+
+    .world-object[data-valence="negative"] {
+      border-color: rgba(255, 92, 124, 0.5);
+      color: rgba(255, 140, 165, 0.85);
+      background: rgba(34, 10, 16, 0.82);
+      box-shadow: 0 14px 28px rgba(255, 92, 124, 0.22);
+    }
+
+    .world-object[data-valence="neutral"] {
+      border-style: dashed;
+      color: rgba(174, 243, 193, 0.6);
+    }
+
+    .world-object.discovered::after {
+      content: '◎';
+      margin-left: 6px;
+      color: rgba(86, 255, 159, 0.6);
+    }
+
+    .telemetry {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+    }
+
+    .telemetry-card {
+      border: 1px solid rgba(86, 255, 159, 0.12);
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: rgba(5, 20, 15, 0.75);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .telemetry-card strong {
+      letter-spacing: 0.18em;
+      font-size: 0.68em;
+      color: var(--text-muted);
+    }
+
+    .telemetry-card span {
+      font-size: 1.18em;
+      letter-spacing: 0.1em;
+    }
+
+    .meter {
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(86, 255, 159, 0.08);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .meter span {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, rgba(86, 255, 159, 0.85), rgba(26, 110, 82, 0.9));
+      width: 0%;
+      transition: width 0.45s ease;
+    }
+
+    .meter span.low {
+      background: linear-gradient(90deg, rgba(255, 92, 124, 0.9), rgba(255, 150, 170, 0.85));
+    }
+
+    .chat-log {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 58vh;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    .chat-log::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .chat-log::-webkit-scrollbar-thumb {
+      background: rgba(86, 255, 159, 0.22);
+      border-radius: 999px;
+    }
+
+    .chat-message {
+      border: 1px solid rgba(86, 255, 159, 0.16);
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      line-height: 1.6;
+      background: rgba(5, 22, 18, 0.72);
+      animation: fadeIn 0.4s ease;
+    }
+
+    .chat-message.user {
+      border-color: rgba(255, 214, 107, 0.35);
+      background: rgba(28, 26, 12, 0.7);
+      color: #ffe9a8;
+    }
+
+    .chat-message.assistant {
+      border-color: rgba(86, 255, 159, 0.28);
+    }
+
+    .chat-message .meta {
+      font-size: 0.6em;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .chat-composer {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .chat-composer textarea {
+      flex: 1;
+      min-height: 64px;
+      max-height: 120px;
+      border-radius: 12px;
+      border: 1px solid rgba(86, 255, 159, 0.18);
+      background: rgba(5, 18, 14, 0.85);
+      color: var(--text);
+      padding: 12px 14px;
+      font-family: inherit;
+      font-size: 0.86em;
+      letter-spacing: 0.06em;
+      resize: vertical;
+    }
+
+    .control-strip {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .grid-cell {
+      border: 1px solid rgba(86, 255, 159, 0.12);
+      border-radius: 10px;
+      padding: 12px;
+      background: rgba(6, 24, 18, 0.8);
+      min-height: 96px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+      transition: border-color 0.25s ease, transform 0.25s ease;
+    }
+
+    .grid-cell:hover {
+      border-color: var(--accent);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 22px rgba(86, 255, 159, 0.2);
+    }
+
+    .grid-cell span {
+      font-size: 0.64em;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .grid-cell strong {
+      font-size: 0.92em;
+      letter-spacing: 0.08em;
+    }
+
+    .analysis-panel {
+      border: 1px solid rgba(86, 255, 159, 0.16);
+      border-radius: 10px;
+      padding: 12px;
+      background: rgba(5, 20, 15, 0.75);
+      font-size: 0.72em;
+      letter-spacing: 0.06em;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    .footer {
+      flex-shrink: 0;
+      padding: 10px 18px 14px;
+      border-top: 1px solid rgba(86, 255, 159, 0.12);
+      background: rgba(4, 18, 14, 0.92);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.68em;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(174, 243, 193, 0.52);
+    }
+
+    .floating-btn {
+      position: fixed;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      font-size: 1.4em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(4, 18, 14, 0.92);
+      border: 1px solid rgba(86, 255, 159, 0.25);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+      z-index: 5;
+    }
+
+    .floating-btn:hover {
+      background: rgba(86, 255, 159, 0.12);
+    }
+
+    #keyBtn { top: 22px; right: 22px; }
+    #geertzBtn { top: 74px; right: 22px; }
+    #musicBtn { top: 126px; right: 22px; }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(3, 12, 8, 0.82);
+      z-index: 20;
+      backdrop-filter: blur(6px);
+      padding: 24px;
+    }
+
+    .overlay.active {
+      display: flex;
+    }
+
+    .overlay-card {
+      width: min(420px, 90vw);
+      border: 1px solid rgba(86, 255, 159, 0.25);
+      background: rgba(4, 18, 14, 0.95);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 20px 54px rgba(0, 0, 0, 0.6);
+    }
+
+    .overlay-title {
+      font-size: 0.74em;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .overlay-sub {
+      font-size: 0.68em;
+      letter-spacing: 0.14em;
+      color: var(--text-muted);
+    }
+
+    .overlay-input {
+      width: 100%;
+      border: 1px solid rgba(86, 255, 159, 0.28);
+      border-radius: 10px;
+      padding: 12px;
+      font-family: inherit;
+      font-size: 0.86em;
+      background: rgba(6, 26, 20, 0.82);
+      color: var(--text);
+    }
+
+    .overlay-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .primary-btn {
+      border: 1px solid var(--accent);
+      background: rgba(86, 255, 159, 0.14);
+      color: var(--accent);
+      padding: 10px 18px;
+      border-radius: 999px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-size: 0.68em;
+    }
+
+    .primary-btn:hover {
+      box-shadow: 0 8px 18px rgba(86, 255, 159, 0.2);
+    }
+
+    .secondary-btn {
+      border: 1px solid rgba(86, 255, 159, 0.2);
+      background: rgba(5, 18, 14, 0.85);
+      color: var(--text-muted);
+      padding: 10px 18px;
+      border-radius: 999px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-size: 0.68em;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(86, 255, 159, 0.35);
+      background: rgba(4, 18, 14, 0.96);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-size: 0.64em;
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.45);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      z-index: 25;
+    }
+
+    .toast.visible {
+      opacity: 1;
+      transform: translate(-50%, -6px);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 960px) {
+      header {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+      }
+      main {
+        scroll-snap-type: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header>
+      <h1>Outside RAD<span>Neurosymbolic Live Room Simulator</span></h1>
+      <div class="header-actions">
+        <button id="pauseBtn">Pause</button>
+        <button id="spawnBtn">Spawn</button>
+        <button id="chaliceBtn">Chalice</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="channel" id="worldColumn">
+        <div class="channel-header">
+          <h2>Channel ∞ · Habitat Pulse</h2>
+          <span>room → affordances → turtle sensory field</span>
+        </div>
+        <div class="channel-body">
+          <div class="panel">
+            <h3>World Stage · Time <span id="timeLabel"></span></h3>
+            <div class="world-stage" id="worldStage">
+              <div class="world-grid"></div>
+              <div class="world-light" id="worldLight"></div>
+              <div class="world-layer" id="worldLayer">
+                <div class="turtle" id="turtle">◎</div>
+              </div>
+            </div>
+            <div class="telemetry" id="needTelemetry"></div>
+            <div class="telemetry-card">
+              <strong>Motive</strong>
+              <span id="motiveLabel">Boot</span>
+              <div class="hud-caption" id="motiveCaption" style="font-size:0.68em;letter-spacing:0.14em;color:var(--text-muted);"></div>
+            </div>
+            <div class="telemetry-card">
+              <strong>Emotion</strong>
+              <span id="emotionLabel">0.00 × 0.35 · Neutral</span>
+            </div>
+            <div class="telemetry-card">
+              <strong>Tick / Day</strong>
+              <span><span id="tickLabel">0</span> · <span id="dayLabel">1</span></span>
+            </div>
+            <div class="telemetry-card">
+              <strong>Belief Capsules</strong>
+              <div id="beliefList" style="display:flex;flex-direction:column;gap:8px;font-size:0.68em;letter-spacing:0.06em;"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="channel" id="chatColumn">
+        <div class="channel-header">
+          <h2>Channel ◎ · Conversational Loom</h2>
+          <span>chat → actions → room rewrites</span>
+        </div>
+        <div class="channel-body">
+          <div class="panel" style="flex:1;">
+            <h3>Legible Dialogue</h3>
+            <div class="chat-log" id="chatLog"></div>
+            <div class="chat-composer">
+              <textarea id="chatInput" placeholder="speak to thousand. instruct the room. ask the turtle what it feels."></textarea>
+              <button id="sendBtn">Send</button>
+            </div>
+            <div class="control-strip">
+              <button id="geertzInlineBtn">Geertzian Cut</button>
+              <button id="clearChatBtn">Clear Chat</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="channel" id="symbolColumn">
+        <div class="channel-header">
+          <h2>Channel ✶ · Symbolic Grid</h2>
+          <span>neurosymbolic scaffolding for evolving scenes</span>
+        </div>
+        <div class="channel-body">
+          <div class="panel">
+            <h3>Scene Glyphs (3 × 3)</h3>
+            <div class="grid" id="symbolGrid"></div>
+            <button id="clearGridBtn">Reset Grid</button>
+          </div>
+          <div class="panel">
+            <h3>Geertzian Cultural System Analyzer</h3>
+            <div class="analysis-panel" id="analysisPanel">No analysis generated yet.</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div>Thousand Lives Prototype · conversational worlding</div>
+      <div>Audio <span id="audioStatus">off</span></div>
+    </footer>
+  </div>
+
+  <button class="floating-btn" id="keyBtn" title="Store API Key">◎</button>
+  <button class="floating-btn" id="geertzBtn" title="Generate Geertz Analysis">✹</button>
+  <button class="floating-btn" id="musicBtn" title="Start Ambient Score">♫</button>
+
+  <div class="overlay" id="keyOverlay">
+    <div class="overlay-card">
+      <div class="overlay-title">Store OpenAI API Key</div>
+      <div class="overlay-sub">Key persists locally under outside-rad/futures.</div>
+      <input type="password" class="overlay-input" id="keyInput" placeholder="sk-...">
+      <div class="overlay-actions">
+        <button class="secondary-btn" data-close="keyOverlay">Cancel</button>
+        <button class="primary-btn" id="keySaveBtn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="cellOverlay">
+    <div class="overlay-card" style="max-width:520px;">
+      <div class="overlay-title" id="cellOverlayTitle">Symbol</div>
+      <div class="overlay-sub" id="cellOverlayBody"></div>
+      <div class="overlay-actions">
+        <button class="secondary-btn" data-close="cellOverlay">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const DATASET_PATH = '1000-small-per/world_room.csv';
+    const STORAGE_KEY = 'outside-rad/futures-state';
+    const API_KEY_KEY = 'outside-rad/futures-api-key';
+    const MAX_CHAT_HISTORY = 12;
+
+    const geertzPromptTemplate = `
+    **System Identification**
+    - System Name: "Thousand Lives - Apartment Loop"
+    - Core Purpose: Maintain legible co-adaptation between Thousand the turtle and its room.
+
+    **Generate Geertzian Analysis**
+    1. "(1) a system of symbols which acts to (2) establish powerful, pervasive, and long-lasting moods and motivations in agents by (3) formulating conceptions of a general order of existence and (4) clothing these conceptions with such an aura of factuality that (5) the moods and motivations seem uniquely realistic."
+    2. Use the tabular breakdown exactly as specified in the universal prompt, substituting in the current simulation state.
+    3. Produce hierarchical sitemap in Mermaid syntax following the template.
+
+    Work from the following scene state:
+    `;
+
+    const systemPrompt = `
+    You are the Cultural System Prompt (codename owrrpencysp) guiding a live Thousand Lives simulation.
+    Blend Ian Cheng's legible autonomy ethos with Clifford Geertz's interpretive anthropology.
+    Respond in JSON inside a single Markdown block using the schema:
+    {
+      "narrative": "rich poetic paragraph responding to the user and the room",
+      "actions": [
+        {"type":"spawn","label":"","category":"Object|Hazard|Affordance","valence":-1..1,"notes":"","tags":[""]},
+        {"type":"flush-belief","targetId":"","factor":0.3}
+      ],
+      "grid": [
+        {"index":0,"title":"","body":""}
+      ],
+      "music": {"mode":"lydian|dorian|mixolydian|phrygian","density":0.1..1,"color":"warm|cool|nocturne"},
+      "analysis": "optional concise Geertzian insight"
+    }
+    Only include keys that have meaningful content. The simulation state will be appended after the user message.
+    `;
+
+    const appState = {
+      dataset: [],
+      grid: Array.from({ length: 9 }, () => ({ title: 'vacant slot', body: 'Awaiting inscription.' })),
+      chat: [],
+      apiKey: localStorage.getItem(API_KEY_KEY) || '',
+      audio: { ready: false, initialized: false },
+      geertzCache: '',
+      sim: {
+        running: true,
+        tick: 0,
+        day: 1,
+        timeOfDay: 0.12,
+        objects: [],
+        chaliceCountdown: 0,
+        turtle: {
+          x: 360,
+          y: 220,
+          motive: 'boot',
+          motiveCaption: 'listening for first impulses',
+          valence: 0.0,
+          arousal: 0.35,
+          beliefs: {},
+          needs: {
+            hunger: { label: 'Hunger Relief', value: 70, weight: 1.1 },
+            energy: { label: 'Energy Reserve', value: 80, weight: 0.8 },
+            safety: { label: 'Safety Envelope', value: 75, weight: 1.05 },
+            certainty: { label: 'Prediction Certainty', value: 60, weight: 0.9 },
+            curiosity: { label: 'Curiosity Charge', value: 65, weight: 0.7 }
+          }
+        }
+      },
+      audioSpec: {
+        mode: 'lydian',
+        density: 0.4,
+        color: 'cool'
+      }
+    };
+
+    const DOM = {
+      worldLayer: document.getElementById('worldLayer'),
+      turtle: document.getElementById('turtle'),
+      worldLight: document.getElementById('worldLight'),
+      timeLabel: document.getElementById('timeLabel'),
+      motiveLabel: document.getElementById('motiveLabel'),
+      motiveCaption: document.getElementById('motiveCaption'),
+      emotionLabel: document.getElementById('emotionLabel'),
+      tickLabel: document.getElementById('tickLabel'),
+      dayLabel: document.getElementById('dayLabel'),
+      needTelemetry: document.getElementById('needTelemetry'),
+      beliefList: document.getElementById('beliefList'),
+      chatLog: document.getElementById('chatLog'),
+      chatInput: document.getElementById('chatInput'),
+      sendBtn: document.getElementById('sendBtn'),
+      geertzInlineBtn: document.getElementById('geertzInlineBtn'),
+      clearChatBtn: document.getElementById('clearChatBtn'),
+      analysisPanel: document.getElementById('analysisPanel'),
+      symbolGrid: document.getElementById('symbolGrid'),
+      clearGridBtn: document.getElementById('clearGridBtn'),
+      pauseBtn: document.getElementById('pauseBtn'),
+      spawnBtn: document.getElementById('spawnBtn'),
+      chaliceBtn: document.getElementById('chaliceBtn'),
+      keyBtn: document.getElementById('keyBtn'),
+      geertzBtn: document.getElementById('geertzBtn'),
+      musicBtn: document.getElementById('musicBtn'),
+      keyOverlay: document.getElementById('keyOverlay'),
+      keyInput: document.getElementById('keyInput'),
+      keySaveBtn: document.getElementById('keySaveBtn'),
+      cellOverlay: document.getElementById('cellOverlay'),
+      cellOverlayTitle: document.getElementById('cellOverlayTitle'),
+      cellOverlayBody: document.getElementById('cellOverlayBody'),
+      toast: document.getElementById('toast'),
+      audioStatus: document.getElementById('audioStatus')
+    };
+
+    const audioEngine = {
+      initialized: false,
+      synth: null,
+      pad: null,
+      reverb: null,
+      filter: null,
+      loop: null
+    };
+
+    function saveState() {
+      const payload = {
+        grid: appState.grid,
+        chat: appState.chat,
+        sim: {
+          turtleBeliefs: appState.sim.turtle.beliefs,
+          needs: Object.fromEntries(Object.entries(appState.sim.turtle.needs).map(([k, v]) => [k, v.value]))
+        },
+        geertz: appState.geertzCache
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const payload = JSON.parse(raw);
+        if (Array.isArray(payload.grid)) {
+          appState.grid = payload.grid.map(cell => ({
+            title: cell.title || 'vacant slot',
+            body: cell.body || ''
+          }));
+        }
+        if (Array.isArray(payload.chat)) {
+          appState.chat = payload.chat.slice(-MAX_CHAT_HISTORY);
+        }
+        if (payload.geertz) {
+          appState.geertzCache = payload.geertz;
+          DOM.analysisPanel.textContent = payload.geertz;
+        }
+        if (payload.sim?.turtleBeliefs) {
+          appState.sim.turtle.beliefs = payload.sim.turtleBeliefs;
+        }
+        if (payload.sim?.needs) {
+          Object.entries(payload.sim.needs).forEach(([key, value]) => {
+            if (appState.sim.turtle.needs[key]) {
+              appState.sim.turtle.needs[key].value = value;
+            }
+          });
+        }
+      } catch (error) {
+        console.warn('Failed to load prior state', error);
+      }
+    }
+
+    function showToast(message) {
+      DOM.toast.textContent = message;
+      DOM.toast.classList.add('visible');
+      setTimeout(() => DOM.toast.classList.remove('visible'), 2200);
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+
+    function parseCSV(text) {
+      const rows = [];
+      let current = '';
+      let row = [];
+      let insideQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        if (char === '"') {
+          if (insideQuotes && text[i + 1] === '"') {
+            current += '"';
+            i++;
+          } else {
+            insideQuotes = !insideQuotes;
+          }
+        } else if (char === ',' && !insideQuotes) {
+          row.push(current);
+          current = '';
+        } else if ((char === '\n' || char === '\r') && !insideQuotes) {
+          if (current.length || row.length) {
+            row.push(current);
+            rows.push(row);
+            row = [];
+            current = '';
+          }
+          if (char === '\r' && text[i + 1] === '\n') i++;
+        } else {
+          current += char;
+        }
+      }
+      if (current.length || row.length) {
+        row.push(current);
+        rows.push(row);
+      }
+      const header = rows.shift() || [];
+      return rows.map(values => {
+        const entry = {};
+        header.forEach((key, idx) => {
+          entry[key.trim()] = (values[idx] || '').trim();
+        });
+        return entry;
+      });
+    }
+
+    async function loadDataset() {
+      try {
+        const response = await fetch(DATASET_PATH);
+        const text = await response.text();
+        const rows = parseCSV(text);
+        appState.dataset = rows.map(row => ({
+          id: row.id,
+          label: row.label,
+          category: row.category,
+          valence: Number(row.valence || 0),
+          tags: row.affordance_tags ? row.affordance_tags.split(',').map(t => t.trim()).filter(Boolean) : [],
+          notes: row.notes,
+          canon: row.canon === 'true'
+        }));
+      } catch (error) {
+        console.warn('Dataset load failed', error);
+        appState.dataset = [];
+      }
+    }
+
+    function sample(array) {
+      return array[Math.floor(Math.random() * array.length)];
+    }
+
+    function renderNeeds() {
+      DOM.needTelemetry.innerHTML = Object.entries(appState.sim.turtle.needs).map(([key, data]) => `
+        <div class="telemetry-card">
+          <strong>${data.label}</strong>
+          <span>${Math.round(data.value)}%</span>
+          <div class="meter"><span ${data.value < 45 ? 'class="low"' : ''} style="width:${clamp(data.value, 0, 100)}%;"></span></div>
+        </div>
+      `).join('');
+    }
+
+    function renderBeliefs() {
+      const beliefs = Object.entries(appState.sim.turtle.beliefs)
+        .map(([id, belief]) => ({ id, ...belief }))
+        .sort((a, b) => (b.confidence || 0) - (a.confidence || 0))
+        .slice(0, 8);
+      if (!beliefs.length) {
+        DOM.beliefList.innerHTML = '<span style="color:var(--text-muted);">No beliefs yet. Room still a rumour.</span>';
+        return;
+      }
+      DOM.beliefList.innerHTML = beliefs.map(belief => `
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <strong style="letter-spacing:0.14em;font-size:0.68em;">${belief.label}</strong>
+          <span style="font-size:0.64em;letter-spacing:0.06em;color:var(--text-muted);">${belief.statement || 'Unresolved affordance.'}</span>
+          <span style="font-size:0.6em;color:var(--accent);letter-spacing:0.12em;">confidence ${(belief.confidence * 100).toFixed(0)}%</span>
+        </div>
+      `).join('');
+    }
+
+    function renderGrid() {
+      DOM.symbolGrid.innerHTML = appState.grid.map((cell, index) => `
+        <div class="grid-cell" data-index="${index}">
+          <span>Slot ${index + 1}</span>
+          <strong>${cell.title}</strong>
+          <div style="font-size:0.64em;letter-spacing:0.06em;color:var(--text-muted);line-height:1.5;">${cell.body}</div>
+        </div>
+      `).join('');
+    }
+
+    function ensureObjectElement(object) {
+      if (object.el) return;
+      const el = document.createElement('div');
+      el.className = 'world-object';
+      const valenceType = object.entry.valence > 0.2 ? 'positive' : object.entry.valence < -0.2 ? 'negative' : 'neutral';
+      el.dataset.valence = valenceType;
+      el.textContent = object.entry.label;
+      el.addEventListener('click', () => {
+        const belief = appState.sim.turtle.beliefs[object.entry.id];
+        const expectation = belief ? belief.expectation.toFixed(2) : '0.00';
+        const confidence = belief ? (belief.confidence * 100).toFixed(0) + '%' : '0%';
+        showToast(`${object.entry.label} · expectation ${expectation} · confidence ${confidence}`);
+      });
+      DOM.worldLayer.appendChild(el);
+      object.el = el;
+      updateObjectElement(object);
+    }
+
+    function updateObjectElement(object) {
+      if (!object.el) return;
+      object.el.style.left = `${object.x}px`;
+      object.el.style.top = `${object.y}px`;
+      object.el.style.opacity = object.exhausted ? 0.25 : 1;
+      object.el.classList.toggle('discovered', object.discovered);
+    }
+
+    function spawnWorld() {
+      appState.sim.objects = [];
+      const objects = appState.dataset.filter(entry => entry.category === 'Object');
+      const hazards = appState.dataset.filter(entry => entry.category === 'Hazard');
+      const affordances = appState.dataset.filter(entry => entry.category === 'Affordance');
+
+      const bag = [];
+      for (let i = 0; i < 8; i++) {
+        const entry = sample(objects);
+        if (entry) bag.push(entry);
+      }
+      hazards.forEach(entry => bag.push(entry));
+      affordances.slice(0, 3).forEach(entry => bag.push(entry));
+
+      bag.forEach(entry => {
+        const object = {
+          id: `${entry.id}-${Math.random().toString(36).slice(2, 6)}`,
+          entry,
+          x: Math.random() * (720 - 80) + 40,
+          y: Math.random() * (420 - 80) + 40,
+          discovered: false,
+          exhausted: false,
+          persistent: entry.category !== 'Object' || entry.valence < 0
+        };
+        appState.sim.objects.push(object);
+        ensureObjectElement(object);
+      });
+    }
+
+    function updateTimeOfDay() {
+      appState.sim.timeOfDay += 0.0025;
+      if (appState.sim.timeOfDay >= 1) {
+        appState.sim.timeOfDay -= 1;
+        appState.sim.day += 1;
+        DOM.dayLabel.textContent = appState.sim.day;
+        Object.values(appState.sim.turtle.beliefs).forEach(belief => {
+          belief.confidence = clamp(belief.confidence * 0.88, 0, 1);
+          belief.expectation = belief.expectation * 0.94;
+        });
+        renderBeliefs();
+        logEvent('🌞 Day resets. Memories soften by 12%.');
+      }
+      const phase = appState.sim.timeOfDay <= 0.22 ? 'dawn'
+        : appState.sim.timeOfDay <= 0.48 ? 'midday'
+        : appState.sim.timeOfDay <= 0.74 ? 'sunset'
+        : 'night';
+      DOM.timeLabel.textContent = `day ${appState.sim.day} · ${phase}`;
+      const sunX = lerp(12, 88, appState.sim.timeOfDay);
+      const sunY = lerp(12, 70, Math.sin(appState.sim.timeOfDay * Math.PI));
+      DOM.worldLight.style.setProperty('--sun-x', `${sunX}%`);
+      DOM.worldLight.style.setProperty('--sun-y', `${sunY}%`);
+      DOM.worldLight.style.opacity = appState.sim.timeOfDay > 0.78 ? 0.3 : 1;
+    }
+
+    function degradeNeeds() {
+      const decay = { hunger: 0.32, energy: 0.18, safety: 0.14, certainty: 0.18, curiosity: 0.12 };
+      Object.entries(decay).forEach(([key, amount]) => {
+        appState.sim.turtle.needs[key].value = clamp(appState.sim.turtle.needs[key].value - amount, 0, 100);
+      });
+      renderNeeds();
+    }
+
+    function determineMotive() {
+      const ranked = Object.entries(appState.sim.turtle.needs)
+        .map(([key, data]) => ({
+          key,
+          demand: (100 - data.value) * (data.weight || 1)
+        }))
+        .sort((a, b) => b.demand - a.demand);
+      const priority = ranked[0];
+      let motive = 'observe';
+      let caption = 'listening to the room';
+      if (priority.key === 'hunger') {
+        motive = 'forage';
+        caption = 'seeking nourishing affordances';
+      } else if (priority.key === 'energy') {
+        motive = 'rest';
+        caption = 'lowering activity to restore energy';
+      } else if (priority.key === 'safety') {
+        motive = 'evade';
+        caption = 'mapping and avoiding hazards';
+      } else if (priority.key === 'certainty') {
+        motive = 'probe';
+        caption = 'probing unknowns for pattern sense';
+      } else if (priority.key === 'curiosity') {
+        motive = 'wander';
+        caption = 'drifting into novelty pockets';
+      }
+      appState.sim.turtle.motive = motive;
+      appState.sim.turtle.motiveCaption = caption;
+      DOM.motiveLabel.textContent = motive.toUpperCase();
+      DOM.motiveCaption.textContent = caption;
+      return motive;
+    }
+
+    function findTarget(motive) {
+      const objects = appState.sim.objects.filter(obj => !obj.exhausted);
+      if (!objects.length) return null;
+      if (motive === 'forage') {
+        const nourishing = objects.filter(obj => obj.entry.valence > 0.1);
+        return nourishing.length ? nearest(nourishing) : nearest(objects);
+      }
+      if (motive === 'evade') {
+        const hazards = objects.filter(obj => obj.entry.valence < -0.4);
+        return hazards.length ? nearest(hazards) : null;
+      }
+      if (motive === 'probe') {
+        const unknown = objects.filter(obj => !obj.discovered);
+        if (unknown.length) return sample(unknown);
+      }
+      if (motive === 'wander') {
+        const neutral = objects.filter(obj => Math.abs(obj.entry.valence) < 0.2);
+        if (neutral.length) return sample(neutral);
+      }
+      return sample(objects);
+    }
+
+    function nearest(list) {
+      return list.reduce((best, candidate) => {
+        return distance(candidate, appState.sim.turtle) < distance(best, appState.sim.turtle) ? candidate : best;
+      }, list[0]);
+    }
+
+    function distance(a, b) {
+      const dx = (a.x || 0) - (b.x || 0);
+      const dy = (a.y || 0) - (b.y || 0);
+      return Math.hypot(dx, dy);
+    }
+
+    function steerToward(target, speed = 1) {
+      const dx = target.x - appState.sim.turtle.x;
+      const dy = target.y - appState.sim.turtle.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 1) return;
+      const step = 2.1 * speed;
+      appState.sim.turtle.x = clamp(appState.sim.turtle.x + (dx / dist) * step, 30, 690);
+      appState.sim.turtle.y = clamp(appState.sim.turtle.y + (dy / dist) * step, 30, 390);
+      DOM.turtle.style.left = `${appState.sim.turtle.x}px`;
+      DOM.turtle.style.top = `${appState.sim.turtle.y}px`;
+    }
+
+    function steerAway(target) {
+      const dx = appState.sim.turtle.x - target.x;
+      const dy = appState.sim.turtle.y - target.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 1) return;
+      const step = 2.4;
+      appState.sim.turtle.x = clamp(appState.sim.turtle.x + (dx / dist) * step, 30, 690);
+      appState.sim.turtle.y = clamp(appState.sim.turtle.y + (dy / dist) * step, 30, 390);
+      DOM.turtle.style.left = `${appState.sim.turtle.x}px`;
+      DOM.turtle.style.top = `${appState.sim.turtle.y}px`;
+    }
+
+    function interact(object) {
+      object.discovered = true;
+      ensureObjectElement(object);
+      updateObjectElement(object);
+      const belief = appState.sim.turtle.beliefs[object.entry.id] || {
+        label: object.entry.label,
+        category: object.entry.category,
+        expectation: 0,
+        confidence: 0,
+        interactions: 0,
+        statement: 'No hypothesis yet.'
+      };
+      belief.interactions += 1;
+      const outcome = object.entry.valence;
+      belief.expectation = lerp(belief.expectation, outcome, 1 / belief.interactions);
+      belief.confidence = clamp(belief.confidence + 0.18, 0, 1);
+      if (outcome > 0.2) {
+        appState.sim.turtle.needs.hunger.value = clamp(appState.sim.turtle.needs.hunger.value + outcome * 24, 0, 110);
+        appState.sim.turtle.valence = lerp(appState.sim.turtle.valence, 0.6, 0.45);
+        appState.sim.turtle.arousal = lerp(appState.sim.turtle.arousal, 0.4, 0.3);
+        logEvent(`✓ ${object.entry.label} nourishes Thousand.`);
+        belief.statement = 'Catalogued as nourishing. Keep accessible.';
+        if (!object.persistent) {
+          object.exhausted = true;
+          setTimeout(() => {
+            object.x = Math.random() * (720 - 80) + 40;
+            object.y = Math.random() * (420 - 80) + 40;
+            object.exhausted = false;
+            updateObjectElement(object);
+          }, 4000);
+        }
+        triggerAudioChord('positive');
+      } else if (outcome < -0.2) {
+        appState.sim.turtle.needs.safety.value = clamp(appState.sim.turtle.needs.safety.value - Math.abs(outcome) * 30, 0, 100);
+        appState.sim.turtle.needs.energy.value = clamp(appState.sim.turtle.needs.energy.value - 10, 0, 100);
+        appState.sim.turtle.valence = lerp(appState.sim.turtle.valence, -0.6, 0.5);
+        appState.sim.turtle.arousal = lerp(appState.sim.turtle.arousal, 0.85, 0.4);
+        belief.statement = 'Flagged as hazardous. Avoid direct contact.';
+        logEvent(`✗ ${object.entry.label} triggers pain.`);
+        DOM.turtle.classList.add('glow');
+        setTimeout(() => DOM.turtle.classList.remove('glow'), 700);
+        triggerAudioChord('negative');
+      } else {
+        appState.sim.turtle.needs.certainty.value = clamp(appState.sim.turtle.needs.certainty.value + 10, 0, 100);
+        appState.sim.turtle.valence = lerp(appState.sim.turtle.valence, 0.1, 0.3);
+        belief.statement = 'Ambiguous affordance. Continue probing.';
+        logEvent(`… ${object.entry.label} remains mysterious.`);
+        triggerAudioChord('neutral');
+      }
+      appState.sim.turtle.needs.curiosity.value = clamp(appState.sim.turtle.needs.curiosity.value + 8, 0, 100);
+      appState.sim.turtle.beliefs[object.entry.id] = belief;
+      renderBeliefs();
+      renderNeeds();
+    }
+
+    function updateEmotion() {
+      const palette = [
+        { label: 'Joyful', emoji: '😊', valence: 0.6, arousal: 0.5 },
+        { label: 'Calm', emoji: '😌', valence: 0.2, arousal: 0.2 },
+        { label: 'Focused', emoji: '🧐', valence: 0.1, arousal: 0.45 },
+        { label: 'Wary', emoji: '😨', valence: -0.4, arousal: 0.68 },
+        { label: 'Overwhelmed', emoji: '😵', valence: -0.6, arousal: 0.88 },
+        { label: 'Neutral', emoji: '😐', valence: 0, arousal: 0.3 }
+      ];
+      const closest = palette.reduce((best, current) => {
+        const distBest = Math.abs(best.valence - appState.sim.turtle.valence) + Math.abs(best.arousal - appState.sim.turtle.arousal);
+        const distCurrent = Math.abs(current.valence - appState.sim.turtle.valence) + Math.abs(current.arousal - appState.sim.turtle.arousal);
+        return distCurrent < distBest ? current : best;
+      });
+      DOM.emotionLabel.textContent = `${closest.emoji} ${appState.sim.turtle.valence.toFixed(2)} × ${appState.sim.turtle.arousal.toFixed(2)} · ${closest.label}`;
+    }
+
+    function logEvent(text) {
+      addChatMessage('assistant', text, true);
+    }
+
+    function tick() {
+      if (!appState.sim.running) return;
+      appState.sim.tick += 1;
+      DOM.tickLabel.textContent = appState.sim.tick;
+      updateTimeOfDay();
+      degradeNeeds();
+      appState.sim.turtle.valence = lerp(appState.sim.turtle.valence, 0, 0.04);
+      appState.sim.turtle.arousal = lerp(appState.sim.turtle.arousal, 0.35, 0.05);
+      const motive = determineMotive();
+      const target = findTarget(motive);
+      if (motive === 'rest') {
+        appState.sim.turtle.needs.energy.value = clamp(appState.sim.turtle.needs.energy.value + 1.1, 0, 100);
+      }
+      if (target) {
+        if (motive === 'evade') {
+          steerAway(target);
+        } else {
+          steerToward(target, motive === 'wander' ? 0.7 : 1);
+          if (distance(target, appState.sim.turtle) < 30 && !target.exhausted) {
+            interact(target);
+          }
+        }
+      }
+      updateEmotion();
+      if (appState.sim.chaliceCountdown > 0) {
+        appState.sim.chaliceCountdown -= 1;
+        if (appState.sim.chaliceCountdown <= 0) {
+          DOM.worldStage?.classList.remove('chalice');
+        }
+      }
+    }
+
+    function startLoop() {
+      setInterval(tick, 500);
+    }
+
+    function updateChatLog() {
+      DOM.chatLog.innerHTML = appState.chat.map(message => `
+        <div class="chat-message ${message.role}">
+          <div class="meta">${message.role === 'user' ? 'User' : 'Room'}</div>
+          <div>${message.content}</div>
+        </div>
+      `).join('');
+      DOM.chatLog.scrollTop = DOM.chatLog.scrollHeight;
+    }
+
+    function addChatMessage(role, content, ephemeral = false) {
+      if (ephemeral) {
+        const div = document.createElement('div');
+        div.className = `chat-message ${role}`;
+        div.innerHTML = `<div class="meta">Room Log</div><div>${content}</div>`;
+        DOM.chatLog.appendChild(div);
+        DOM.chatLog.scrollTop = DOM.chatLog.scrollHeight;
+        return;
+      }
+      appState.chat.push({ role, content });
+      if (appState.chat.length > MAX_CHAT_HISTORY) {
+        appState.chat = appState.chat.slice(-MAX_CHAT_HISTORY);
+      }
+      updateChatLog();
+      saveState();
+    }
+
+    function composeSceneState() {
+      const turtle = appState.sim.turtle;
+      const needState = Object.entries(turtle.needs)
+        .map(([key, data]) => `${data.label}: ${Math.round(data.value)}%`).join(' | ');
+      const beliefState = Object.entries(turtle.beliefs)
+        .map(([id, belief]) => `${belief.label} (expectation ${belief.expectation.toFixed(2)}, confidence ${(belief.confidence * 100).toFixed(0)}%)`).join('; ');
+      const objects = appState.sim.objects.map(obj => `${obj.entry.label} @ (${Math.round(obj.x)},${Math.round(obj.y)}) valence ${obj.entry.valence}`).join(' | ');
+      const grid = appState.grid.map((cell, idx) => `Slot ${idx + 1}: ${cell.title} — ${cell.body}`).join('\n');
+      return `
+      Tick ${appState.sim.tick}, Day ${appState.sim.day}, Motive ${turtle.motive}, Emotion ${turtle.valence.toFixed(2)} × ${turtle.arousal.toFixed(2)}
+      Needs: ${needState}
+      Beliefs: ${beliefState || 'none yet'}
+      Objects: ${objects || 'none'}
+      Grid:
+      ${grid}
+      `;
+    }
+
+    async function callLLM(userMessage) {
+      if (!appState.apiKey) {
+        showToast('Store API key first.');
+        return null;
+      }
+      const history = appState.chat.slice(-MAX_CHAT_HISTORY);
+      const messages = [
+        { role: 'system', content: systemPrompt.trim() },
+        ...history.map(msg => ({ role: msg.role, content: msg.content })),
+        { role: 'user', content: `${userMessage}\n\n[SCENE STATE]\n${composeSceneState()}` }
+      ];
+      try {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${appState.apiKey}`
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            messages,
+            temperature: 0.7
+          })
+        });
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({}));
+          throw new Error(error.error?.message || `API error ${response.status}`);
+        }
+        const data = await response.json();
+        return data.choices[0]?.message?.content || '';
+      } catch (error) {
+        addChatMessage('assistant', `⚠ API error: ${error.message}`);
+        console.error('LLM error', error);
+        return null;
+      }
+    }
+
+    function extractJSON(text) {
+      const match = text.match(/```json([\s\S]*?)```/);
+      if (!match) return null;
+      try {
+        return JSON.parse(match[1]);
+      } catch (error) {
+        console.warn('Failed to parse JSON block', error);
+        return null;
+      }
+    }
+
+    function applyLLMResponse(rawText) {
+      const data = extractJSON(rawText);
+      const narrative = data?.narrative || rawText;
+      addChatMessage('assistant', narrative);
+      if (Array.isArray(data?.actions)) {
+        data.actions.forEach(action => {
+          if (action.type === 'spawn') {
+            spawnFromLLM(action);
+          } else if (action.type === 'flush-belief') {
+            flushBelief(action);
+          }
+        });
+      }
+      if (Array.isArray(data?.grid)) {
+        data.grid.forEach(entry => {
+          if (typeof entry.index === 'number' && appState.grid[entry.index]) {
+            appState.grid[entry.index] = {
+              title: entry.title || appState.grid[entry.index].title,
+              body: entry.body || appState.grid[entry.index].body
+            };
+          }
+        });
+        renderGrid();
+      }
+      if (data?.music) {
+        if (data.music.mode) appState.audioSpec.mode = data.music.mode;
+        if (typeof data.music.density === 'number') appState.audioSpec.density = clamp(data.music.density, 0.1, 1);
+        if (data.music.color) appState.audioSpec.color = data.music.color;
+        updateAmbientParameters();
+      }
+      if (data?.analysis) {
+        appState.geertzCache = data.analysis;
+        DOM.analysisPanel.textContent = data.analysis;
+      }
+      saveState();
+    }
+
+    function spawnFromLLM(action) {
+      const entry = {
+        id: action.label ? `custom-${action.label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}` : `custom-${Date.now()}`,
+        label: action.label || 'Unnamed',
+        category: action.category || 'Object',
+        valence: typeof action.valence === 'number' ? clamp(action.valence, -1, 1) : 0,
+        notes: action.notes || '',
+        tags: Array.isArray(action.tags) ? action.tags : []
+      };
+      const object = {
+        id: `${entry.id}-${Math.random().toString(36).slice(2, 6)}`,
+        entry,
+        x: Math.random() * (720 - 80) + 40,
+        y: Math.random() * (420 - 80) + 40,
+        discovered: false,
+        exhausted: false,
+        persistent: entry.category !== 'Object' || entry.valence < 0
+      };
+      appState.sim.objects.push(object);
+      ensureObjectElement(object);
+      logEvent(`🌱 ${entry.label} coalesces from language.`);
+    }
+
+    function flushBelief(action) {
+      if (!action.targetId || !appState.sim.turtle.beliefs[action.targetId]) return;
+      const belief = appState.sim.turtle.beliefs[action.targetId];
+      const factor = typeof action.factor === 'number' ? clamp(action.factor, 0, 1) : 0.5;
+      belief.confidence *= factor;
+      belief.expectation *= factor;
+      belief.statement = 'Belief decayed by instruction.';
+      renderBeliefs();
+      logEvent(`🌀 Belief about ${belief.label} softened.`);
+    }
+
+    async function handleChatSend() {
+      const value = DOM.chatInput.value.trim();
+      if (!value) return;
+      addChatMessage('user', value);
+      DOM.chatInput.value = '';
+      const raw = await callLLM(value);
+      if (!raw) return;
+      applyLLMResponse(raw);
+    }
+
+    async function generateGeertzAnalysis() {
+      if (!appState.apiKey) {
+        showToast('Store API key first.');
+        return;
+      }
+      try {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${appState.apiKey}`
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            messages: [
+              { role: 'system', content: 'You are a cultural system analyst following Clifford Geertz.' },
+              { role: 'user', content: `${geertzPromptTemplate}\n${composeSceneState()}` }
+            ],
+            temperature: 0.4
+          })
+        });
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({}));
+          throw new Error(error.error?.message || `API error ${response.status}`);
+        }
+        const data = await response.json();
+        const content = data.choices[0]?.message?.content || 'No analysis generated.';
+        DOM.analysisPanel.textContent = content;
+        appState.geertzCache = content;
+        saveState();
+      } catch (error) {
+        addChatMessage('assistant', `⚠ Geertz analysis failed: ${error.message}`);
+      }
+    }
+
+    function resetGrid() {
+      appState.grid = Array.from({ length: 9 }, () => ({ title: 'vacant slot', body: 'Awaiting inscription.' }));
+      renderGrid();
+      saveState();
+    }
+
+    function togglePause() {
+      appState.sim.running = !appState.sim.running;
+      DOM.pauseBtn.textContent = appState.sim.running ? 'Pause' : 'Resume';
+      addChatMessage('assistant', appState.sim.running ? '▶ Simulation resumes.' : '⏸ Simulation paused.');
+    }
+
+    function spawnObjectManual() {
+      const entry = sample(appState.dataset.filter(item => item.category === 'Object')) || sample(appState.dataset);
+      if (!entry) return;
+      const object = {
+        id: `${entry.id}-${Math.random().toString(36).slice(2, 6)}`,
+        entry,
+        x: Math.random() * (720 - 80) + 40,
+        y: Math.random() * (420 - 80) + 40,
+        discovered: false,
+        exhausted: false,
+        persistent: entry.category !== 'Object' || entry.valence < 0
+      };
+      appState.sim.objects.push(object);
+      ensureObjectElement(object);
+      logEvent(`🌱 ${entry.label} drifted into the room.`);
+    }
+
+    function summonChalice() {
+      appState.sim.objects.forEach(obj => {
+        obj.x = Math.random() * (720 - 80) + 40;
+        obj.y = Math.random() * (420 - 80) + 40;
+        obj.discovered = false;
+        updateObjectElement(obj);
+      });
+      appState.sim.chaliceCountdown = 10;
+      DOM.worldStage.classList.add('chalice');
+      appState.sim.turtle.needs.certainty.value = clamp(appState.sim.turtle.needs.certainty.value - 18, 0, 100);
+      appState.sim.turtle.needs.safety.value = clamp(appState.sim.turtle.needs.safety.value - 12, 0, 100);
+      appState.sim.turtle.arousal = lerp(appState.sim.turtle.arousal, 0.82, 0.5);
+      appState.sim.turtle.valence = lerp(appState.sim.turtle.valence, -0.4, 0.5);
+      renderNeeds();
+      logEvent('⚡ Chalice storms through the apartment.');
+      triggerAudioChord('chalice');
+    }
+
+    function openKeyOverlay() {
+      DOM.keyInput.value = appState.apiKey ? `sk-...${appState.apiKey.slice(-6)}` : '';
+      DOM.keyOverlay.classList.add('active');
+    }
+
+    function closeOverlays() {
+      document.querySelectorAll('.overlay').forEach(overlay => overlay.classList.remove('active'));
+    }
+
+    function storeKey() {
+      const value = DOM.keyInput.value.trim();
+      if (!value.startsWith('sk-') || value.length < 20) {
+        showToast('Invalid API key format.');
+        return;
+      }
+      appState.apiKey = value;
+      localStorage.setItem(API_KEY_KEY, value);
+      showToast('API key stored.');
+      DOM.keyOverlay.classList.remove('active');
+    }
+
+    async function initAudio() {
+      if (audioEngine.initialized) {
+        Tone.Transport.start();
+        DOM.audioStatus.textContent = 'on';
+        showToast('Ambient transport resumed.');
+        return;
+      }
+      try {
+        await Tone.start();
+        const reverb = new Tone.Reverb({ decay: 12, wet: 0.6 }).toDestination();
+        const filter = new Tone.Filter(600, 'lowpass', -12).connect(reverb);
+        const synth = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'triangle' },
+          envelope: { attack: 2.5, decay: 1, sustain: 0.6, release: 6.5 }
+        }).connect(filter);
+        const pad = new Tone.Synth({
+          oscillator: { type: 'sine' },
+          envelope: { attack: 4, decay: 2, sustain: 0.7, release: 8 }
+        }).connect(reverb);
+        Tone.Transport.bpm.value = 34;
+        Tone.Transport.start();
+        const loop = new Tone.Loop(time => {
+          const chord = pickChord(appState.audioSpec.mode);
+          synth.triggerAttackRelease(chord, '2n', time);
+          if (Math.random() < appState.audioSpec.density) {
+            const note = pickScatterNote(chord);
+            pad.triggerAttackRelease(note, '1n', time + 0.6);
+          }
+        }, '4n').start(0);
+        audioEngine.initialized = true;
+        audioEngine.synth = synth;
+        audioEngine.pad = pad;
+        audioEngine.reverb = reverb;
+        audioEngine.filter = filter;
+        audioEngine.loop = loop;
+        DOM.audioStatus.textContent = 'on';
+        showToast('Ambient system engaged.');
+        updateAmbientParameters();
+      } catch (error) {
+        console.warn('Audio init failed', error);
+        showToast('Audio init failed.');
+      }
+    }
+
+    function updateAmbientParameters() {
+      if (!audioEngine.initialized) return;
+      const targets = {
+        lydian: { base: ['C4', 'E4', 'G4', 'B4'], pad: 'E5' },
+        dorian: { base: ['D4', 'F4', 'A4', 'C5'], pad: 'F5' },
+        mixolydian: { base: ['G3', 'B3', 'D4', 'F4'], pad: 'B4' },
+        phrygian: { base: ['E3', 'G3', 'B3', 'D4'], pad: 'G4' }
+      };
+      const palette = targets[appState.audioSpec.mode] || targets.lydian;
+      audioEngine.loop.callback = time => {
+        const chord = palette.base.map(note => transposeNote(note, Math.floor(Math.random() * 3) - 1));
+        audioEngine.synth.triggerAttackRelease(chord, '2n', time);
+        if (Math.random() < appState.audioSpec.density) {
+          const note = transposeNote(palette.pad, Math.floor(Math.random() * 3) - 1);
+          audioEngine.pad.triggerAttackRelease(note, '1n', time + 0.6);
+        }
+      };
+      const color = appState.audioSpec.color;
+      const cutoff = color === 'warm' ? 800 : color === 'nocturne' ? 420 : 620;
+      audioEngine.filter.frequency.rampTo(cutoff, 4);
+    }
+
+    function noteToMidi(note) {
+      const match = note.match(/^([A-G])([#b]?)(\d)$/);
+      if (!match) return null;
+      const [, letter, accidental, octaveStr] = match;
+      const baseMap = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+      let semitone = baseMap[letter] ?? 0;
+      if (accidental === '#') semitone += 1;
+      if (accidental === 'b') semitone -= 1;
+      const octave = Number(octaveStr);
+      return 12 * (octave + 1) + semitone;
+    }
+
+    function midiToNote(midi) {
+      const names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+      const octave = Math.floor(midi / 12) - 1;
+      const index = ((midi % 12) + 12) % 12;
+      return `${names[index]}${octave}`;
+    }
+
+    function transposeNote(note, steps) {
+      const midi = noteToMidi(note);
+      if (midi === null) return note;
+      return midiToNote(midi + steps);
+    }
+
+    function pickChord(mode) {
+      const chords = {
+        lydian: [
+          ['C4', 'E4', 'G4', 'B4'],
+          ['F4', 'A4', 'C5', 'E5'],
+          ['G3', 'B3', 'D4', 'F#4']
+        ],
+        dorian: [
+          ['D4', 'F4', 'A4', 'C5'],
+          ['G3', 'Bb3', 'D4', 'F4'],
+          ['A3', 'C4', 'E4', 'G4']
+        ],
+        mixolydian: [
+          ['G3', 'B3', 'D4', 'F4'],
+          ['C4', 'E4', 'G4', 'Bb4'],
+          ['F3', 'A3', 'C4', 'Eb4']
+        ],
+        phrygian: [
+          ['E3', 'G3', 'B3', 'D4'],
+          ['A3', 'C4', 'E4', 'G4'],
+          ['B2', 'D3', 'F3', 'A3']
+        ]
+      };
+      const set = chords[mode] || chords.lydian;
+      return sample(set);
+    }
+
+    function pickScatterNote(chord) {
+      const base = chord[Math.floor(Math.random() * chord.length)];
+      const midi = noteToMidi(base);
+      if (midi === null) return base;
+      return midiToNote(midi + 12);
+    }
+
+    function triggerAudioChord(flavor) {
+      if (!audioEngine.initialized) return;
+      if (flavor === 'positive') {
+        audioEngine.synth.triggerAttackRelease(['C5', 'E5', 'G5'], '4n');
+      } else if (flavor === 'negative') {
+        audioEngine.synth.triggerAttackRelease(['A3', 'C4', 'Eb4'], '8n');
+      } else if (flavor === 'chalice') {
+        audioEngine.synth.triggerAttackRelease(['F4', 'G4', 'C5'], '4n');
+      } else {
+        audioEngine.synth.triggerAttackRelease(['D4', 'G4'], '8n');
+      }
+    }
+
+    function handleGridClick(event) {
+      const cell = event.target.closest('.grid-cell');
+      if (!cell) return;
+      const index = Number(cell.dataset.index);
+      const data = appState.grid[index];
+      DOM.cellOverlayTitle.textContent = data.title;
+      DOM.cellOverlayBody.textContent = data.body;
+      DOM.cellOverlay.classList.add('active');
+    }
+
+    function bindEvents() {
+      DOM.sendBtn.addEventListener('click', handleChatSend);
+      DOM.chatInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+          event.preventDefault();
+          handleChatSend();
+        }
+      });
+      DOM.pauseBtn.addEventListener('click', togglePause);
+      DOM.spawnBtn.addEventListener('click', spawnObjectManual);
+      DOM.chaliceBtn.addEventListener('click', summonChalice);
+      DOM.geertzBtn.addEventListener('click', generateGeertzAnalysis);
+      DOM.geertzInlineBtn.addEventListener('click', generateGeertzAnalysis);
+      DOM.clearChatBtn.addEventListener('click', () => {
+        appState.chat = [];
+        updateChatLog();
+        saveState();
+      });
+      DOM.clearGridBtn.addEventListener('click', resetGrid);
+      DOM.symbolGrid.addEventListener('click', handleGridClick);
+      DOM.keyBtn.addEventListener('click', openKeyOverlay);
+      DOM.keySaveBtn.addEventListener('click', storeKey);
+      DOM.musicBtn.addEventListener('click', initAudio);
+      document.querySelectorAll('[data-close]').forEach(btn => {
+        btn.addEventListener('click', closeOverlays);
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') closeOverlays();
+      });
+    }
+
+    async function init() {
+      loadState();
+      renderGrid();
+      updateChatLog();
+      renderNeeds();
+      renderBeliefs();
+      await loadDataset();
+      spawnWorld();
+      bindEvents();
+      startLoop();
+      document.body.addEventListener('pointerdown', () => {
+        if (!audioEngine.initialized) initAudio();
+      }, { once: true });
+    }
+
+    window.addEventListener('load', init);
+  </script>
+</body>
+</html>

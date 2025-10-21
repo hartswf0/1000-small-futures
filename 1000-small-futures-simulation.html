@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>1000 Small Futures — Living Simulation</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='70' font-size='72'>🐢</text></svg>">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --bg: #040f0e;
+      --panel: rgba(7, 24, 21, 0.92);
+      --panel-dark: rgba(5, 18, 16, 0.96);
+      --border: rgba(38, 82, 72, 0.6);
+      --border-strong: rgba(86, 255, 159, 0.32);
+      --text: #9afcc7;
+      --text-muted: rgba(154, 252, 199, 0.6);
+      --accent: #4cffb1;
+      --accent-soft: rgba(76, 255, 177, 0.12);
+      --accent-glow: rgba(76, 255, 177, 0.35);
+      --danger: #ff6e8c;
+      --warning: #ffce63;
+      --success: #9effa7;
+      --shadow: rgba(0, 0, 0, 0.45);
+      --column-width: min(100vw, 420px);
+      --world-width: 720px;
+      --world-height: 460px;
+    }
+
+    body {
+      font-family: 'Courier New', Courier, monospace;
+      background: radial-gradient(circle at 50% -20%, rgba(76, 255, 177, 0.08), transparent 55%), var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow: hidden;
+      font-size: clamp(10px, 2vw, 13px);
+    }
+
+    .app-shell {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+
+    header {
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, rgba(12, 40, 33, 0.85), rgba(5, 18, 16, 0.85));
+      box-shadow: 0 4px 12px var(--shadow);
+      position: relative;
+      z-index: 3;
+    }
+
+    header h1 {
+      font-size: clamp(11px, 3vw, 14px);
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    header h1 span {
+      display: inline-block;
+      padding: 5px 7px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: rgba(76, 255, 177, 0.08);
+      font-size: 0.86em;
+    }
+
+    header nav {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    button {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: rgba(8, 32, 24, 0.8);
+      color: var(--text);
+      padding: 8px 14px;
+      font-family: inherit;
+      font-size: 0.78em;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(4px);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(76, 255, 177, 0.18);
+      border-color: var(--accent);
+    }
+
+    button.danger {
+      border-color: rgba(255, 110, 140, 0.4);
+      color: #ff8ca1;
+    }
+
+    .scroll-container {
+      display: flex;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      gap: 1px;
+      flex: 1;
+      background: rgba(3, 12, 9, 0.76);
+    }
+
+    .scroll-container::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .scroll-container::-webkit-scrollbar-track {
+      background: rgba(8, 28, 21, 0.6);
+    }
+
+    .scroll-container::-webkit-scrollbar-thumb {
+      background: rgba(76, 255, 177, 0.25);
+      border-radius: 3px;
+    }
+
+    .channel-column {
+      flex: 0 0 var(--column-width);
+      max-width: var(--column-width);
+      min-width: 280px;
+      height: calc(100dvh - 70px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+      background: var(--panel-dark);
+      border-right: 1px solid rgba(76, 255, 177, 0.08);
+      display: flex;
+      flex-direction: column;
+      scroll-snap-align: start;
+      backdrop-filter: blur(6px);
+      position: relative;
+    }
+
+    .channel-head {
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid rgba(76, 255, 177, 0.14);
+      background: linear-gradient(135deg, rgba(6, 26, 22, 0.92), rgba(4, 17, 15, 0.92));
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .channel-head h2 {
+      font-size: 0.82em;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .channel-head .lineage {
+      font-size: 0.72em;
+      color: var(--text-muted);
+      letter-spacing: 0.18em;
+    }
+
+    .channel-body {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .channel-body::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .channel-body::-webkit-scrollbar-thumb {
+      background: rgba(76, 255, 177, 0.22);
+      border-radius: 3px;
+    }
+
+    .panel {
+      border: 1px solid rgba(76, 255, 177, 0.18);
+      border-radius: 10px;
+      background: rgba(4, 20, 17, 0.76);
+      box-shadow: inset 0 0 0 1px rgba(76, 255, 177, 0.06), 0 8px 24px rgba(0, 0, 0, 0.38);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+    }
+
+    .panel h3 {
+      font-size: 0.76em;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .panel h3 span {
+      font-size: 0.7em;
+      color: var(--text-muted);
+      margin-left: 10px;
+    }
+
+    .world-wrapper {
+      position: relative;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 6px;
+    }
+
+    .world-stage {
+      width: min(100%, var(--world-width));
+      height: min(60vh, var(--world-height));
+      aspect-ratio: 16 / 10;
+      border-radius: 18px;
+      border: 1px solid rgba(76, 255, 177, 0.22);
+      background: linear-gradient(160deg, rgba(27, 56, 48, 0.8), rgba(7, 19, 15, 0.95));
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(154, 252, 199, 0.05), 0 18px 42px rgba(0, 0, 0, 0.5);
+    }
+
+    .world-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(76, 255, 177, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(76, 255, 177, 0.05) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+
+    .world-layer {
+      position: absolute;
+      inset: 0;
+    }
+
+    .world-light {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      mix-blend-mode: screen;
+      background: radial-gradient(circle at var(--sun-x, 60%) var(--sun-y, 20%), rgba(76, 255, 177, 0.18), transparent 55%);
+      transition: background 1.2s ease;
+    }
+
+    .turtle {
+      position: absolute;
+      width: 46px;
+      height: 46px;
+      border-radius: 52% 54% 44% 45%;
+      background: radial-gradient(circle at 45% 35%, rgba(132, 255, 192, 0.32), transparent 55%), #133a2f;
+      border: 3px solid rgba(76, 255, 177, 0.4);
+      box-shadow: 0 0 12px rgba(76, 255, 177, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 0.58em;
+      color: rgba(154, 252, 199, 0.9);
+      transform: translate(-50%, -50%);
+      transition: transform 0.2s ease;
+      pointer-events: none;
+    }
+
+    .turtle::after {
+      content: 'Thousand';
+      position: absolute;
+      top: -22px;
+      font-size: 0.68em;
+      letter-spacing: 0.16em;
+      color: rgba(154, 252, 199, 0.65);
+    }
+
+    .turtle.glow {
+      animation: turtleGlow 1.2s ease;
+    }
+
+    @keyframes turtleGlow {
+      0%, 100% { box-shadow: 0 0 12px rgba(76, 255, 177, 0.35); }
+      50% { box-shadow: 0 0 32px rgba(255, 110, 140, 0.45); }
+    }
+
+    .world-object {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 0.68em;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: opacity 0.6s ease, transform 0.45s ease;
+      white-space: nowrap;
+      cursor: pointer;
+      background: rgba(6, 24, 18, 0.8);
+      border: 1px solid rgba(76, 255, 177, 0.16);
+      color: rgba(154, 252, 199, 0.75);
+    }
+
+    .world-object[data-valence="positive"] {
+      border-color: rgba(158, 255, 167, 0.45);
+      color: rgba(158, 255, 167, 0.82);
+      background: rgba(14, 46, 28, 0.75);
+      box-shadow: 0 8px 18px rgba(76, 255, 177, 0.2);
+    }
+
+    .world-object[data-valence="negative"] {
+      border-color: rgba(255, 110, 140, 0.4);
+      color: rgba(255, 158, 182, 0.82);
+      background: rgba(36, 10, 18, 0.76);
+      box-shadow: 0 10px 22px rgba(255, 110, 140, 0.2);
+    }
+
+    .world-object[data-valence="neutral"] {
+      border-style: dashed;
+      color: rgba(154, 252, 199, 0.6);
+      background: rgba(8, 24, 19, 0.7);
+    }
+
+    .world-object.discovered::after {
+      content: '◎';
+      margin-left: 6px;
+      color: rgba(76, 255, 177, 0.6);
+    }
+
+    .world-object.hazard::before {
+      content: '⚠';
+      margin-right: 6px;
+      color: rgba(255, 110, 140, 0.8);
+    }
+
+    .hud-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 14px;
+    }
+
+    .hud-tile {
+      border: 1px solid rgba(76, 255, 177, 0.14);
+      border-radius: 8px;
+      padding: 12px;
+      background: rgba(5, 22, 18, 0.72);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .hud-label {
+      font-size: 0.7em;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .hud-value {
+      font-size: 1.28em;
+      letter-spacing: 0.12em;
+    }
+
+    .meter {
+      position: relative;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(76, 255, 177, 0.08);
+      overflow: hidden;
+    }
+
+    .meter span {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, rgba(76, 255, 177, 0.85), rgba(30, 120, 92, 0.9));
+      transition: width 0.45s ease;
+      width: 0%;
+    }
+
+    .meter span.low {
+      background: linear-gradient(90deg, rgba(255, 110, 140, 0.9), rgba(255, 164, 180, 0.85));
+    }
+
+    .motive-banner {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border: 1px solid rgba(76, 255, 177, 0.18);
+      border-radius: 10px;
+      padding: 12px 14px;
+      background: rgba(8, 28, 22, 0.74);
+    }
+
+    .motive-banner strong {
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      font-size: 0.7em;
+      color: var(--text-muted);
+    }
+
+    .motive-banner .motive {
+      font-size: 1.2em;
+      letter-spacing: 0.28em;
+      color: var(--accent);
+    }
+
+    .emotion-readout {
+      font-size: 1.5em;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(158, 255, 167, 0.76);
+    }
+
+    .telemetry-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .telemetry-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.86em;
+      letter-spacing: 0.06em;
+    }
+
+    .telemetry-item span {
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-size: 0.68em;
+    }
+
+    .belief-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .belief-card {
+      border: 1px solid rgba(76, 255, 177, 0.1);
+      border-radius: 8px;
+      padding: 12px;
+      background: rgba(6, 22, 19, 0.68);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .belief-card header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 0.78em;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(154, 252, 199, 0.8);
+    }
+
+    .belief-card header span {
+      font-size: 0.68em;
+      color: rgba(154, 252, 199, 0.55);
+    }
+
+    .belief-card .confidence {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.74em;
+      letter-spacing: 0.08em;
+      color: rgba(76, 255, 177, 0.78);
+    }
+
+    .belief-card .confidence::before {
+      content: '◎';
+      font-size: 1.1em;
+    }
+
+    .belief-card .notes {
+      font-size: 0.7em;
+      line-height: 1.6;
+      color: rgba(154, 252, 199, 0.58);
+      letter-spacing: 0.05em;
+    }
+
+    .log-feed {
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 10px;
+      font-size: 0.72em;
+      letter-spacing: 0.08em;
+      max-height: 60vh;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    .log-feed::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .log-feed::-webkit-scrollbar-thumb {
+      background: rgba(76, 255, 177, 0.22);
+      border-radius: 999px;
+    }
+
+    .log-entry {
+      border-left: 2px solid rgba(76, 255, 177, 0.28);
+      padding-left: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .log-entry span {
+      color: rgba(154, 252, 199, 0.52);
+      font-size: 0.64em;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .world-index {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .world-index-section {
+      border: 1px solid rgba(76, 255, 177, 0.12);
+      border-radius: 10px;
+      padding: 14px;
+      background: rgba(5, 20, 17, 0.7);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .world-index-section h4 {
+      font-size: 0.74em;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(76, 255, 177, 0.68);
+    }
+
+    .world-index-section ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.66em;
+      letter-spacing: 0.09em;
+      color: rgba(154, 252, 199, 0.7);
+    }
+
+    footer {
+      border-top: 1px solid rgba(76, 255, 177, 0.12);
+      padding: 10px 18px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.7em;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(154, 252, 199, 0.45);
+      background: rgba(4, 18, 16, 0.86);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(4, 18, 16, 0.94);
+      border: 1px solid rgba(76, 255, 177, 0.35);
+      padding: 12px 20px;
+      border-radius: 999px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-size: 0.64em;
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.55);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      z-index: 20;
+    }
+
+    .toast.visible {
+      opacity: 1;
+      transform: translate(-50%, -6px);
+    }
+
+    .chalice-overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(255, 110, 140, 0.08), rgba(6, 22, 19, 0.88));
+      backdrop-filter: blur(2px);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      border-radius: inherit;
+    }
+
+    .chalice-overlay.active {
+      opacity: 1;
+    }
+
+    @media (max-width: 768px) {
+      header nav {
+        gap: 8px;
+      }
+
+      button {
+        padding: 7px 10px;
+        font-size: 0.68em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header>
+      <h1>1000 Small Futures<span>Inferential Apartment Simulator</span></h1>
+      <nav>
+        <button id="pauseBtn">Pause</button>
+        <button id="spawnBtn">Spawn Object</button>
+        <button id="chaliceBtn" class="danger">Summon Chalice</button>
+      </nav>
+    </header>
+
+    <main class="scroll-container">
+      <section class="channel-column">
+        <div class="channel-head">
+          <h2>Channel 01 — Room Pulse</h2>
+          <div class="lineage">world → apartment → affordances</div>
+        </div>
+        <div class="channel-body">
+          <div class="panel">
+            <h3>Habitat Field<span id="timeLabel">day 1 · dawn</span></h3>
+            <div class="world-wrapper">
+              <div class="world-stage" id="worldStage">
+                <div class="chalice-overlay" id="chaliceOverlay"></div>
+                <div class="world-layer world-grid"></div>
+                <div class="world-layer world-light" id="worldLight"></div>
+                <div class="world-layer" id="worldLayer">
+                  <div class="turtle" id="turtle"></div>
+                </div>
+              </div>
+            </div>
+            <div class="telemetry-list">
+              <div class="telemetry-item">
+                <span>Current Motive</span>
+                <strong class="emotion-readout" id="motiveLabel">Booting</strong>
+              </div>
+              <div class="telemetry-item">
+                <span>Valence & Arousal</span>
+                <strong id="emotionLabel">0.00 ⨯ 0.35 · Neutral</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="channel-column">
+        <div class="channel-head">
+          <h2>Channel 02 — Metabolic Ledger</h2>
+          <div class="lineage">turtle → internal drives → regulation</div>
+        </div>
+        <div class="channel-body">
+          <div class="panel">
+            <h3>Needs Stack<span>legibility dashboard</span></h3>
+            <div class="hud-grid">
+              <div class="hud-tile" data-need="hunger">
+                <div class="hud-label">Hunger Relief</div>
+                <div class="hud-value" id="need-hunger-value">--</div>
+                <div class="meter"><span id="need-hunger-bar"></span></div>
+              </div>
+              <div class="hud-tile" data-need="energy">
+                <div class="hud-label">Energy Reserve</div>
+                <div class="hud-value" id="need-energy-value">--</div>
+                <div class="meter"><span id="need-energy-bar"></span></div>
+              </div>
+              <div class="hud-tile" data-need="safety">
+                <div class="hud-label">Safety Envelope</div>
+                <div class="hud-value" id="need-safety-value">--</div>
+                <div class="meter"><span id="need-safety-bar"></span></div>
+              </div>
+              <div class="hud-tile" data-need="certainty">
+                <div class="hud-label">Prediction Certainty</div>
+                <div class="hud-value" id="need-certainty-value">--</div>
+                <div class="meter"><span id="need-certainty-bar"></span></div>
+              </div>
+              <div class="hud-tile" data-need="curiosity">
+                <div class="hud-label">Curiosity Charge</div>
+                <div class="hud-value" id="need-curiosity-value">--</div>
+                <div class="meter"><span id="need-curiosity-bar"></span></div>
+              </div>
+            </div>
+          </div>
+          <div class="panel">
+            <h3>Motive Stack<span>slow cinema of adaptation</span></h3>
+            <div class="motive-banner">
+              <strong>Status</strong>
+              <div class="motive" id="motivePhrase">Awaiting Perception</div>
+              <div class="hud-label">Next micro-intention surfaces every heartbeat.</div>
+            </div>
+            <div class="telemetry-list" id="driveReport"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="channel-column">
+        <div class="channel-head">
+          <h2>Channel 03 — Belief Archive</h2>
+          <div class="lineage">experience → inference → affordance</div>
+        </div>
+        <div class="channel-body">
+          <div class="panel">
+            <h3>Belief Forms<span>confidence drifts in public</span></h3>
+            <div class="belief-list" id="beliefList"></div>
+          </div>
+          <div class="panel">
+            <h3>Event Chorography<span>slow story log</span></h3>
+            <div class="log-feed" id="logFeed"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="channel-column">
+        <div class="channel-head">
+          <h2>Channel 04 — Room Index</h2>
+          <div class="lineage">csv → semantic atlas → cues</div>
+        </div>
+        <div class="channel-body">
+          <div class="panel">
+            <h3>Objects, Hazards & Conditions<span>source: world_room.csv</span></h3>
+            <div class="world-index" id="worldIndex"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div>Thousand Lives Prototype — No fixed endpoint</div>
+      <div>Tick <span id="tickLabel">0</span></div>
+    </footer>
+
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <script>
+    const sim = {
+      running: true,
+      tick: 0,
+      interval: null,
+      dataset: [],
+      world: {
+        width: 720,
+        height: 460,
+        objects: [],
+        chaliceTimeout: 0
+      },
+      turtle: {
+        x: 360,
+        y: 230,
+        speed: 2.2,
+        target: null,
+        motive: 'boot',
+        emotionLabel: 'Neutral',
+        valence: 0.0,
+        arousal: 0.35,
+        beliefs: {},
+        needs: {
+          hunger: { value: 70, label: 'Hunger Relief', description: 'Seek nourishing affordances', weight: 1.0 },
+          energy: { value: 82, label: 'Energy Reserve', description: 'Maintain sufficient rest tone', weight: 0.8 },
+          safety: { value: 74, label: 'Safety Envelope', description: 'Minimize contact with hazards', weight: 1.1 },
+          certainty: { value: 58, label: 'Prediction Certainty', description: 'Reduce expectation error', weight: 0.9 },
+          curiosity: { value: 62, label: 'Curiosity Charge', description: 'Harvest novelty to stay awake', weight: 0.7 }
+        }
+      },
+      timeOfDay: 0.12,
+      day: 1,
+      audio: { ready: false, synth: null },
+      logLimit: 160
+    };
+
+    const DOM = {
+      worldLayer: document.getElementById('worldLayer'),
+      turtle: document.getElementById('turtle'),
+      worldLight: document.getElementById('worldLight'),
+      worldStage: document.getElementById('worldStage'),
+      chaliceOverlay: document.getElementById('chaliceOverlay'),
+      timeLabel: document.getElementById('timeLabel'),
+      motiveLabel: document.getElementById('motiveLabel'),
+      motivePhrase: document.getElementById('motivePhrase'),
+      emotionLabel: document.getElementById('emotionLabel'),
+      driveReport: document.getElementById('driveReport'),
+      beliefList: document.getElementById('beliefList'),
+      logFeed: document.getElementById('logFeed'),
+      worldIndex: document.getElementById('worldIndex'),
+      tickLabel: document.getElementById('tickLabel'),
+      toast: document.getElementById('toast'),
+      pauseBtn: document.getElementById('pauseBtn'),
+      spawnBtn: document.getElementById('spawnBtn'),
+      chaliceBtn: document.getElementById('chaliceBtn')
+    };
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+
+    function formatPercentage(value) {
+      return `${Math.round(value)}%`;
+    }
+
+    function toast(message) {
+      DOM.toast.textContent = message;
+      DOM.toast.classList.add('visible');
+      setTimeout(() => DOM.toast.classList.remove('visible'), 2200);
+    }
+
+    function parseCSV(text) {
+      const rows = [];
+      let current = '';
+      let row = [];
+      let insideQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        if (char === '"') {
+          const next = text[i + 1];
+          if (insideQuotes && next === '"') {
+            current += '"';
+            i++;
+          } else {
+            insideQuotes = !insideQuotes;
+          }
+        } else if (char === ',' && !insideQuotes) {
+          row.push(current);
+          current = '';
+        } else if ((char === '\n' || char === '\r') && !insideQuotes) {
+          if (current.length || row.length) {
+            row.push(current);
+            rows.push(row);
+            row = [];
+            current = '';
+          }
+          if (char === '\r' && text[i + 1] === '\n') i++;
+        } else {
+          current += char;
+        }
+      }
+      if (current.length || row.length) {
+        row.push(current);
+        rows.push(row);
+      }
+      const header = rows.shift();
+      return rows
+        .filter(r => r.some(cell => cell.trim().length))
+        .map(values => {
+          const entry = {};
+          header.forEach((key, idx) => {
+            entry[key.trim()] = (values[idx] ?? '').trim();
+          });
+          return entry;
+        });
+    }
+
+    async function loadDataset() {
+      try {
+        const response = await fetch('1000-small-per/world_room.csv');
+        const text = await response.text();
+        const rows = parseCSV(text);
+        sim.dataset = rows.map(row => ({
+          id: row.id,
+          label: row.label,
+          category: row.category,
+          valence: Number(row.valence || 0),
+          tags: row.affordance_tags ? row.affordance_tags.split(',').map(tag => tag.trim()) : [],
+          canon: row.canon === 'true',
+          quote: row.quote,
+          notes: row.notes
+        }));
+      } catch (error) {
+        console.error('Dataset load failed', error);
+        sim.dataset = [];
+      }
+    }
+
+    function sample(array) {
+      return array[Math.floor(Math.random() * array.length)];
+    }
+
+    function spawnWorld() {
+      sim.world.objects = [];
+      const objectEntries = sim.dataset.filter(entry => entry.category === 'Object');
+      const hazardEntries = sim.dataset.filter(entry => entry.category === 'Hazard');
+
+      const pool = [];
+      for (let i = 0; i < 10; i++) {
+        const entry = sample(objectEntries);
+        if (entry) pool.push(entry);
+      }
+      hazardEntries.forEach(entry => pool.push(entry));
+
+      pool.forEach(entry => {
+        sim.world.objects.push({
+          id: `${entry.id}-${Math.random().toString(36).slice(2, 6)}`,
+          entry,
+          x: Math.random() * (sim.world.width - 80) + 40,
+          y: Math.random() * (sim.world.height - 80) + 40,
+          discovered: false,
+          persistent: entry.category !== 'Object' || entry.valence < 0,
+          exhausted: false
+        });
+      });
+      renderObjects();
+      logEvent('🧭 Habitation field seeded with ambiguous affordances.');
+    }
+
+    function ensureObjectElement(object) {
+      if (object.el) return;
+      const el = document.createElement('div');
+      el.className = 'world-object';
+      el.textContent = object.entry.label;
+      const valenceType = object.entry.valence > 0.2 ? 'positive' : object.entry.valence < -0.2 ? 'negative' : 'neutral';
+      el.dataset.valence = valenceType;
+      if (object.entry.category === 'Hazard') {
+        el.classList.add('hazard');
+      }
+      el.addEventListener('click', (event) => {
+        event.stopPropagation();
+        describeObject(object);
+      });
+      DOM.worldLayer.appendChild(el);
+      object.el = el;
+      updateObjectPosition(object);
+    }
+
+    function updateObjectPosition(object) {
+      if (!object.el) return;
+      object.el.style.left = `${object.x}px`;
+      object.el.style.top = `${object.y}px`;
+      object.el.classList.toggle('discovered', object.discovered);
+      object.el.style.opacity = object.exhausted ? 0.25 : 1;
+    }
+
+    function renderObjects() {
+      DOM.worldLayer.querySelectorAll('.world-object').forEach(el => el.remove());
+      sim.world.objects.forEach(obj => {
+        obj.el = null;
+        ensureObjectElement(obj);
+      });
+    }
+
+    function updateTurtle() {
+      DOM.turtle.style.left = `${sim.turtle.x}px`;
+      DOM.turtle.style.top = `${sim.turtle.y}px`;
+    }
+
+    function describeObject(object) {
+      const belief = sim.turtle.beliefs[object.entry.id];
+      const expectation = belief ? belief.expectation.toFixed(2) : '0.00';
+      const confidence = belief ? (belief.confidence * 100).toFixed(0) + '%' : '0%';
+      toast(`${object.entry.label} · expectation ${expectation} · confidence ${confidence}`);
+    }
+
+    function logEvent(text) {
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      const timeStamp = Math.round(sim.tick / 2);
+      entry.innerHTML = `<span>${String(timeStamp).padStart(4, '0')} s</span>${text}`;
+      DOM.logFeed.appendChild(entry);
+      if (DOM.logFeed.children.length > sim.logLimit) {
+        DOM.logFeed.removeChild(DOM.logFeed.firstChild);
+      }
+    }
+
+    function updateNeedsUI() {
+      Object.entries(sim.turtle.needs).forEach(([key, data]) => {
+        const value = clamp(data.value, 0, 100);
+        const valueEl = document.getElementById(`need-${key}-value`);
+        const barEl = document.getElementById(`need-${key}-bar`);
+        if (!valueEl || !barEl) return;
+        valueEl.textContent = formatPercentage(value);
+        const barWidth = `${value}%`;
+        barEl.style.width = barWidth;
+        if (value < 45) {
+          barEl.classList.add('low');
+        } else {
+          barEl.classList.remove('low');
+        }
+      });
+    }
+
+    function updateDriveReport() {
+      const entries = Object.entries(sim.turtle.needs)
+        .map(([key, data]) => ({
+          key,
+          demand: 100 - clamp(data.value, 0, 100),
+          label: data.label,
+          description: data.description
+        }))
+        .sort((a, b) => b.demand - a.demand);
+      DOM.driveReport.innerHTML = entries.map(entry => `
+        <div class="telemetry-item">
+          <div>
+            <span>${entry.label}</span>
+            <div>${entry.description}</div>
+          </div>
+          <strong>${entry.demand.toFixed(0)} Δ</strong>
+        </div>
+      `).join('');
+    }
+
+    function updateBeliefList() {
+      const beliefs = Object.entries(sim.turtle.beliefs)
+        .map(([id, belief]) => ({ id, ...belief }))
+        .sort((a, b) => b.confidence - a.confidence);
+      DOM.beliefList.innerHTML = beliefs.length
+        ? beliefs.map(belief => `
+            <article class="belief-card">
+              <header>
+                ${belief.label}
+                <span>${belief.category}</span>
+              </header>
+              <div class="confidence">confidence ${(belief.confidence * 100).toFixed(0)}%</div>
+              <div class="notes">${belief.statement}</div>
+            </article>
+          `).join('')
+        : `<div class="hud-label">No beliefs minted yet. The room is still a rumor.</div>`;
+    }
+
+    function updateWorldIndex() {
+      const grouped = sim.dataset.reduce((acc, entry) => {
+        acc[entry.category] = acc[entry.category] || [];
+        acc[entry.category].push(entry);
+        return acc;
+      }, {});
+      DOM.worldIndex.innerHTML = Object.entries(grouped)
+        .map(([category, entries]) => `
+          <section class="world-index-section">
+            <h4>${category}</h4>
+            <ul>
+              ${entries.map(entry => `<li>${entry.label} · ${entry.notes || entry.quote || 'no commentary'}</li>`).join('')}
+            </ul>
+          </section>
+        `).join('');
+    }
+
+    function updateTimeOfDay() {
+      sim.timeOfDay += 0.0028;
+      if (sim.timeOfDay >= 1) {
+        sim.timeOfDay -= 1;
+        sim.day += 1;
+        logEvent(`🌞 Day ${sim.day} begins. 12% beliefs softly decay.`);
+        Object.values(sim.turtle.beliefs).forEach(belief => {
+          belief.confidence = clamp(belief.confidence * 0.88, 0, 1);
+          belief.expectation = belief.expectation * 0.94;
+        });
+        updateBeliefList();
+      }
+      const phaseNames = [
+        { limit: 0.2, label: 'dawn' },
+        { limit: 0.45, label: 'midday' },
+        { limit: 0.7, label: 'sunset' },
+        { limit: 1.0, label: 'night' }
+      ];
+      const phase = phaseNames.find(phase => sim.timeOfDay <= phase.limit) || phaseNames[0];
+      DOM.timeLabel.textContent = `day ${sim.day} · ${phase.label}`;
+      const sunX = lerp(10, 90, sim.timeOfDay);
+      const sunY = lerp(10, 70, Math.sin(sim.timeOfDay * Math.PI));
+      DOM.worldLight.style.setProperty('--sun-x', `${sunX}%`);
+      DOM.worldLight.style.setProperty('--sun-y', `${sunY}%`);
+      DOM.worldLight.style.opacity = sim.timeOfDay > 0.75 ? 0.25 : 1;
+    }
+
+    function degradeNeeds() {
+      const decay = {
+        hunger: 0.35,
+        energy: 0.22,
+        safety: 0.12,
+        certainty: 0.16,
+        curiosity: 0.1
+      };
+      Object.entries(decay).forEach(([key, amount]) => {
+        sim.turtle.needs[key].value = clamp(sim.turtle.needs[key].value - amount, 0, 100);
+      });
+      updateNeedsUI();
+      updateDriveReport();
+    }
+
+    function determineMotive() {
+      const needs = Object.entries(sim.turtle.needs).map(([key, data]) => ({
+        key,
+        score: (100 - data.value) * (data.weight || 1),
+        value: data.value
+      }));
+      needs.sort((a, b) => b.score - a.score);
+      const priority = needs[0];
+      let motive = 'observe';
+      let phrase = 'listening to the room';
+      if (priority.key === 'hunger') {
+        motive = 'forage';
+        phrase = 'foraging for nourishment';
+      } else if (priority.key === 'energy') {
+        motive = 'rest';
+        phrase = 'finding a low-energy posture';
+      } else if (priority.key === 'safety') {
+        motive = 'evade';
+        phrase = 'triangulating hazards';
+      } else if (priority.key === 'certainty') {
+        motive = 'probe';
+        phrase = 'probing unknown affordances';
+      } else if (priority.key === 'curiosity') {
+        motive = 'wander';
+        phrase = 'wandering toward novelty';
+      }
+      sim.turtle.motive = motive;
+      DOM.motiveLabel.textContent = motive.toUpperCase();
+      DOM.motivePhrase.textContent = phrase.toUpperCase();
+      return motive;
+    }
+
+    function findTargetForMotive(motive) {
+      if (motive === 'forage') {
+        const candidates = sim.world.objects
+          .filter(obj => obj.entry.valence > 0.1 && !obj.exhausted);
+        if (candidates.length) {
+          return candidates.reduce((best, current) => {
+            return distance(current, sim.turtle) < distance(best, sim.turtle) ? current : best;
+          }, candidates[0]);
+        }
+      }
+      if (motive === 'evade') {
+        const hazards = sim.world.objects.filter(obj => obj.entry.valence < -0.4 && !obj.exhausted);
+        if (hazards.length) {
+          return hazards.reduce((best, current) => {
+            return distance(current, sim.turtle) < distance(best, sim.turtle) ? current : best;
+          }, hazards[0]);
+        }
+      }
+      if (motive === 'probe') {
+        const unknown = sim.world.objects.filter(obj => !obj.discovered);
+        if (unknown.length) {
+          return sample(unknown);
+        }
+      }
+      if (motive === 'wander') {
+        const neutral = sim.world.objects.filter(obj => Math.abs(obj.entry.valence) <= 0.2);
+        if (neutral.length) {
+          return sample(neutral);
+        }
+      }
+      return null;
+    }
+
+    function distance(a, b) {
+      const dx = (a.x || 0) - (b.x || 0);
+      const dy = (a.y || 0) - (b.y || 0);
+      return Math.hypot(dx, dy);
+    }
+
+    function steerToward(target, speedMultiplier = 1) {
+      const dx = target.x - sim.turtle.x;
+      const dy = target.y - sim.turtle.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 1) return;
+      sim.turtle.x += (dx / dist) * sim.turtle.speed * speedMultiplier;
+      sim.turtle.y += (dy / dist) * sim.turtle.speed * speedMultiplier;
+      sim.turtle.x = clamp(sim.turtle.x, 30, sim.world.width - 30);
+      sim.turtle.y = clamp(sim.turtle.y, 30, sim.world.height - 30);
+    }
+
+    function steerAway(target) {
+      const dx = sim.turtle.x - target.x;
+      const dy = sim.turtle.y - target.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 1) return;
+      sim.turtle.x += (dx / dist) * sim.turtle.speed * 1.4;
+      sim.turtle.y += (dy / dist) * sim.turtle.speed * 1.4;
+      sim.turtle.x = clamp(sim.turtle.x, 30, sim.world.width - 30);
+      sim.turtle.y = clamp(sim.turtle.y, 30, sim.world.height - 30);
+    }
+
+    function interactWith(object) {
+      object.discovered = true;
+      ensureObjectElement(object);
+      updateObjectPosition(object);
+      const belief = sim.turtle.beliefs[object.entry.id] || {
+        label: object.entry.label,
+        category: object.entry.category,
+        expectation: 0,
+        confidence: 0,
+        interactions: 0,
+        statement: 'No hypothesis yet.'
+      };
+      belief.interactions += 1;
+      const outcome = object.entry.valence;
+      belief.expectation = lerp(belief.expectation, outcome, 1 / belief.interactions);
+      belief.confidence = clamp(belief.confidence + 0.18, 0, 1);
+      if (outcome > 0.2) {
+        sim.turtle.needs.hunger.value = clamp(sim.turtle.needs.hunger.value + 20 * outcome, 0, 110);
+        sim.turtle.valence = lerp(sim.turtle.valence, 0.65, 0.4);
+        sim.turtle.arousal = lerp(sim.turtle.arousal, 0.42, 0.3);
+        logEvent(`✓ ${object.entry.label} tasted nourishing. Belief strengthened.`);
+        if (sim.audio.ready) {
+          sim.audio.synth.triggerAttackRelease(['C4', 'E4', 'G4'], '8n');
+        }
+        belief.statement = 'Categorised as nourishing. Keep nearby.';
+        if (!object.persistent) {
+          object.exhausted = true;
+          setTimeout(() => {
+            object.x = Math.random() * (sim.world.width - 80) + 40;
+            object.y = Math.random() * (sim.world.height - 80) + 40;
+            object.exhausted = false;
+            updateObjectPosition(object);
+          }, 4000);
+        }
+      } else if (outcome < -0.2) {
+        sim.turtle.needs.safety.value = clamp(sim.turtle.needs.safety.value - 22 * Math.abs(outcome), 0, 100);
+        sim.turtle.needs.energy.value = clamp(sim.turtle.needs.energy.value - 12, 0, 100);
+        sim.turtle.valence = lerp(sim.turtle.valence, -0.7, 0.5);
+        sim.turtle.arousal = lerp(sim.turtle.arousal, 0.86, 0.45);
+        DOM.turtle.classList.add('glow');
+        setTimeout(() => DOM.turtle.classList.remove('glow'), 700);
+        logEvent(`✗ ${object.entry.label} caused pain. Hazard flagged.`);
+        if (sim.audio.ready) {
+          sim.audio.synth.triggerAttackRelease(['A3'], '8n');
+        }
+        belief.statement = 'Marked as hazardous. Avoid direct contact.';
+      } else {
+        sim.turtle.needs.certainty.value = clamp(sim.turtle.needs.certainty.value + 8, 0, 100);
+        sim.turtle.valence = lerp(sim.turtle.valence, 0.1, 0.3);
+        logEvent(`… ${object.entry.label} remains ambiguous. Curiosity hums.`);
+        belief.statement = 'Ambiguous affordance. Requires more probes.';
+        if (sim.audio.ready) {
+          sim.audio.synth.triggerAttackRelease(['D4'], '16n');
+        }
+      }
+      sim.turtle.needs.curiosity.value = clamp(sim.turtle.needs.curiosity.value + 6, 0, 100);
+      sim.turtle.needs.certainty.value = clamp(sim.turtle.needs.certainty.value + 12, 0, 100);
+      sim.turtle.beliefs[object.entry.id] = belief;
+      updateBeliefList();
+      updateNeedsUI();
+    }
+
+    function updateEmotionLabel() {
+      const emotionSpace = [
+        { label: 'Joyful', emoji: '😊', valence: 0.6, arousal: 0.5 },
+        { label: 'Calm', emoji: '😌', valence: 0.2, arousal: 0.2 },
+        { label: 'Focused', emoji: '🧐', valence: 0.1, arousal: 0.45 },
+        { label: 'Wary', emoji: '😨', valence: -0.4, arousal: 0.7 },
+        { label: 'Overwhelmed', emoji: '😵', valence: -0.6, arousal: 0.9 },
+        { label: 'Neutral', emoji: '😐', valence: 0, arousal: 0.3 }
+      ];
+      const closest = emotionSpace.reduce((best, current) => {
+        const bestDistance = Math.abs(best.valence - sim.turtle.valence) + Math.abs(best.arousal - sim.turtle.arousal);
+        const currentDistance = Math.abs(current.valence - sim.turtle.valence) + Math.abs(current.arousal - sim.turtle.arousal);
+        return currentDistance < bestDistance ? current : best;
+      });
+      DOM.emotionLabel.textContent = `${closest.emoji}  ${sim.turtle.valence.toFixed(2)} ⨯ ${sim.turtle.arousal.toFixed(2)} · ${closest.label}`;
+    }
+
+    function conjureChalice() {
+      DOM.chaliceOverlay.classList.add('active');
+      sim.world.chaliceTimeout = 6;
+      sim.turtle.needs.certainty.value = clamp(sim.turtle.needs.certainty.value - 18, 0, 100);
+      sim.turtle.needs.safety.value = clamp(sim.turtle.needs.safety.value - 12, 0, 100);
+      sim.turtle.arousal = lerp(sim.turtle.arousal, 0.88, 0.6);
+      sim.turtle.valence = lerp(sim.turtle.valence, -0.4, 0.5);
+      sim.world.objects.forEach(object => {
+        object.x = Math.random() * (sim.world.width - 80) + 40;
+        object.y = Math.random() * (sim.world.height - 80) + 40;
+        updateObjectPosition(object);
+        object.discovered = false;
+      });
+      logEvent('⚡ Chalice disrupts the room. Affordances shuffle.');
+      if (sim.audio.ready) {
+        sim.audio.synth.triggerAttackRelease(['F4', 'G4', 'C5'], '8n');
+      }
+      setTimeout(() => DOM.chaliceOverlay.classList.remove('active'), 1400);
+    }
+
+    function spawnObject() {
+      const entry = sample(sim.dataset.filter(item => item.category === 'Object'));
+      if (!entry) return;
+      const object = {
+        id: `${entry.id}-${Math.random().toString(36).slice(2, 6)}`,
+        entry,
+        x: Math.random() * (sim.world.width - 80) + 40,
+        y: Math.random() * (sim.world.height - 80) + 40,
+        discovered: false,
+        persistent: false,
+        exhausted: false
+      };
+      sim.world.objects.push(object);
+      ensureObjectElement(object);
+      logEvent(`🌱 ${entry.label} arrives. New possible lesson.`);
+      if (sim.audio.ready) {
+        sim.audio.synth.triggerAttackRelease(['E4', 'B4'], '16n');
+      }
+    }
+
+    function tick() {
+      if (!sim.running) return;
+      sim.tick += 1;
+      DOM.tickLabel.textContent = sim.tick;
+      updateTimeOfDay();
+      degradeNeeds();
+      sim.turtle.valence = lerp(sim.turtle.valence, 0, 0.04);
+      sim.turtle.arousal = lerp(sim.turtle.arousal, 0.35, 0.05);
+      const motive = determineMotive();
+      let target = findTargetForMotive(motive);
+      if (motive === 'rest') {
+        sim.turtle.needs.energy.value = clamp(sim.turtle.needs.energy.value + 1.4, 0, 100);
+      } else if (motive === 'observe') {
+        sim.turtle.needs.certainty.value = clamp(sim.turtle.needs.certainty.value + 0.8, 0, 100);
+      }
+      if (target) {
+        if (motive === 'evade') {
+          steerAway(target);
+        } else {
+          steerToward(target, motive === 'wander' ? 0.7 : 1);
+          if (distance(target, sim.turtle) < 30 && !target.exhausted) {
+            interactWith(target);
+          }
+        }
+      } else if (motive === 'wander') {
+        const wanderPoint = {
+          x: clamp(sim.turtle.x + (Math.random() - 0.5) * 150, 30, sim.world.width - 30),
+          y: clamp(sim.turtle.y + (Math.random() - 0.5) * 150, 30, sim.world.height - 30)
+        };
+        steerToward(wanderPoint, 0.5);
+      }
+      updateTurtle();
+      updateEmotionLabel();
+      if (sim.world.chaliceTimeout > 0) {
+        sim.world.chaliceTimeout -= 1;
+        if (sim.world.chaliceTimeout <= 0) {
+          DOM.chaliceOverlay.classList.remove('active');
+        }
+      }
+    }
+
+    async function primeAudio() {
+      if (sim.audio.ready) return;
+      try {
+        await Tone.start();
+        sim.audio.synth = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'triangle' }
+        }).toDestination();
+        sim.audio.synth.volume.value = -18;
+        sim.audio.ready = true;
+        logEvent('🔈 Sonic field primed. Room hum begins.');
+      } catch (error) {
+        console.warn('Audio init error', error);
+      }
+    }
+
+    function bindControls() {
+      DOM.pauseBtn.addEventListener('click', () => {
+        sim.running = !sim.running;
+        DOM.pauseBtn.textContent = sim.running ? 'Pause' : 'Resume';
+        logEvent(sim.running ? '▶ Simulation resumes.' : '⏸ Simulation paused.');
+      });
+      DOM.spawnBtn.addEventListener('click', spawnObject);
+      DOM.chaliceBtn.addEventListener('click', conjureChalice);
+      document.addEventListener('pointerdown', primeAudio, { once: true });
+    }
+
+    async function init() {
+      await loadDataset();
+      updateWorldIndex();
+      spawnWorld();
+      updateTurtle();
+      updateNeedsUI();
+      updateDriveReport();
+      updateBeliefList();
+      updateEmotionLabel();
+      bindControls();
+      sim.interval = setInterval(tick, 480);
+      logEvent('💡 Simulation online. Thousand begins thinking out loud.');
+    }
+
+    window.addEventListener('load', init);
+  </script>
+</body>
+</html>

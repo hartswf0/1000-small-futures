@@ -1,0 +1,122 @@
+
+# Create morphisms.json - Relationships between entities
+morphisms = [
+    {
+        "subj": "person:zoroaster-z",
+        "pred": "created",
+        "obj": "artifact:1000-lives-demo",
+        "evidence": [{
+            "q": "1000 Lives Demo is a failed Wavyverse neural app developed by Zoroaster Immeasurables (ZIM) founder Zoroaster (Z).",
+            "source": "lifeafterbob.wiki/view/1000_Lives_Demo"
+        }],
+        "confidence": 1.0,
+        "canon": True
+    },
+    {
+        "subj": "artifact:1000-lives-demo",
+        "pred": "hosted_on",
+        "obj": "object:turtle-host",
+        "evidence": [{
+            "q": "The 1000 Lives Demo was originally hosted in the brain of a tortoise.",
+            "source": "lifeafterbob.wiki/view/1000_Lives_Demo"
+        }],
+        "confidence": 1.0,
+        "canon": True
+    },
+    {
+        "subj": "person:chalice-wong",
+        "pred": "refactored",
+        "obj": "artifact:1000-lives-demo",
+        "evidence": [{
+            "q": "In 2084, its codebase was refactored by Chalice Wong into a new venture called 1000 Plots.",
+            "source": "lifeafterbob.wiki/view/1000_Lives_Demo"
+        }],
+        "confidence": 1.0,
+        "canon": True
+    },
+    {
+        "subj": "person:chalice-wong",
+        "pred": "created",
+        "obj": "artifact:1000-plots",
+        "evidence": [{
+            "q": "In 2084, its codebase was refactored by Chalice Wong into a new venture called 1000 Plots.",
+            "source": "lifeafterbob.wiki/view/1000_Lives_Demo"
+        }],
+        "confidence": 1.0,
+        "canon": True
+    },
+    {
+        "subj": "artifact:1000-lives-demo",
+        "pred": "trapped",
+        "obj": "person:chalice-wong",
+        "evidence": [{
+            "q": "The demo's buggy security features injured Dr. James Moonweed Wong and trapped the psyche of Chalice Wong for ten years",
+            "source": "lifeafterbob.wiki/view/1000_Lives_Demo"
+        }],
+        "confidence": 1.0,
+        "canon": True
+    },
+    {
+        "subj": "artifact:1000-lives-demo",
+        "pred": "caused",
+        "obj": "event:permadroned-years",
+        "evidence": [{
+            "q": "trapped the psyche of Chalice Wong for ten years ('The Permadroned Years')",
+            "source": "lifeafterbob.wiki/view/1000_Lives_Demo"
+        }],
+        "confidence": 1.0,
+        "canon": True
+    },
+    {
+        "subj": "person:zoroaster-z",
+        "pred": "ousted_after",
+        "obj": "artifact:1000-lives-demo",
+        "evidence": [{
+            "q": "leading to the ousting of Z from ZIM",
+            "source": "lifeafterbob.wiki/view/1000_Lives_Demo"
+        }],
+        "confidence": 1.0,
+        "canon": True
+    },
+    {
+        "subj": "artifact:1000-plots",
+        "pred": "succeeds",
+        "obj": "artifact:1000-lives-demo",
+        "evidence": [{
+            "q": "its codebase was refactored by Chalice Wong into a new venture called 1000 Plots",
+            "source": "lifeafterbob.wiki/view/1000_Lives_Demo"
+        }],
+        "confidence": 1.0,
+        "canon": True
+    },
+    {
+        "subj": "character:thousand-turtle",
+        "pred": "inhabits",
+        "obj": "location:chalice-apartment",
+        "evidence": [{
+            "q": "Thousand Lives is a simulation that dramatises the daily life of Chalice's pet turtle, Thousand",
+            "source": "pilarcorrias.com/exhibitions/350-ian-cheng-thousand-lives"
+        }],
+        "confidence": 1.0,
+        "canon": True
+    },
+    {
+        "subj": "character:thousand-turtle",
+        "pred": "owned_by",
+        "obj": "person:chalice-wong",
+        "evidence": [{
+            "q": "Chalice's pet turtle, Thousand",
+            "source": "pilarcorrias.com/exhibitions/350-ian-cheng-thousand-lives"
+        }],
+        "confidence": 1.0,
+        "canon": True
+    }
+]
+
+# Save morphisms
+with open('morphisms.json', 'w') as f:
+    json.dump(morphisms, f, indent=2)
+
+print(f"morphisms.json created with {len(morphisms)} relationships")
+print("\nSample morphism:")
+print(json.dumps(morphisms[1], indent=2))

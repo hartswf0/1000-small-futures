@@ -1,0 +1,1945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Thousand Lives · GODLEVEL Console</title>
+<style>
+:root {
+  --bg: #020a08;
+  --panel: rgba(4, 18, 14, 0.75);
+  --panel-dark: rgba(3, 14, 11, 0.85);
+  --border: rgba(34, 92, 68, 0.25);
+  --border-strong: rgba(86, 255, 159, 0.22);
+  --text: rgba(154, 212, 178, 0.72);
+  --text-muted: rgba(154, 212, 178, 0.42);
+  --accent: rgba(86, 255, 159, 0.55);
+  --accent-soft: rgba(86, 255, 159, 0.06);
+  --danger: rgba(255, 92, 124, 0.45);
+  --warning: rgba(255, 206, 107, 0.5);
+  --shadow: rgba(0, 0, 0, 0.65);
+  --column-width: min(100vw, 340px);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: radial-gradient(circle at 50% -20%, rgba(86, 255, 159, 0.03), transparent 70%), var(--bg);
+  font-family: 'Courier New', monospace;
+  color: var(--text);
+  min-height: 100vh;
+  overflow: hidden;
+  font-size: clamp(10px, 2.4vw, 12px);
+}
+
+.app-shell {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+header {
+  flex-shrink: 0;
+  padding: 16px 20px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(135deg, rgba(5, 24, 18, 0.9), rgba(4, 18, 14, 0.9));
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  z-index: 2;
+}
+
+header h1 {
+  font-size: clamp(11px, 3vw, 14px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+header h1 span {
+  font-size: 0.78em;
+  color: var(--text-muted);
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--accent-soft);
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: rgba(3, 16, 13, 0.6);
+  color: var(--text);
+  padding: 6px 12px;
+  border-radius: 999px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 0.65em;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-track {
+  background: var(--panel-dark);
+  height: 6px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 8px var(--accent-soft);
+  margin-top: -6px;
+}
+
+input[type="range"]::-moz-range-track {
+  background: var(--panel-dark);
+  height: 6px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 8px var(--accent-soft);
+}
+
+input[type="range"]:active::-webkit-slider-thumb {
+  box-shadow: 0 0 16px var(--accent-glow);
+  transform: scale(1.1);
+}
+
+input[type="range"]:active::-moz-range-thumb {
+  box-shadow: 0 0 16px var(--accent-glow);
+  transform: scale(1.1);
+}
+
+button:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(86, 255, 159, 0.08);
+  opacity: 0.85;
+}
+
+main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+}
+
+main::-webkit-scrollbar {
+  height: 6px;
+}
+
+main::-webkit-scrollbar-thumb {
+  background: rgba(86, 255, 159, 0.2);
+  border-radius: 3px;
+}
+
+.channel {
+  flex: 0 0 var(--column-width);
+  min-width: 290px;
+  max-width: var(--column-width);
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  background: var(--panel-dark);
+  overflow-y: auto;
+  scroll-snap-align: start;
+  backdrop-filter: blur(8px);
+  animation: channelFadeIn 3s ease;
+  opacity: 0.4;
+  transition: opacity 1.5s ease, transform 1.5s ease;
+}
+
+.channel.active {
+  opacity: 1;
+  background: var(--panel);
+  border-right: 2px solid var(--accent);
+  box-shadow: 0 0 40px rgba(86, 255, 159, 0.15);
+}
+
+@keyframes channelFadeIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.channel-header {
+  padding: 20px 22px 16px;
+  border-bottom: 1px solid rgba(86, 255, 159, 0.1);
+}
+
+.channel-header h2 {
+  font-size: 2em;
+  letter-spacing: 0.05em;
+  font-weight: 300;
+  margin-bottom: 4px;
+  color: var(--accent);
+}
+
+.channel-header span {
+  font-size: 0.6em;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.channel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.resize-bar {
+  display: none;
+}
+
+.panels-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background: var(--panel-dark);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.channel-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.channel-body::-webkit-scrollbar-thumb {
+  background: rgba(86, 255, 159, 0.22);
+  border-radius: 3px;
+}
+
+.panel {
+  border: 1px solid rgba(86, 255, 159, 0.1);
+  border-radius: 10px;
+  background: rgba(4, 20, 15, 0.78);
+  box-shadow: inset 0 0 0 1px rgba(86, 255, 159, 0.08), 0 10px 26px rgba(0, 0, 0, 0.45);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.panel h3 {
+  display: none;
+}
+
+.world-stage {
+  position: relative;
+  border-radius: 0;
+  border: 1px solid rgba(86, 255, 159, 0.12);
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  background: linear-gradient(165deg, rgba(12, 32, 26, 0.65), rgba(4, 14, 11, 0.85));
+  box-shadow: inset 0 0 0 1px rgba(86, 255, 159, 0.04), 0 20px 50px rgba(0, 0, 0, 0.75);
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  min-height: 400px;
+  max-height: 60vh;
+  width: 100%;
+  flex-shrink: 0;
+  touch-action: none;
+}
+
+.world-stage.frozen {
+  opacity: 0.65;
+  pointer-events: none;
+  border-color: rgba(86, 255, 159, 0.08);
+  animation: breathe 90s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 0.7; }
+}
+
+.world-stage.frozen .turtle,
+.world-stage.frozen .object {
+  transition: none !important;
+  animation: none !important;
+}
+
+.world-stage.frozen .world-grid {
+  animation: gridPulse 60s ease-in-out infinite !important;
+  opacity: 0.3;
+}
+
+.world-stage.frozen .world-light {
+  display: none;
+}
+
+.world-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(86, 255, 159, 0.12) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(86, 255, 159, 0.12) 2px, transparent 2px);
+  background-size: 80px 80px;
+  pointer-events: none;
+  opacity: 0.5;
+  animation: gridPulse 45s ease-in-out infinite;
+}
+
+@keyframes gridPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.6; }
+}
+
+.world-light {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: radial-gradient(circle at var(--sun-x, 60%) var(--sun-y, 20%), rgba(86, 255, 159, 0.08), transparent 65%);
+  transition: background 8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.world-layer {
+  position: absolute;
+  inset: 0;
+}
+
+.turtle {
+  position: absolute;
+  width: 38px;
+  height: 38px;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  color: rgba(86, 255, 159, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: left 6s cubic-bezier(0.4, 0, 0.2, 1), top 6s cubic-bezier(0.4, 0, 0.2, 1);
+  text-shadow: 0 0 12px rgba(86, 255, 159, 0.6), 0 0 24px rgba(86, 255, 159, 0.3);
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
+}
+
+.turtle.glow {
+  animation: turtleGlow 5s ease;
+}
+
+@keyframes turtleGlow {
+  0%, 100% { box-shadow: 0 0 8px rgba(86, 255, 159, 0.15); }
+  50% { box-shadow: 0 0 16px rgba(255, 140, 165, 0.22); }
+}
+
+.object {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  transition: opacity 3s ease, transform 3s ease;
+  pointer-events: none;
+}
+
+.object.circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--nourish);
+  box-shadow: 0 0 15px rgba(158, 255, 167, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9em;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 1);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.object.star {
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-bottom: 25px solid var(--threat);
+  position: relative;
+  filter: drop-shadow(0 0 12px rgba(255, 110, 140, 0.6));
+}
+
+.object.star::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+}
+
+.object.box {
+  width: 55px;
+  height: 60px;
+  background: var(--neutral);
+  border-radius: 4px;
+  box-shadow: 0 0 12px rgba(154, 252, 199, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85em;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+  text-transform: uppercase;
+  padding: 4px;
+}
+
+.object.consumed {
+  opacity: 0.1;
+  transform: translate(-50%, -50%) scale(0.4);
+}
+
+.telemetry {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 10px;
+}
+
+.force-bar {
+  width: 100%;
+  height: 60px;
+  background: rgba(2, 10, 8, 0.8);
+  border: 1px solid rgba(86, 255, 159, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 8px;
+  position: relative;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.force-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  transition: height 2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 -2px 12px rgba(86, 255, 159, 0.3);
+}
+
+.telemetry-tile {
+  border: 1px solid rgba(86, 255, 159, 0.12);
+  border-radius: 8px;
+  padding: 10px;
+  background: rgba(5, 22, 18, 0.72);
+}
+
+.telemetry-tile strong {
+  font-size: 0.66em;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.telemetry-tile span {
+  font-size: 1.1em;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.meter {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(86, 255, 159, 0.08);
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.meter-fill {
+  height: 100%;
+  background: linear-gradient(90deg, rgba(86, 255, 159, 0.85), rgba(30, 120, 92, 0.9));
+  transition: width 0.45s ease;
+}
+
+.meter-fill.low {
+  background: linear-gradient(90deg, rgba(255, 92, 124, 0.9), rgba(255, 164, 180, 0.85));
+}
+
+.telemetry-card {
+  border: 1px solid rgba(86, 255, 159, 0.12);
+  border-radius: 8px;
+  padding: 14px;
+  background: rgba(5, 22, 18, 0.72);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.telemetry-card strong {
+  font-size: 0.75em;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.telemetry-card span {
+  font-size: 1.4em;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  font-weight: 300;
+}
+
+.belief-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.belief-card {
+  border: 1px solid rgba(86, 255, 159, 0.1);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: rgba(6, 22, 19, 0.68);
+  font-size: 0.76em;
+  letter-spacing: 0.12em;
+}
+
+.belief-card header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  color: rgba(154, 252, 199, 0.8);
+  text-transform: uppercase;
+}
+
+.belief-card span {
+  font-size: 0.7em;
+  color: var(--text-muted);
+}
+
+.log-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-size: 0.72em;
+  letter-spacing: 0.1em;
+  line-height: 1.8;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 8px;
+  padding-right: 6px;
+}
+
+.log-feed::-webkit-scrollbar {
+  width: 5px;
+}
+
+.log-feed::-webkit-scrollbar-thumb {
+  background: rgba(86, 255, 159, 0.22);
+  border-radius: 999px;
+}
+
+.log-entry {
+  border: 1px solid rgba(86, 255, 159, 0.2);
+  border-radius: 12px;
+  padding: 14px 18px;
+  background: rgba(5, 20, 15, 0.75);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: fadeIn 1.2s ease;
+}
+
+.log-entry .meta {
+  font-size: 0.8em;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.log-entry .content {
+  color: var(--text);
+  line-height: 1.5;
+  font-size: 1.1em;
+}
+
+.log-entry.event {
+  border-color: rgba(86, 255, 159, 0.28);
+}
+
+.log-entry.user {
+  border-color: rgba(255, 214, 107, 0.35);
+  background: rgba(28, 26, 12, 0.7);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.log-entry:nth-child(even) {
+  background: rgba(5, 20, 15, 0.6);
+}
+
+#death-flash {
+  position: fixed;
+  inset: 0;
+  background: rgba(86, 255, 159, 0.08);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 2.5s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+}
+
+#death-flash.active {
+  opacity: 0.35;
+}
+
+@media (max-width: 768px) {
+  main {
+    overflow-x: scroll;
+  }
+  
+  .channel {
+    min-width: 100vw;
+    max-width: 100vw;
+  }
+  
+  .channel-body {
+    height: calc(100vh - 60px);
+  }
+  
+  .world-stage {
+    flex: 0 0 60vh;
+    min-height: 60vh;
+    max-height: 60vh;
+  }
+  
+  .resize-bar {
+    display: block;
+    height: 10px;
+    background: var(--border);
+    cursor: row-resize;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    position: relative;
+    touch-action: none;
+    z-index: 11;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .resize-bar:active {
+    background: var(--accent);
+  }
+  
+  .resize-bar::before {
+    content: '';
+    position: absolute;
+    top: -12px;
+    bottom: -12px;
+    left: 0;
+    right: 0;
+  }
+  
+  .resize-bar::after {
+    content: '═';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--accent);
+    font-size: 14px;
+    letter-spacing: 0.5em;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  
+  .panels-container {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+    grid-template-columns: 1fr;
+  }
+  
+  .panel {
+    flex-shrink: 0;
+    margin: 0 12px;
+  }
+  
+  .object.circle { width: 50px; height: 50px; font-size: 0.8em; }
+  .object.box { width: 45px; height: 50px; font-size: 0.75em; }
+  
+  header {
+    grid-template-columns: auto 1fr;
+    padding: 6px 8px;
+    gap: 8px;
+  }
+  
+  header > div:nth-child(2) {
+    grid-column: 1 / -1;
+    grid-template-columns: 1fr;
+  }
+  
+  header > div:last-child {
+    grid-column: 1 / -1;
+    text-align: center;
+    font-size: 0.7em;
+    padding: 4px 0;
+  }
+  
+  input[type="range"] {
+    height: 20px;
+  }
+  
+  input[type="range"]::-webkit-slider-thumb {
+    width: 20px;
+    height: 20px;
+    margin-top: -8px;
+  }
+  
+  input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <header style="padding: 8px 12px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; border-bottom: 1px solid var(--border); gap: 12px; font-size: 0.85em;">
+    <div style="display: flex; gap: 6px;">
+      <button id="pauseBtn" style="padding: 4px 10px; font-size: 0.85em;">⏸</button>
+      <button id="spawnBtn" style="padding: 4px 10px; font-size: 0.85em;">+</button>
+      <button id="chaliceBtn" style="padding: 4px 10px; font-size: 0.85em;">🏺</button>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; font-size: 0.75em;">
+      <label style="display: flex; flex-direction: column; gap: 2px;">
+        <span style="opacity: 0.7; font-size: 0.85em;">H DECAY <span id="hungerDecayVal" style="color: var(--accent);">0.020</span></span>
+        <input type="range" id="hungerDecay" min="0.005" max="0.08" step="0.005" value="0.02" style="width: 100%;">
+      </label>
+      <label style="display: flex; flex-direction: column; gap: 2px;">
+        <span style="opacity: 0.7; font-size: 0.85em;">SPEED <span id="tickSpeedVal" style="color: var(--accent);">1500ms</span></span>
+        <input type="range" id="tickSpeed" min="500" max="3000" step="100" value="1500" style="width: 100%;">
+      </label>
+      <label style="display: flex; flex-direction: column; gap: 2px;">
+        <span style="opacity: 0.7; font-size: 0.85em;">VOL <span id="masterVolumeVal" style="color: var(--accent);">-20dB</span></span>
+        <input type="range" id="masterVolume" min="-40" max="-10" step="1" value="-20" style="width: 100%;">
+      </label>
+    </div>
+    <div style="font-size: 0.75em; opacity: 0.9; white-space: nowrap;">RES <span id="resonanceDisplay" style="color: var(--accent); font-weight: 700;">0%</span></div>
+  </header>
+
+  <main>
+    <!-- CONSOLE CHANNEL -->
+    <section class="channel active" id="consoleChannel">
+      <div class="channel-header">
+        <h2 style="font-size: 3em; margin: 0;">∞</h2>
+        <span style="font-size: 1em; letter-spacing: 0.15em;">LIFE <span id="lifetimeLabel">1</span></span>
+      </div>
+      <div class="channel-body">
+        <div class="world-stage" id="worldStage">
+          <div class="world-grid"></div>
+          <div class="world-light" id="worldLight" style="--sun-x: 60%; --sun-y: 20%;"></div>
+          <div class="world-layer" id="worldLayer">
+            <div class="turtle" id="turtle">◎</div>
+          </div>
+        </div>
+        <div class="resize-bar"></div>
+        <div class="panels-container">
+          <div class="panel">
+            <h3>Force Telemetry</h3>
+            <div class="telemetry-grid">
+              <div class="telemetry-card">
+                <strong>H</strong>
+                <span id="telemetryH">70</span>
+              </div>
+              <div class="telemetry-card">
+                <strong>E</strong>
+                <span id="telemetryE">82</span>
+              </div>
+              <div class="telemetry-card">
+                <strong>S</strong>
+                <span id="telemetryS">74</span>
+              </div>
+              <div class="telemetry-card">
+                <strong>Cu</strong>
+                <span id="telemetryCu">62</span>
+              </div>
+              <div class="telemetry-card">
+                <strong>Ce</strong>
+                <span id="telemetryCe">58</span>
+              </div>
+            </div>
+            <div class="telemetry" id="needTelemetry"></div>
+          </div>
+
+          <div class="panel">
+            <h3>Beliefs</h3>
+            <div class="belief-list" id="beliefList">
+              <div class="belief-card">
+                <header>
+                  <div>No beliefs yet</div>
+                  <span>0.00</span>
+                </header>
+              </div>
+            </div>
+          </div>
+          
+          <div class="panel">
+            <h3>Decision Process</h3>
+            <div style="background: rgba(5, 32, 16, 0.5); border: 1px solid rgba(86, 255, 159, 0.15); border-radius: 12px; padding: 18px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); width: 100%; box-sizing: border-box;">
+              <div style="font-size: 0.85em; margin-bottom: 8px; opacity: 0.8;">CURRENT THOUGHT</div>
+              <div id="decisionLog" style="font-size: 1em; line-height: 1.6; min-height: 60px;">Initializing...</div>
+            </div>
+            <div class="telemetry-card">
+              <strong>Motive</strong>
+              <span id="motiveLabel">Boot</span>
+            </div>
+            <div class="telemetry-card">
+              <strong>Emotion</strong>
+              <span id="emotionLabel">0.00 × 0.35 · Neutral</span>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3>Belief Space</h3>
+            <canvas id="beliefSpace" width="280" height="180" style="width: 100%; height: 180px; border: 1px solid rgba(86, 255, 159, 0.15); border-radius: 8px; background: rgba(2, 10, 8, 0.6);"></canvas>
+          </div>
+
+          <div class="panel">
+            <h3>Event Log</h3>
+            <div class="log-feed" id="lifetime-1-log">
+              <div class="log-entry event">
+                <div class="meta">0000</div>
+                <div class="content">AWAKE</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div id="death-flash"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════════════
+// THOUSAND LIVES — GODLEVEL SENSORY TOY
+// Pure DOM/CSS. No text labels. Geometry speaks.
+// ═══════════════════════════════════════════════════════════════
+
+const CONFIG = {
+  forces: {
+    hunger: { value: 70, decay: 0.02, color: 'rgba(86, 255, 159, 0.55)' },
+    energy: { value: 82, decay: 0.01, color: 'rgba(154, 212, 178, 0.6)' },
+    safety: { value: 74, decay: 0.008, color: 'rgba(174, 243, 193, 0.5)' },
+    curiosity: { value: 62, decay: -0.01, color: 'rgba(255, 206, 107, 0.5)' },
+    certainty: { value: 58, decay: 0.02, color: 'rgba(158, 255, 167, 0.55)' }
+  },
+  objects: {
+    nourish: { valence: 0.8, shape: 'circle', count: 3 },
+    threat: { valence: -0.9, shape: 'star', count: 1 },
+    neutral: { valence: 0, shape: 'box', count: 2 }
+  },
+  audio: {
+    scale: ['C3', 'D3', 'E3', 'G3', 'A3', 'C4'] // Deeper, Eno-like
+  },
+  ringBuffer: {
+    maxChannels: 7,
+    currentIndex: 0
+  },
+  tickSpeed: 1500, // Very slow, deep meditation (ms)
+};
+
+const state = {
+  lifetime: 1,
+  tick: 0,
+  timeOfDay: 0,
+  running: true,
+  turtle: {
+    x: 200,
+    y: 150,
+    targetX: null,
+    targetY: null,
+    valence: 0,
+    arousal: 0.35,
+    beliefs: {}
+  },
+  forces: JSON.parse(JSON.stringify(CONFIG.forces)),
+  objects: [],
+  audio: { 
+    ready: false, 
+    synth: null,
+    layers: [], // Audio layer per lifetime
+    maxLayers: 7
+  },
+  channels: {
+    ring: [], // Ring buffer of channel data
+    maxSize: CONFIG.ringBuffer.maxChannels,
+    current: 0,
+    active: 'consoleChannel' // Currently active channel ID
+  }
+};
+
+const DOM = {
+  worldStage: document.getElementById('worldStage'),
+  worldLayer: document.getElementById('worldLayer'),
+  turtle: document.getElementById('turtle'),
+  worldLight: document.getElementById('worldLight'),
+  lifetimeLabel: document.getElementById('lifetimeLabel'),
+  motiveLabel: document.getElementById('motiveLabel'),
+  emotionLabel: document.getElementById('emotionLabel'),
+  needTelemetry: document.getElementById('needTelemetry'),
+  beliefList: document.getElementById('beliefList'),
+  deathFlash: document.getElementById('death-flash'),
+  pauseBtn: document.getElementById('pauseBtn'),
+  spawnBtn: document.getElementById('spawnBtn'),
+  chaliceBtn: document.getElementById('chaliceBtn'),
+  main: document.querySelector('main'),
+  // MEDIA FOR THINKING THE UNTHINKABLE
+  decisionLog: document.getElementById('decisionLog'),
+  beliefSpace: document.getElementById('beliefSpace'),
+  hungerDecay: document.getElementById('hungerDecay'),
+  hungerDecayVal: document.getElementById('hungerDecayVal'),
+  tickSpeed: document.getElementById('tickSpeed'),
+  tickSpeedVal: document.getElementById('tickSpeedVal'),
+  resonanceDisplay: document.getElementById('resonanceDisplay'),
+  masterVolume: document.getElementById('masterVolume'),
+  masterVolumeVal: document.getElementById('masterVolumeVal')
+};
+
+// ═══════════════════════════════════════════════════════════════
+// RING BUFFER CHANNEL SYSTEM
+// ═══════════════════════════════════════════════════════════════
+
+function addChannel(title, subtitle, contentGenerator, snapshot = null, lifetime = null) {
+  const channelData = {
+    id: `channel-${Date.now()}`,
+    title,
+    subtitle,
+    contentGenerator,
+    timestamp: state.tick,
+    snapshot: snapshot,  // Store snapshot for resonance calculation
+    lifetime: lifetime   // Store lifetime number
+  };
+  
+  // Ring buffer: if full, remove oldest
+  if (state.channels.ring.length >= state.channels.maxSize) {
+    const oldChannel = state.channels.ring.shift();
+    const oldEl = document.getElementById(oldChannel.id);
+    if (oldEl) {
+      oldEl.style.animation = 'channelFadeOut 2s ease';
+      setTimeout(() => oldEl.remove(), 2000);
+    }
+  }
+  
+  state.channels.ring.push(channelData);
+  renderChannel(channelData);
+}
+
+function renderChannel(channelData) {
+  const channel = document.createElement('section');
+  channel.className = 'channel';
+  channel.id = channelData.id;
+  channel.style.animationDelay = '0.3s';
+  
+  channel.innerHTML = `
+    <div class="channel-header">
+      <h2>${channelData.title}</h2>
+      <span>${channelData.subtitle}</span>
+    </div>
+    <div class="channel-body" id="${channelData.id}-body">
+      ${channelData.contentGenerator()}
+    </div>
+  `;
+  
+  DOM.main.appendChild(channel);
+  
+  // Set as active and scroll
+  setTimeout(() => {
+    setActiveChannel(channelData.id);
+    channel.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+  }, 100);
+}
+
+function setActiveChannel(channelId) {
+  // Remove active from all channels
+  document.querySelectorAll('.channel').forEach(ch => ch.classList.remove('active'));
+  
+  // Set new active
+  const channel = document.getElementById(channelId);
+  if (channel) {
+    channel.classList.add('active');
+    state.channels.active = channelId;
+  }
+}
+
+function createAudioLayer(lifetimeNum) {
+  if (!state.audio.ready) return;
+  
+  // GRACEFUL LETTING GO: Fade out oldest layer over 8 seconds before removing
+  if (state.audio.layers.length >= state.audio.maxLayers) {
+    const oldLayer = state.audio.layers.shift();
+    
+    // Fade volume to silence over 8 seconds
+    oldLayer.synth.volume.rampTo(-60, 8);
+    
+    // Then release and dispose after fade completes
+    setTimeout(() => {
+      oldLayer.synth.triggerRelease();
+      setTimeout(() => oldLayer.synth.dispose(), 12000);
+    }, 8000);
+  }
+  
+  // Each layer gets its own reverb to prevent feedback
+  const layerReverb = new Tone.Reverb({
+    decay: 8,
+    wet: 0.5
+  }).toDestination();
+  
+  const layerSynth = new Tone.Synth({
+    oscillator: { type: 'sine' },
+    envelope: { attack: 8, decay: 0, sustain: 1, release: 16 },
+    volume: -36  // Even quieter to prevent buildup
+  }).connect(layerReverb);
+  
+  // Pick a note from the scale based on lifetime
+  const noteIndex = (lifetimeNum - 1) % CONFIG.audio.scale.length;
+  const note = CONFIG.audio.scale[noteIndex];
+  
+  // Start the layer
+  layerSynth.triggerAttack(note);
+  
+  // Store layer reference
+  const layer = {
+    lifetime: lifetimeNum,
+    synth: layerSynth,
+    note: note,
+    noteIndex: noteIndex
+  };
+  state.audio.layers.push(layer);
+  
+  // RESONANCE SYSTEM: Layers harmonize when beliefs align
+  setInterval(() => {
+    if (!state.audio.ready || layer.synth.disposed) return;
+    
+    // Calculate resonance with current life based on shared beliefs
+    const currentBeliefs = Object.keys(state.turtle.beliefs);
+    const layerLifetime = state.channels.ring.find(ch => ch.lifetime === layer.lifetime);
+    
+    if (layerLifetime && layerLifetime.snapshot) {
+      const sharedBeliefs = currentBeliefs.filter(b => 
+        layerLifetime.snapshot.beliefs && layerLifetime.snapshot.beliefs[b]
+      );
+      const resonance = sharedBeliefs.length / Math.max(currentBeliefs.length, 1);
+      
+      // Higher resonance = slightly louder volume and consonant intervals
+      const targetVolume = -36 + (resonance * 6); // Up to -30dB with full resonance (much quieter)
+      layer.synth.volume.rampTo(targetVolume, 15);
+      
+      // Shift to harmonic intervals based on mood + resonance
+      const moodShift = Math.floor(state.turtle.valence * 2);
+      const resonanceShift = resonance > 0.5 ? 2 : 0; // Perfect fifth when resonating
+      const newIndex = Math.max(0, Math.min(CONFIG.audio.scale.length - 1, 
+        layer.noteIndex + moodShift + resonanceShift));
+      const newNote = CONFIG.audio.scale[newIndex];
+      
+      layer.synth.frequency.rampTo(Tone.Frequency(newNote).toFrequency(), 20);
+    }
+  }, 30000); // Check resonance every 30 seconds
+}
+
+function createLifetimeChannel(lifetimeNum) {
+  const title = `${lifetimeNum}`;
+  const subtitle = `tick ${state.tick}`;
+  
+  // Create audio layer for this lifetime
+  createAudioLayer(lifetimeNum);
+  
+  // Capture current state
+  const snapshot = {
+    turtleX: state.turtle.x,
+    turtleY: state.turtle.y,
+    valence: state.turtle.valence.toFixed(2),
+    arousal: state.turtle.arousal.toFixed(2),
+    beliefs: { ...state.turtle.beliefs },
+    beliefCount: Object.keys(state.turtle.beliefs).length,
+    hunger: state.forces.hunger.value.toFixed(0),
+    energy: state.forces.energy.value.toFixed(0),
+    safety: state.forces.safety.value.toFixed(0),
+    objects: state.objects.map(obj => ({
+      type: obj.type,
+      x: obj.x,
+      y: obj.y,
+      discovered: obj.discovered,
+      consumed: obj.consumed
+    }))
+  };
+  
+  const contentGen = () => {
+    // Render frozen world grid with labels
+    const objectsHTML = snapshot.objects.map(obj => {
+      const config = CONFIG.objects[obj.type];
+      const classes = ['object', config.shape];
+      if (obj.consumed) classes.push('consumed');
+      if (obj.discovered) classes.push('discovered');
+      const label = obj.type.substring(0, 3).toUpperCase();
+      return `<div class="${classes.join(' ')}" style="left: ${obj.x}px; top: ${obj.y}px;">${label}</div>`;
+    }).join('');
+    
+    // Render beliefs - Clear and readable
+    const beliefsHTML = Object.entries(snapshot.beliefs).map(([type, belief]) => {
+      const valenceText = belief.expectation > 0 ? 'NOURISH' : belief.expectation < 0 ? 'THREAT' : 'NEUTRAL';
+      const color = belief.expectation > 0 ? 'rgba(158, 255, 167, 0.8)' : belief.expectation < 0 ? 'rgba(255, 92, 124, 0.8)' : 'rgba(154, 212, 178, 0.6)';
+      return `
+      <div class="belief-card" style="padding: 14px; border: 2px solid ${color}; background: rgba(5, 20, 15, 0.6);">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+          <div style="font-size: 1.1em; font-weight: 700; text-transform: uppercase;">${type}</div>
+          <div style="font-size: 1em; opacity: 0.9; font-weight: 600;">${(belief.confidence * 100).toFixed(0)}%</div>
+        </div>
+        <div style="font-size: 0.9em; color: ${color}; font-weight: 600;">${valenceText}</div>
+      </div>
+    `;
+    }).join('');
+    
+    return `
+      <div class="panel">
+        <h3>World Snapshot</h3>
+        <div class="world-stage frozen">
+          <div class="world-grid"></div>
+          <div class="world-layer">
+            <div class="turtle" style="left: ${snapshot.turtleX}px; top: ${snapshot.turtleY}px;">◎</div>
+            ${objectsHTML}
+          </div>
+        </div>
+        <div class="telemetry" style="grid-template-columns: repeat(3, 1fr); gap: 4px;">
+          <div style="text-align: center; padding: 8px;">
+            <div style="font-size: 3.5em; color: var(--accent); font-weight: 300; line-height: 1;">${snapshot.hunger}</div>
+            <div style="font-size: 0.9em; opacity: 0.8; letter-spacing: 0.15em; margin-top: 4px;">HUNGER</div>
+          </div>
+          <div style="text-align: center; padding: 8px;">
+            <div style="font-size: 3.5em; color: var(--accent); font-weight: 300; line-height: 1;">${snapshot.energy}</div>
+            <div style="font-size: 0.9em; opacity: 0.8; letter-spacing: 0.15em; margin-top: 4px;">ENERGY</div>
+          </div>
+          <div style="text-align: center; padding: 8px;">
+            <div style="font-size: 3.5em; color: var(--accent); font-weight: 300; line-height: 1;">${snapshot.safety}</div>
+            <div style="font-size: 0.9em; opacity: 0.8; letter-spacing: 0.15em; margin-top: 4px;">SAFETY</div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Beliefs (${snapshot.beliefCount})</h3>
+        <div class="belief-list">
+          ${beliefsHTML}
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Event Log</h3>
+        <div class="log-feed" id="lifetime-${lifetimeNum}-log">
+          <div class="log-entry event">
+            <div class="meta">0000</div>
+            <div class="content">AWAKE</div>
+          </div>
+        </div>
+      </div>
+    `;
+  };
+  
+  addChannel(title, subtitle, contentGen, snapshot, lifetimeNum);
+}
+
+function getCurrentLifetimeLog() {
+  return document.getElementById(`lifetime-${state.lifetime}-log`);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// AUDIO
+// ═══════════════════════════════════════════════════════════════
+
+async function initAudio() {
+  await Tone.start();
+  
+  // Set initial master volume
+  Tone.Destination.volume.value = -20;
+  
+  // Brian Eno-style ambient synth
+  const reverb = new Tone.Reverb({
+    decay: 8,
+    wet: 0.6
+  }).toDestination();
+  
+  // Limiter to prevent audio overload
+  const limiter = new Tone.Limiter(-6).toDestination();
+  reverb.disconnect();
+  reverb.connect(limiter);
+  
+  state.audio.synth = new Tone.PolySynth(Tone.Synth, {
+    oscillator: { type: 'sine' },
+    envelope: { attack: 2, decay: 4, sustain: 0.6, release: 10 },
+    volume: -20,
+    maxPolyphony: 2  // Keep very limited - just for events
+  }).connect(reverb);
+  
+  // Continuous ambient drone layer - separate from main reverb
+  const droneReverb = new Tone.Reverb({
+    decay: 6,
+    wet: 0.4
+  }).toDestination();
+  
+  const drone = new Tone.Synth({
+    oscillator: { type: 'sine' },
+    envelope: { attack: 8, decay: 0, sustain: 1, release: 8 },
+    volume: -34
+  }).connect(droneReverb);
+  
+  // Start ambient drone (overlapping notes)
+  const droneNote = CONFIG.audio.scale[0]; // Root note C3
+  drone.triggerAttack(droneNote);
+  
+  // Slowly shift drone every 30 seconds for variety
+  setInterval(() => {
+    const newNote = CONFIG.audio.scale[Math.floor(Math.random() * 3)]; // C3, D3, or E3
+    drone.frequency.rampTo(Tone.Frequency(newNote).toFrequency(), 15);
+  }, 30000);
+  
+  state.audio.ready = true;
+}
+
+function playSound(type, valence = 0) {
+  if (!state.audio.ready) return;
+  
+  // MOOD-REACTIVE: Choose notes based on turtle's emotional state
+  const moodIndex = state.turtle.valence > 0 ? 
+    Math.floor((state.turtle.valence + 1) * 2.5) : // Happy: upper scale
+    Math.floor(Math.abs(state.turtle.valence) * 2); // Sad/angry: lower scale
+  const baseNote = CONFIG.audio.scale[Math.min(moodIndex, CONFIG.audio.scale.length - 1)];
+  const now = Tone.now();
+  
+  switch(type) {
+    case 'interact':
+      // Simple single note for interactions - let layer synths provide harmony
+      state.audio.synth.triggerAttackRelease(baseNote, '4n', now);
+      break;
+    case 'spawn':
+      state.audio.synth.triggerAttackRelease(baseNote, '8n', now);
+      break;
+    case 'death':
+      // Single descending gesture for death
+      state.audio.synth.triggerAttackRelease(baseNote, '2n', now);
+      break;
+    case 'rebirth':
+      // Single ascending gesture for rebirth
+      const rebirthNote = CONFIG.audio.scale[Math.min(CONFIG.audio.scale.length - 1, moodIndex + 2)];
+      state.audio.synth.triggerAttackRelease(rebirthNote, '2n', now);
+      break;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// OBJECTS
+// ═══════════════════════════════════════════════════════════════
+
+function spawnObjects() {
+  state.objects.forEach(obj => obj.el && obj.el.remove());
+  state.objects = [];
+  
+  const stageRect = DOM.worldStage.getBoundingClientRect();
+  
+  Object.entries(CONFIG.objects).forEach(([type, config]) => {
+    for (let i = 0; i < config.count; i++) {
+      const el = document.createElement('div');
+      el.className = `object ${config.shape}`;
+      el.textContent = type.substring(0, 3).toUpperCase(); // Show first 3 letters
+      
+      const x = Math.random() * (stageRect.width - 80) + 40;
+      const y = Math.random() * (stageRect.height - 80) + 40;
+      
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+      
+      DOM.worldLayer.appendChild(el);
+      
+      state.objects.push({
+        type,
+        el,
+        x,
+        y,
+        valence: config.valence,
+        discovered: false,
+        consumed: false
+      });
+    }
+  });
+  
+  logEvent('HABITAT SEEDED');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SIMULATION
+// ═══════════════════════════════════════════════════════════════
+
+function updateForces() {
+  Object.entries(state.forces).forEach(([name, force]) => {
+    force.value = Math.max(0, Math.min(100, force.value - force.decay));
+  });
+  
+  if (state.forces.hunger.value <= 0 || state.forces.energy.value <= 0) {
+    die();
+  }
+}
+
+function selectMotive() {
+  const urgencies = {};
+  
+  Object.entries(state.forces).forEach(([name, force]) => {
+    if (name === 'hunger') urgencies[name] = force.value < 50 ? (50 - force.value) / 50 : 0;
+    else if (name === 'energy') urgencies[name] = force.value < 40 ? (40 - force.value) / 40 : 0;
+    else if (name === 'safety') urgencies[name] = state.turtle.arousal > 0.7 ? state.turtle.arousal : 0;
+    else if (name === 'curiosity') urgencies[name] = state.objects.filter(o => !o.discovered).length > 0 ? 0.3 : 0;
+    else if (name === 'certainty') urgencies[name] = force.value < 60 ? 0.2 : 0;
+  });
+  
+  const dominant = Object.keys(urgencies).reduce((a, b) => urgencies[a] > urgencies[b] ? a : b);
+  
+  // SURFACE THE INVISIBLE: Show decision-making process
+  const urgencyStr = Object.entries(urgencies)
+    .sort((a, b) => b[1] - a[1])
+    .map(([k, v]) => `${k}: ${(v * 100).toFixed(0)}%`)
+    .slice(0, 3)
+    .join(', ');
+  logDecision(`MOTIVE: ${dominant.toUpperCase()} (${urgencyStr})`);
+  
+  return dominant;
+}
+
+function executeAction(motive) {
+  if (state.turtle.targetX !== null) {
+    const dx = state.turtle.targetX - state.turtle.x;
+    const dy = state.turtle.targetY - state.turtle.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    
+    if (dist < 20) {
+      state.turtle.targetX = null;
+      state.turtle.targetY = null;
+    } else {
+      state.turtle.x += (dx / dist) * 3;
+      state.turtle.y += (dy / dist) * 3;
+    }
+  } else {
+    let candidates = [];
+    
+    if (motive === 'hunger') {
+      candidates = state.objects.filter(o => !o.consumed && o.valence > 0.5);
+    } else if (motive === 'curiosity') {
+      candidates = state.objects.filter(o => !o.discovered);
+    } else if (motive === 'safety') {
+      const threats = state.objects.filter(o => o.valence < -0.5);
+      if (threats.length > 0) {
+        const nearest = threats[0];
+        state.turtle.targetX = state.turtle.x - (nearest.x - state.turtle.x) * 2;
+        state.turtle.targetY = state.turtle.y - (nearest.y - state.turtle.y) * 2;
+      }
+      return;
+    } else if (motive === 'energy') {
+      state.forces.energy.value = Math.min(100, state.forces.energy.value + 0.5);
+      return;
+    }
+    
+    if (candidates.length > 0) {
+      const target = candidates[Math.floor(Math.random() * candidates.length)];
+      state.turtle.targetX = target.x;
+      state.turtle.targetY = target.y;
+    }
+  }
+  
+  state.objects.forEach(obj => {
+    if (obj.consumed) return;
+    
+    const dx = obj.x - state.turtle.x;
+    const dy = obj.y - state.turtle.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    
+    if (dist < 50) {
+      interact(obj);
+    }
+  });
+}
+
+function interact(obj) {
+  obj.discovered = true;
+  
+  if (obj.valence > 0) {
+    state.forces.hunger.value = Math.min(100, state.forces.hunger.value + obj.valence * 30);
+    state.turtle.valence = 0.8;
+    obj.consumed = true;
+    obj.el.classList.add('consumed');
+    playSound('interact', obj.valence);
+    logEvent(`NOURISH ${obj.type}`);
+  } else if (obj.valence < 0) {
+    state.forces.energy.value = Math.max(0, state.forces.energy.value + obj.valence * 40);
+    state.turtle.valence = -0.9;
+    state.turtle.arousal = 1.0;
+    playSound('interact', obj.valence);
+    logEvent(`THREAT ${obj.type}`);
+    
+    DOM.turtle.classList.add('glow');
+    setTimeout(() => DOM.turtle.classList.remove('glow'), 3000);
+  } else {
+    playSound('interact', 0);
+    logEvent(`NEUTRAL ${obj.type}`);
+  }
+  
+  if (!state.turtle.beliefs[obj.type]) {
+    state.turtle.beliefs[obj.type] = { expectation: obj.valence, confidence: 0.5 };
+  } else {
+    state.turtle.beliefs[obj.type].confidence = Math.min(1, state.turtle.beliefs[obj.type].confidence + 0.2);
+  }
+  
+  updateBeliefs();
+}
+
+function die() {
+  playSound('death');
+  
+  DOM.deathFlash.classList.add('active');
+  
+  setTimeout(() => {
+    DOM.deathFlash.classList.remove('active');
+    reincarnate();
+  }, 800);
+}
+
+function reincarnate() {
+  state.lifetime++;
+  DOM.lifetimeLabel.textContent = state.lifetime;
+  
+  // Create new channel for this lifetime
+  createLifetimeChannel(state.lifetime);
+  
+  const keys = Object.keys(state.turtle.beliefs);
+  const toFlush = Math.ceil(keys.length * 0.2);
+  for (let i = 0; i < toFlush; i++) {
+    const key = keys[Math.floor(Math.random() * keys.length)];
+    delete state.turtle.beliefs[key];
+  }
+  
+  const stageRect = DOM.worldStage.getBoundingClientRect();
+  state.turtle.x = stageRect.width / 2;
+  state.turtle.y = stageRect.height / 2;
+  state.turtle.targetX = null;
+  state.turtle.targetY = null;
+  state.turtle.valence = 0;
+  state.turtle.arousal = 0.35;
+  
+  state.forces.hunger.value = 70;
+  state.forces.energy.value = 82;
+  state.forces.safety.value = 74;
+  
+  spawnObjects();
+  playSound('rebirth');
+  logEvent(`REBORN / ${keys.length - toFlush} BELIEFS`);
+}
+
+function logToLifetimeChannel(lifetimeNum, text) {
+  const logEl = document.getElementById(`lifetime-${lifetimeNum}-log`);
+  if (!logEl) {
+    console.warn(`[LOG] No log element found for lifetime ${lifetimeNum}`);
+    return;
+  }
+  
+  const entry = document.createElement('div');
+  entry.className = 'log-entry event';
+  const timestamp = Math.floor(state.tick / 2);
+  entry.innerHTML = `
+    <div class="meta">${String(timestamp).padStart(4, '0')}</div>
+    <div class="content">${text}</div>
+  `;
+  logEl.appendChild(entry);
+  logEl.scrollTop = logEl.scrollHeight;
+  
+  console.log(`[LOG] Lifetime ${lifetimeNum}: ${text}`);
+  
+  if (logEl.children.length > 50) {
+    logEl.removeChild(logEl.firstChild);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// UPDATE
+// ═══════════════════════════════════════════════════════════════
+
+function updateTurtlePosition() {
+  DOM.turtle.style.left = state.turtle.x + 'px';
+  DOM.turtle.style.top = state.turtle.y + 'px';
+}
+
+function updateHUD() {
+  const telemetryHTML = `
+    <div class="telemetry-card">
+      <strong>Hunger</strong>
+      <span>${state.forces.hunger.value.toFixed(0)}%</span>
+      <div class="force-bar">
+        <div class="force-fill" style="height: ${state.forces.hunger.value}%; background: ${state.forces.hunger.color};"></div>
+      </div>
+    </div>
+    <div class="telemetry-card">
+      <strong>Energy</strong>
+      <span>${state.forces.energy.value.toFixed(0)}%</span>
+      <div class="force-bar">
+        <div class="force-fill" style="height: ${state.forces.energy.value}%; background: ${state.forces.energy.color};"></div>
+      </div>
+    </div>
+    <div class="telemetry-card">
+      <strong>Safety</strong>
+      <span>${state.forces.safety.value.toFixed(0)}%</span>
+      <div class="force-bar">
+        <div class="force-fill" style="height: ${state.forces.safety.value}%; background: ${state.forces.safety.color};"></div>
+      </div>
+    </div>
+  `;
+  
+  DOM.needTelemetry.innerHTML = telemetryHTML;
+  
+  const urgent = Object.entries(state.forces)
+    .filter(([_, f]) => f.value < 25)
+    .map(([k, _]) => k);
+  
+  const motive = urgent.length > 0 ? urgent[0] : 'Explore';
+  DOM.motiveLabel.textContent = motive;
+  
+  const emotionLabel = getEmotionLabel(state.turtle.valence, state.turtle.arousal);
+  DOM.emotionLabel.textContent = `Valence: ${state.turtle.valence.toFixed(2)} · Arousal: ${state.turtle.arousal.toFixed(2)} · ${emotionLabel}`;
+}
+
+function getEmotionLabel() {
+  const emotions = [
+    { v: 0.7, a: 0.7, label: 'Joy' },
+    { v: -0.7, a: 0.8, label: 'Fear' },
+    { v: -0.5, a: 0.3, label: 'Sad' },
+    { v: 0.0, a: 0.2, label: 'Neutral' },
+    { v: -0.8, a: 0.9, label: 'Anger' }
+  ];
+  
+  const closest = emotions.reduce((a, b) => {
+    const distA = Math.abs(a.v - state.turtle.valence) + Math.abs(a.a - state.turtle.arousal);
+    const distB = Math.abs(b.v - state.turtle.valence) + Math.abs(b.a - state.turtle.arousal);
+    return distA < distB ? a : b;
+  });
+  
+  return closest.label;
+}
+
+function updateBeliefs() {
+  const beliefs = Object.entries(state.turtle.beliefs);
+  
+  if (beliefs.length === 0) {
+    DOM.beliefList.innerHTML = `
+      <div class="belief-card" style="padding: 12px; border: 1px solid rgba(86, 255, 159, 0.2); background: rgba(5, 20, 15, 0.6);">
+        <div style="font-size: 0.9em; font-weight: 600; text-transform: uppercase; opacity: 0.6;">NO BELIEFS YET</div>
+      </div>
+    `;
+    return;
+  }
+  
+  const beliefsHTML = beliefs.map(([type, belief]) => {
+    const valenceText = belief.expectation > 0 ? 'NOURISH' : belief.expectation < 0 ? 'THREAT' : 'NEUTRAL';
+    const color = belief.expectation > 0 ? 
+      'rgba(158, 255, 167, 0.8)' : 
+      belief.expectation < 0 ? 
+      'rgba(255, 92, 124, 0.8)' : 
+      'rgba(154, 212, 178, 0.6)';
+    
+    return `
+      <div class="belief-card" style="padding: 14px; border: 2px solid ${color}; background: rgba(5, 20, 15, 0.6);">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+          <div style="font-size: 1.1em; font-weight: 700; text-transform: uppercase;">${type}</div>
+          <div style="font-size: 1em; opacity: 0.9; font-weight: 600;">${(belief.confidence * 100).toFixed(0)}%</div>
+        </div>
+        <div style="font-size: 0.9em; color: ${color}; font-weight: 600;">${valenceText}</div>
+      </div>
+    `;
+  }).join('');
+  
+  DOM.beliefList.innerHTML = beliefsHTML;
+}
+
+function logEvent(text) {
+  logToLifetimeChannel(state.lifetime, text);
+}
+
+function logDecision(text) {
+  if (DOM.decisionLog) {
+    DOM.decisionLog.textContent = text;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// BELIEF SPACE VISUALIZATION
+// ═══════════════════════════════════════════════════════════════
+
+function drawBeliefSpace() {
+  if (!DOM.beliefSpace) return;
+  const ctx = DOM.beliefSpace.getContext('2d');
+  const w = DOM.beliefSpace.width;
+  const h = DOM.beliefSpace.height;
+  
+  // Clear
+  ctx.fillStyle = 'rgba(2, 10, 8, 0.3)';
+  ctx.fillRect(0, 0, w, h);
+  
+  // Draw axes
+  ctx.strokeStyle = 'rgba(86, 255, 159, 0.2)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(w/2, 0);
+  ctx.lineTo(w/2, h);
+  ctx.moveTo(0, h/2);
+  ctx.lineTo(w, h/2);
+  ctx.stroke();
+  
+  // Labels
+  ctx.fillStyle = 'rgba(86, 255, 159, 0.5)';
+  ctx.font = '10px monospace';
+  ctx.fillText('THREAT', 10, 15);
+  ctx.fillText('NOURISH', w - 55, 15);
+  ctx.fillText('LOW CONF', 10, h - 5);
+  ctx.fillText('HIGH CONF', w - 65, h - 5);
+  
+  // Plot beliefs
+  Object.entries(state.turtle.beliefs).forEach(([type, belief]) => {
+    const x = ((belief.expectation + 1) / 2) * w; // -1 to 1 -> 0 to w
+    const y = (1 - belief.confidence) * h; // 0 to 1 -> h to 0
+    
+    const color = belief.expectation > 0 ? 
+      'rgba(158, 255, 167, 0.8)' : 
+      belief.expectation < 0 ? 
+      'rgba(255, 92, 124, 0.8)' : 
+      'rgba(154, 212, 178, 0.6)';
+    
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, 6, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.font = '9px monospace';
+    ctx.fillText(type.substring(0, 3).toUpperCase(), x + 8, y + 3);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RESONANCE CALCULATION
+// ═══════════════════════════════════════════════════════════════
+
+function calculateGlobalResonance() {
+  if (state.channels.ring.length === 0) return 0;
+  
+  const currentBeliefs = Object.keys(state.turtle.beliefs);
+  if (currentBeliefs.length === 0) return 0;
+  
+  let totalResonance = 0;
+  let count = 0;
+  
+  state.channels.ring.forEach(ch => {
+    if (ch.snapshot && ch.snapshot.beliefs) {
+      const sharedBeliefs = currentBeliefs.filter(b => ch.snapshot.beliefs[b]);
+      totalResonance += sharedBeliefs.length / currentBeliefs.length;
+      count++;
+    }
+  });
+  
+  return count > 0 ? (totalResonance / count) : 0;
+}
+
+function updateResonanceDisplay() {
+  if (DOM.resonanceDisplay) {
+    const resonance = calculateGlobalResonance();
+    DOM.resonanceDisplay.textContent = `${(resonance * 100).toFixed(0)}%`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MAIN LOOP
+// ═══════════════════════════════════════════════════════════════
+
+function tick() {
+  if (!state.running) return;
+  
+  state.tick++;
+  state.timeOfDay = (state.tick % 720) / 720;
+  
+  updateForces();
+  const motive = selectMotive();
+  executeAction(motive);
+  updateTurtlePosition();
+  updateHUD();
+  drawBeliefSpace();
+  updateResonanceDisplay();
+}
+
+function loop() {
+  tick();
+  setTimeout(() => requestAnimationFrame(loop), CONFIG.tickSpeed);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INTERACTION
+// ═══════════════════════════════════════════════════════════════
+
+let touchStartTime = 0;
+let lastTouchX = 0;
+let lastTouchY = 0;
+
+DOM.worldStage.addEventListener('pointerdown', async (e) => {
+  if (!state.audio.ready) await initAudio();
+  
+  touchStartTime = Date.now();
+  lastTouchX = e.clientX;
+  lastTouchY = e.clientY;
+});
+
+DOM.worldStage.addEventListener('pointerup', (e) => {
+  const duration = Date.now() - touchStartTime;
+  const dx = e.clientX - lastTouchX;
+  const dy = e.clientY - lastTouchY;
+  const swipeDist = Math.sqrt(dx * dx + dy * dy);
+  
+  if (swipeDist > 100 && duration < 300) {
+    disrupt();
+  } else if (duration < 200) {
+    const rect = DOM.worldStage.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    spawnRandomObject(x, y);
+  }
+});
+
+function spawnRandomObject(x, y) {
+  const types = Object.keys(CONFIG.objects);
+  const type = types[Math.floor(Math.random() * types.length)];
+  const config = CONFIG.objects[type];
+  
+  const el = document.createElement('div');
+  el.className = `object ${config.shape}`;
+  el.style.left = x + 'px';
+  el.style.top = y + 'px';
+  
+  DOM.worldLayer.appendChild(el);
+  
+  state.objects.push({
+    type,
+    el,
+    x,
+    y,
+    valence: config.valence,
+    discovered: false,
+    consumed: false
+  });
+  
+  playSound('spawn');
+  logEvent(`SPAWN ${type}`);
+}
+
+function disrupt() {
+  const stageRect = DOM.worldStage.getBoundingClientRect();
+  
+  state.objects.forEach(obj => {
+    obj.x = Math.random() * (stageRect.width - 80) + 40;
+    obj.y = Math.random() * (stageRect.height - 80) + 40;
+    obj.el.style.left = obj.x + 'px';
+    obj.el.style.top = obj.y + 'px';
+    obj.discovered = false;
+  });
+  
+  state.turtle.arousal = 1.0;
+  state.turtle.valence = -0.5;
+  
+  playSound('death');
+  logEvent('DISRUPTED');
+}
+
+// Button handlers
+DOM.pauseBtn.addEventListener('click', () => {
+  state.running = !state.running;
+  DOM.pauseBtn.textContent = state.running ? '⏸' : '▶';
+  logEvent(state.running ? 'RESUMED' : 'PAUSED');
+});
+
+DOM.spawnBtn.addEventListener('click', () => {
+  const stageRect = DOM.worldStage.getBoundingClientRect();
+  const x = Math.random() * (stageRect.width - 80) + 40;
+  const y = Math.random() * (stageRect.height - 80) + 40;
+  spawnRandomObject(x, y);
+});
+
+DOM.chaliceBtn.addEventListener('click', () => {
+  disrupt();
+});
+
+// ═══════════════════════════════════════════════════════════════
+// INTERACTIVE PARAMETER CONTROLS (MEDIA FOR THINKING THE UNTHINKABLE)
+// ═══════════════════════════════════════════════════════════════
+
+DOM.hungerDecay.addEventListener('input', (e) => {
+  const value = parseFloat(e.target.value);
+  CONFIG.forces.hunger.decay = value;
+  DOM.hungerDecayVal.textContent = value.toFixed(3);
+});
+
+DOM.tickSpeed.addEventListener('input', (e) => {
+  const value = parseInt(e.target.value);
+  CONFIG.tickSpeed = value;
+  DOM.tickSpeedVal.textContent = `${value}ms`;
+});
+
+DOM.masterVolume.addEventListener('input', (e) => {
+  const value = parseInt(e.target.value);
+  if (state.audio.ready) {
+    Tone.Destination.volume.value = value;
+  }
+  DOM.masterVolumeVal.textContent = `${value}dB`;
+});
+
+// ═══════════════════════════════════════════════════════════════
+// MOBILE RESIZE BAR (TOUCH-ENABLED GRID RESIZING)
+// ═══════════════════════════════════════════════════════════════
+
+const resizeBar = document.querySelector('.resize-bar');
+if (resizeBar) {
+  let isResizing = false;
+  let startY = 0;
+  let startHeight = 0;
+  
+  const startResize = (e) => {
+    isResizing = true;
+    startY = e.touches ? e.touches[0].clientY : e.clientY;
+    const worldStage = document.querySelector('.world-stage');
+    startHeight = worldStage.offsetHeight;
+    resizeBar.style.background = 'var(--accent)';
+    e.preventDefault();
+  };
+  
+  const doResize = (e) => {
+    if (!isResizing) return;
+    const currentY = e.touches ? e.touches[0].clientY : e.clientY;
+    const deltaY = currentY - startY;
+    const newHeight = Math.max(200, Math.min(window.innerHeight * 0.8, startHeight + deltaY));
+    const worldStage = document.querySelector('.world-stage');
+    worldStage.style.flex = `0 0 ${newHeight}px`;
+    worldStage.style.minHeight = `${newHeight}px`;
+    worldStage.style.maxHeight = `${newHeight}px`;
+    e.preventDefault();
+  };
+  
+  const endResize = () => {
+    isResizing = false;
+    resizeBar.style.background = '';
+  };
+  
+  resizeBar.addEventListener('mousedown', startResize);
+  resizeBar.addEventListener('touchstart', startResize);
+  document.addEventListener('mousemove', doResize);
+  document.addEventListener('touchmove', doResize, { passive: false });
+  document.addEventListener('mouseup', endResize);
+  document.addEventListener('touchend', endResize);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SCROLL DETECTION FOR ACTIVE CHANNEL
+// ═══════════════════════════════════════════════════════════════
+
+let scrollTimeout;
+DOM.main.addEventListener('scroll', () => {
+  clearTimeout(scrollTimeout);
+  scrollTimeout = setTimeout(() => {
+    const channels = document.querySelectorAll('.channel');
+    const mainRect = DOM.main.getBoundingClientRect();
+    const mainCenter = mainRect.left + mainRect.width / 2;
+    
+    let closestChannel = null;
+    let closestDistance = Infinity;
+    
+    channels.forEach(channel => {
+      const channelRect = channel.getBoundingClientRect();
+      const channelCenter = channelRect.left + channelRect.width / 2;
+      const distance = Math.abs(channelCenter - mainCenter);
+      
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestChannel = channel;
+      }
+    });
+    
+    if (closestChannel && closestChannel.id !== state.channels.active) {
+      setActiveChannel(closestChannel.id);
+    }
+  }, 150);
+});
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+
+// Console is lifetime 1, don't create duplicate
+// But DO create audio layer for lifetime 1
+setTimeout(() => {
+  if (state.audio.ready) createAudioLayer(1);
+}, 1000);
+
+spawnObjects();
+updateTurtlePosition();
+loop();
+
+</script>
+</body>
+</html>

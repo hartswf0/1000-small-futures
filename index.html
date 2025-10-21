@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1000 SMALL FUTURES</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #001a14;
+      --bg-light: #002820;
+      --border: #0a4a3a;
+      --text: #7de0c8;
+      --text-dim: #4a8c7a;
+      --red: #ff3d5a;
+      --red-dim: #8a2235;
+      --accent: #00ffaa;
+    }
+
+    body {
+      font-family: 'Courier New', 'Courier', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr min(1200px, 90vw) 1fr;
+      grid-template-rows: auto 1fr auto;
+      line-height: 1.4;
+      padding: 0;
+    }
+
+    header {
+      grid-column: 1 / -1;
+      background: var(--bg);
+      border-bottom: 1px solid var(--red);
+      padding: clamp(16px, 4vw, 24px) 0;
+      position: relative;
+    }
+
+    header::before {
+      content: '◉';
+      position: absolute;
+      left: clamp(20px, 4vw, 40px);
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.5rem;
+      color: var(--red);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    header::after {
+      content: '?';
+      position: absolute;
+      right: clamp(20px, 4vw, 40px);
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.2rem;
+      color: var(--text-dim);
+      border: 2px solid var(--border);
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: clamp(1rem, 3vw, 1.5rem);
+      font-weight: 400;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      margin: 0;
+      color: var(--text);
+    }
+
+    main {
+      grid-column: 2;
+      padding: clamp(40px, 8vw, 60px) 20px;
+    }
+
+    .manifest {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .manifest-item {
+      background: var(--bg-light);
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      padding: 28px 24px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      border: none;
+      border-left: 2px solid transparent;
+    }
+
+    .manifest-item::before {
+      content: '';
+      position: absolute;
+      left: 16px;
+      top: 20px;
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--red);
+      border-radius: 50%;
+      background: transparent;
+      transition: all 0.2s;
+    }
+
+    .manifest-item:nth-child(1)::before { background: var(--red); box-shadow: 0 0 12px var(--red); }
+    .manifest-item:nth-child(2)::before { background: transparent; }
+    .manifest-item:nth-child(3)::before { background: transparent; border-style: dashed; }
+    .manifest-item:nth-child(4)::before { background: transparent; }
+    .manifest-item:nth-child(5)::before { background: transparent; border-style: dashed; }
+    .manifest-item:nth-child(6)::before { background: transparent; }
+
+    .manifest-item:hover {
+      background: var(--bg);
+      border-left-color: var(--red);
+    }
+
+    .manifest-item:hover::before {
+      background: var(--red);
+      box-shadow: 0 0 16px var(--red);
+      transform: scale(1.15);
+    }
+
+    .manifest-number {
+      font-size: 0.75rem;
+      font-weight: 400;
+      line-height: 1;
+      margin-bottom: 12px;
+      margin-left: 44px;
+      color: var(--red-dim);
+      letter-spacing: 0.1em;
+    }
+
+    .manifest-title {
+      color: var(--text);
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      margin-left: 44px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .manifest-desc {
+      color: var(--text-dim);
+      font-size: 0.8rem;
+      line-height: 1.6;
+      font-weight: 400;
+      margin-left: 44px;
+    }
+
+    footer {
+      grid-column: 1 / -1;
+      background: var(--bg);
+      border-top: 1px solid var(--red);
+      padding: 20px 0;
+      text-align: center;
+      font-size: 0.7rem;
+      font-weight: 400;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      position: relative;
+      color: var(--text-dim);
+    }
+
+    footer::before {
+      content: '▸';
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: -12px;
+      color: var(--red);
+      font-size: 1.5rem;
+    }
+
+    .footer-text {
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 768px) {
+      .manifest {
+        grid-template-columns: 1fr;
+      }
+      
+      h1 { font-size: 0.9rem; }
+      
+      header::before,
+      header::after {
+        font-size: 1rem;
+        width: 24px;
+        height: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>1000 SMALL FUTURES</h1>
+  </header>
+
+  <main>
+    <nav class="manifest">
+      <a href="thousand-multi.html" class="manifest-item">
+        <div class="manifest-number">◉ 00001</div>
+        <div class="manifest-title">MULTI-CHANNEL ENGINE</div>
+        <div class="manifest-desc">Advanced LEGOS system with multi-channel orchestration, ring memory, tetrad interventions, and parallel narrative streams. The most complete implementation.</div>
+      </a>
+
+      <a href="thousand-lives-godlevel.html" class="manifest-item">
+        <div class="manifest-number">○ 00002</div>
+        <div class="manifest-title">GOD-LEVEL INTERFACE</div>
+        <div class="manifest-desc">Interactive medium for exploring belief formation, cultural transmission, and resonance across lifetimes with adjustable parameters and multi-perspective views.</div>
+      </a>
+
+      <a href="thousand-lives-sim.html" class="manifest-item">
+        <div class="manifest-number">◎ 00003</div>
+        <div class="manifest-title">LIVES SIMULATION</div>
+        <div class="manifest-desc">Original simulation exploring emergent behavior patterns and cultural evolution through iterative lifetimes.</div>
+      </a>
+
+      <a href="1000-small-futures-simulation.html" class="manifest-item">
+        <div class="manifest-number">○ 00004</div>
+        <div class="manifest-title">FUTURES SIMULATION</div>
+        <div class="manifest-desc">Multi-agent simulation exploring divergent trajectories and possibility spaces across parallel timelines.</div>
+      </a>
+
+      <a href="ouside-rad-futures.html" class="manifest-item">
+        <div class="manifest-number">◎ 00005</div>
+        <div class="manifest-title">RADICAL FUTURES</div>
+        <div class="manifest-desc">Exploration of alternative trajectories and radical possibilities outside conventional futures thinking.</div>
+      </a>
+
+      <a href="ouside-rad.html" class="manifest-item">
+        <div class="manifest-number">○ 00006</div>
+        <div class="manifest-title">RADICAL INTERFACE</div>
+        <div class="manifest-desc">Interactive interface for navigating unconventional possibility spaces and radical alternatives.</div>
+      </a>
+    </nav>
+  </main>
+
+  <footer>
+    <div class="footer-text">
+      6 ENGINES LOADED · GRID SYSTEMS OPERATIONAL
+    </div>
+  </footer>
+</body>
+</html>
