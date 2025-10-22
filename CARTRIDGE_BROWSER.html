@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LEGOS Scenario Cartridge Browser</title>
+  <link rel="stylesheet" href="cartridge-browser-styles.css">
+</head>
+<body>
+  <div class="header">
+    <h1>⋔ LEGOS SCENARIO CARTRIDGE BROWSER</h1>
+    <p>57 scenarios for McLuhan-style tetrad analysis • 12 categories</p>
+    
+    <div class="controls">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="media">Media Theory</button>
+      <button class="filter-btn" data-filter="medical">Medical</button>
+      <button class="filter-btn" data-filter="digital">Digital Hum</button>
+      <button class="filter-btn" data-filter="1000lives">1000 Lives</button>
+      <button class="filter-btn" data-filter="ethics">Tech Ethics</button>
+      <button class="filter-btn" data-filter="blackmetal">Black Metal</button>
+      <button class="filter-btn" data-filter="ekphrastic">Ekphrastic</button>
+      <button class="filter-btn" data-filter="cultural">Cultural</button>
+      <button class="filter-btn" data-filter="novel">Novel Sys</button>
+      <button class="filter-btn" data-filter="mythic">Mythic+Tech</button>
+      <button class="filter-btn" data-filter="animated">Animated</button>
+      <button class="filter-btn" data-filter="persuasion">Persuasion</button>
+      <input type="text" class="search-box" placeholder="Search..." id="searchBox">
+    </div>
+  </div>
+
+  <div class="stats"><span id="visibleCount">57</span> scenarios visible</div>
+
+  <div class="container" id="container"></div>
+
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <button class="modal-close" id="modalClose">×</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <script src="cartridge-browser-data.js"></script>
+  <script src="cartridge-browser-main.js"></script>
+</body>
+</html>
