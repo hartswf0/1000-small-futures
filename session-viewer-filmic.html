@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>◎ LEGOS Viewer</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg: #03180c;
+      --panel: #052010;
+      --border: #0c3a23;
+      --text: #aef3c1;
+      --text-muted: #5ea275;
+      --accent: #56ff9f;
+      --accent-glow: rgba(86, 255, 159, 0.32);
+    }
+    
+    body {
+      font-family: 'Courier New', monospace;
+      background: var(--bg);
+      color: var(--text);
+      font-size: clamp(11px, 2.5vw, 13px);
+      line-height: 1.6;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    /* Minimal top bar */
+    .top-bar {
+      background: var(--panel);
+      border-bottom: 1px solid var(--accent);
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      position: relative;
+      flex-wrap: wrap;
+    }
+    
+    .top-title {
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      font-weight: 700;
+    }
+    
+    .top-btns {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    
+    .top-btn {
+      padding: 6px 10px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 9px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 700;
+      border-radius: 3px;
+    }
+    
+    .top-btn:hover, .top-btn.active {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+    
+    .top-btn.tetrad {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    
+    /* Drag-drop zone */
+    .drop-zone {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 24, 12, 0.95);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      border: 4px dashed var(--accent);
+    }
+    
+    .drop-zone.active {
+      display: flex;
+    }
+    
+    .drop-message {
+      font-size: 24px;
+      color: var(--accent);
+      text-align: center;
+      padding: 40px;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+    }
+    
+    /* Main content */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 16px;
+      position: relative;
+    }
+    
+    /* Channel cards */
+    .channel {
+      background: var(--panel);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    
+    .channel-header {
+      padding: 12px;
+      background: var(--bg);
+      border-bottom: 2px solid var(--border);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .channel-color {
+      width: 4px;
+      height: 28px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    
+    .channel-info {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .channel-name {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    
+    .channel-meta {
+      font-size: 9px;
+      color: var(--text-muted);
+    }
+    
+    .channel-toggle {
+      color: var(--accent);
+      font-size: 14px;
+    }
+    
+    .channel-timeline {
+      padding: 12px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 10px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s;
+    }
+    
+    .channel.expanded .channel-timeline {
+      max-height: 2000px;
+    }
+    
+    .scene-card {
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      padding: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    
+    .scene-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 3px;
+      height: 100%;
+      background: currentColor;
+    }
+    
+    .scene-card.type-scene { color: var(--accent); }
+    .scene-card.type-perspectiv { color: #7d8bff; }
+    .scene-card.type-snapshot { color: #ffa53d; }
+    .scene-card.type-tetrad { color: #ff3d4e; }
+    
+    .scene-card:hover {
+      border-color: currentColor;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    
+    .scene-id {
+      font-size: 8px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+    
+    .scene-title {
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      line-height: 1.3;
+      color: var(--text);
+    }
+    
+    .scene-type {
+      font-size: 8px;
+      padding: 2px 5px;
+      border: 1px solid currentColor;
+      border-radius: 2px;
+      display: inline-block;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+    
+    .scene-time {
+      font-size: 8px;
+      color: var(--text-muted);
+    }
+    
+    /* Grid preview */
+    .grid-preview {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 1px;
+      background: var(--border);
+      padding: 1px;
+      margin-top: 8px;
+      border-radius: 3px;
+    }
+    
+    .grid-cell {
+      aspect-ratio: 1;
+      background: var(--bg);
+      font-size: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    
+    .grid-cell.occupied {
+      background: var(--panel);
+      color: var(--accent);
+    }
+    
+    /* Empty state */
+    .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+    
+    .empty-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+    
+    .empty-text {
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    
+    .empty-hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 12px;
+    }
+    
+    /* Detail modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 24, 12, 0.92);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    
+    .modal.visible {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: var(--panel);
+      border: 2px solid var(--accent);
+      border-radius: 8px;
+      max-width: min(600px, 100%);
+      max-height: 85vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .modal-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .modal-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px;
+      line-height: 1;
+    }
+    
+    .modal-close:hover {
+      color: var(--accent);
+    }
+    
+    .modal-body {
+      padding: 16px;
+      overflow-y: auto;
+      flex: 1;
+    }
+    
+    .detail-section {
+      margin-bottom: 16px;
+    }
+    
+    .detail-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+    
+    .detail-content {
+      font-size: 11px;
+      line-height: 1.6;
+      background: var(--bg);
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+    
+    /* Stats footer */
+    .stats {
+      background: var(--panel);
+      border-top: 1px solid var(--accent);
+      padding: 8px 12px;
+      font-size: 9px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    
+    .stat-item {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+    
+    .stat-num {
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 11px;
+    }
+    
+    /* Mobile optimizations */
+    @media (max-width: 600px) {
+      .top-bar {
+        padding: 6px 8px;
+      }
+      .top-btn {
+        padding: 5px 8px;
+        font-size: 8px;
+      }
+      .main {
+        padding: 12px;
+      }
+      .channel-timeline {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Drop zone -->
+  <div class="drop-zone" id="dropZone">
+    <div class="drop-message">◉ DROP JSON FILE</div>
+  </div>
+  
+  <!-- Top bar -->
+  <div class="top-bar">
+    <span class="top-title">◎ VIEWER</span>
+    <div class="top-btns">
+      <button class="top-btn" id="loadBtn">LOAD</button>
+      <select class="top-btn" id="viewSelect">
+        <option value="channels">CHANNELS</option>
+        <option value="timeline">TIMELINE</option>
+        <option value="grid">GRID</option>
+      </select>
+      <button class="top-btn tetrad" id="tetradBtn">⋔ TETRAD</button>
+    </div>
+  </div>
+  
+  <!-- Main content -->
+  <div class="main" id="mainContent">
+    <div class="empty">
+      <div class="empty-icon">◎</div>
+      <div class="empty-text">NO SESSION LOADED</div>
+      <button class="top-btn" onclick="document.getElementById('fileInput').click()">
+        LOAD JSON FILE
+      </button>
+      <div class="empty-hint">or drag and drop a file anywhere</div>
+    </div>
+  </div>
+  
+  <!-- Detail modal -->
+  <div class="modal" id="detailModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle">Scene Details</div>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+  
+  <!-- Stats footer -->
+  <div class="stats" id="statsBar">
+    <div class="stat-item">
+      <span class="stat-num" id="channelCount">0</span>
+      <span>CHANNELS</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" id="entryCount">0</span>
+      <span>ENTRIES</span>
+    </div>
+    <div class="stat-item">
+      <span id="sessionInfo">NO SESSION</span>
+    </div>
+  </div>
+  
+  <input type="file" id="fileInput" accept=".json" hidden>
+  
+  <script>
+    // ═══════════════════════════════════════════════════════════════
+    // SESSION VIEWER - Console Logging & File Handling
+    // ═══════════════════════════════════════════════════════════════
+    
+    let currentSession = null;
+    let currentView = 'channels';
+    
+    console.log('[VIEWER] ◎ LEGOS Session Viewer initialized');
+    console.log('[VIEWER] Ready for file drop or load');
+    
+    // File input
+    document.getElementById('fileInput').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) loadFile(file);
+    });
+    
+    // Drag and drop
+    const dropZone = document.getElementById('dropZone');
+    
+    document.body.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('active');
+    });
+    
+    document.body.addEventListener('dragleave', (e) => {
+      if (e.target === document.body) {
+        dropZone.classList.remove('active');
+      }
+    });
+    
+    document.body.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('active');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type === 'application/json') {
+        console.log('[VIEWER] File dropped:', file.name);
+        loadFile(file);
+      } else {
+        console.error('[VIEWER] Invalid file type');
+        alert('Please drop a JSON file');
+      }
+    });
+    
+    // Load button
+    document.getElementById('loadBtn').addEventListener('click', () => {
+      document.getElementById('fileInput').click();
+    });
+    
+    // View selector
+    document.getElementById('viewSelect').addEventListener('change', (e) => {
+      currentView = e.target.value;
+      if (currentSession) renderSession(currentSession);
+    });
+    
+    // Tetrad button
+    document.getElementById('tetradBtn').addEventListener('click', () => {
+      if (currentSession) {
+        console.log('[VIEWER] Tetrad analysis requested');
+        // TODO: Implement tetrad view
+        alert('Tetrad analysis view coming soon!');
+      }
+    });
+    
+    // Load file
+    function loadFile(file) {
+      console.log('[VIEWER] ═════════════════════════════════');
+      console.log('[VIEWER] Loading file:', file.name);
+      console.log('[VIEWER] Size:', (file.size / 1024).toFixed(2), 'KB');
+      
+      const reader = new FileReader();
+      
+      reader.onload = (e) => {
+        try {
+          const data = JSON.parse(e.target.result);
+          console.log('[VIEWER] ✓ JSON parsed successfully');
+          console.log('[VIEWER] Data keys:', Object.keys(data));
+          
+          currentSession = data;
+          renderSession(data);
+          
+          console.log('[VIEWER] ═════════════════════════════════');
+        } catch (err) {
+          console.error('[VIEWER] ✗ Parse error:', err);
+          alert('Error parsing JSON file: ' + err.message);
+        }
+      };
+      
+      reader.onerror = () => {
+        console.error('[VIEWER] ✗ File read error');
+        alert('Error reading file');
+      };
+      
+      reader.readAsText(file);
+    }
+    
+    // Render session
+    function renderSession(data) {
+      console.log('[VIEWER] Rendering session...');
+      console.log('[VIEWER] View mode:', currentView);
+      
+      const main = document.getElementById('mainContent');
+      main.innerHTML = '';
+      
+      // Detect session format
+      let channels = [];
+      let ringEntries = [];
+      
+      if (data.channels && Array.isArray(data.channels)) {
+        channels = data.channels;
+        console.log('[VIEWER] Found', channels.length, 'channels');
+      }
+      
+      if (data.ringBuffer && data.ringBuffer.entries) {
+        ringEntries = data.ringBuffer.entries;
+        console.log('[VIEWER] Found ring buffer:', ringEntries.length, 'entries');
+      } else if (data.ring && data.ring.entries) {
+        ringEntries = data.ring.entries;
+        console.log('[VIEWER] Found ring entries:', ringEntries.length);
+      }
+      
+      // Update stats
+      document.getElementById('channelCount').textContent = channels.length;
+      document.getElementById('entryCount').textContent = ringEntries.length;
+      document.getElementById('sessionInfo').textContent = data.version || 'LEGACY';
+      
+      // Render based on view mode
+      if (currentView === 'channels') {
+        renderChannelsView(channels, ringEntries);
+      } else if (currentView === 'timeline') {
+        renderTimelineView(ringEntries);
+      } else if (currentView === 'grid') {
+        renderGridView(channels);
+      }
+      
+      console.log('[VIEWER] ✓ Render complete');
+    }
+    
+    // Render channels view
+    function renderChannelsView(channels, ringEntries) {
+      const main = document.getElementById('mainContent');
+      
+      if (channels.length === 0) {
+        main.innerHTML = '<div class="empty"><div class="empty-icon">◎</div><div class="empty-text">No channels in session</div></div>';
+        return;
+      }
+      
+      channels.forEach((ch, idx) => {
+        const channelEl = document.createElement('div');
+        channelEl.className = 'channel expanded';
+        
+        const channelColor = ch.channelColor || '#56ff9f';
+        const channelName = ch.name || ch.symbolicId || `Channel ${idx + 1}`;
+        const messageCount = ch.messages ? ch.messages.length : 0;
+        
+        console.log('[VIEWER] Channel:', channelName, '|', messageCount, 'messages');
+        
+        // Get ring entries for this channel
+        const channelRingEntries = ringEntries.filter(e => e.channelId === ch.id);
+        
+        channelEl.innerHTML = `
+          <div class="channel-header" onclick="toggleChannel(this)">
+            <div class="channel-color" style="background: ${channelColor}"></div>
+            <div class="channel-info">
+              <div class="channel-name">${channelName}</div>
+              <div class="channel-meta">${channelRingEntries.length} entries · ${messageCount} messages</div>
+            </div>
+            <div class="channel-toggle">▼</div>
+          </div>
+          <div class="channel-timeline">
+            ${channelRingEntries.map(entry => renderSceneCard(entry, channelColor)).join('')}
+          </div>
+        `;
+        
+        main.appendChild(channelEl);
+      });
+    }
+    
+    // Render timeline view
+    function renderTimelineView(entries) {
+      const main = document.getElementById('mainContent');
+      
+      if (entries.length === 0) {
+        main.innerHTML = '<div class="empty"><div class="empty-icon">◎</div><div class="empty-text">No entries in timeline</div></div>';
+        return;
+      }
+      
+      // Sort by timestamp
+      const sorted = [...entries].sort((a, b) => 
+        new Date(a.timestamp) - new Date(b.timestamp)
+      );
+      
+      console.log('[VIEWER] Timeline entries:', sorted.length);
+      
+      const timelineEl = document.createElement('div');
+      timelineEl.className = 'channel expanded';
+      timelineEl.innerHTML = `
+        <div class="channel-header">
+          <div class="channel-color" style="background: var(--accent)"></div>
+          <div class="channel-info">
+            <div class="channel-name">FULL TIMELINE</div>
+            <div class="channel-meta">${sorted.length} entries</div>
+          </div>
+        </div>
+        <div class="channel-timeline">
+          ${sorted.map(entry => renderSceneCard(entry)).join('')}
+        </div>
+      `;
+      
+      main.appendChild(timelineEl);
+    }
+    
+    // Render grid view
+    function renderGridView(channels) {
+      const main = document.getElementById('mainContent');
+      
+      channels.forEach(ch => {
+        if (!ch.grid) return;
+        
+        const channelEl = document.createElement('div');
+        channelEl.className = 'channel expanded';
+        
+        channelEl.innerHTML = `
+          <div class="channel-header">
+            <div class="channel-color" style="background: ${ch.channelColor || '#56ff9f'}"></div>
+            <div class="channel-info">
+              <div class="channel-name">${ch.name || 'Channel'}</div>
+              <div class="channel-meta">Grid State</div>
+            </div>
+          </div>
+          <div class="channel-timeline">
+            ${renderGridPreview(ch.grid)}
+          </div>
+        `;
+        
+        main.appendChild(channelEl);
+      });
+    }
+    
+    // Render scene card
+    function renderSceneCard(entry, color = 'var(--accent)') {
+      const timestamp = new Date(entry.timestamp);
+      const timeStr = timestamp.toLocaleTimeString();
+      
+      return `
+        <div class="scene-card type-${entry.type.toLowerCase()}" onclick="showDetail('${entry.id}')">
+          <div class="scene-id">${entry.id}</div>
+          <div class="scene-title">${entry.headline || 'Untitled'}</div>
+          <div class="scene-type">${entry.type}</div>
+          <div class="scene-time">${timeStr}</div>
+        </div>
+      `;
+    }
+    
+    // Render grid preview
+    function renderGridPreview(grid) {
+      if (!grid) return '';
+      
+      let html = '<div class="grid-preview">';
+      for (let y = 0; y < 9; y++) {
+        for (let x = 0; x < 9; x++) {
+          const cell = grid[y] && grid[y][x];
+          const occupied = cell && cell.type !== 'empty';
+          html += `<div class="grid-cell ${occupied ? 'occupied' : ''}">${occupied ? cell.symbol : ''}</div>`;
+        }
+      }
+      html += '</div>';
+      return html;
+    }
+    
+    // Toggle channel
+    function toggleChannel(headerEl) {
+      headerEl.parentElement.classList.toggle('expanded');
+      const toggle = headerEl.querySelector('.channel-toggle');
+      toggle.textContent = headerEl.parentElement.classList.contains('expanded') ? '▼' : '▶';
+    }
+    
+    // Show detail modal
+    function showDetail(entryId) {
+      if (!currentSession) return;
+      
+      console.log('[VIEWER] Show detail:', entryId);
+      
+      let entry = null;
+      if (currentSession.ringBuffer && currentSession.ringBuffer.entries) {
+        entry = currentSession.ringBuffer.entries.find(e => e.id === entryId);
+      } else if (currentSession.ring && currentSession.ring.entries) {
+        entry = currentSession.ring.entries.find(e => e.id === entryId);
+      }
+      
+      if (!entry) {
+        console.error('[VIEWER] Entry not found:', entryId);
+        return;
+      }
+      
+      console.log('[VIEWER] Entry data:', entry);
+      
+      document.getElementById('modalTitle').textContent = entry.headline || entry.id;
+      
+      const modalBody = document.getElementById('modalBody');
+      modalBody.innerHTML = `
+        <div class="detail-section">
+          <div class="detail-label">ID</div>
+          <div class="detail-content">${entry.id}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">TYPE</div>
+          <div class="detail-content">${entry.type}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">TIMESTAMP</div>
+          <div class="detail-content">${new Date(entry.timestamp).toLocaleString()}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">SYMBOL</div>
+          <div class="detail-content">${entry.symbol || 'N/A'}</div>
+        </div>
+        ${entry.summary ? `
+        <div class="detail-section">
+          <div class="detail-label">SUMMARY</div>
+          <div class="detail-content">${entry.summary}</div>
+        </div>
+        ` : ''}
+        ${entry.telemetry ? `
+        <div class="detail-section">
+          <div class="detail-label">TELEMETRY</div>
+          <div class="detail-content">
+            <pre>${JSON.stringify(entry.telemetry, null, 2)}</pre>
+          </div>
+        </div>
+        ` : ''}
+      `;
+      
+      document.getElementById('detailModal').classList.add('visible');
+    }
+    
+    // Close modal
+    function closeModal() {
+      document.getElementById('detailModal').classList.remove('visible');
+    }
+    
+    // Close modal on escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+    
+    // Close modal on background click
+    document.getElementById('detailModal').addEventListener('click', (e) => {
+      if (e.target.id === 'detailModal') closeModal();
+    });
+    
+    console.log('[VIEWER] ✓ All event listeners attached');
+    console.log('[VIEWER] Drag a JSON file or click LOAD to begin');
+  </script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LEGOS Session Viewer</title>
+  <link rel="stylesheet" href="session-viewer-styles.css">
+</head>
+<body>
+  <div class="header">
+    <h1>⧉ LEGOS SESSION VIEWER</h1>
+    <div class="header-meta" id="headerMeta">No session loaded</div>
+  </div>
+
+  <button class="corner-btn top-left" id="cornerLoad" title="Load Session">◎</button>
+  <button class="corner-btn top-right" id="cornerHelp" title="Help">?</button>
+  <button class="corner-btn bottom-left" id="cornerExport" title="Export">⇆</button>
+  <button class="corner-btn bottom-right" id="cornerTheme" title="Toggle Theme">◐</button>
+
+  <div class="corner-menu" id="loadMenu" style="top: 72px; left: 16px;">
+    <button data-action="load-file">LOAD JSON FILE</button>
+    <button data-action="load-sample-ring">SAMPLE: RING MEMORY</button>
+    <button data-action="load-sample-multi">SAMPLE: MULTI-CHANNEL</button>
+  </div>
+
+  <div class="corner-menu" id="helpMenu" style="top: 72px; right: 16px;">
+    <button data-action="about">ABOUT VIEWER</button>
+    <button data-action="formats">SUPPORTED FORMATS</button>
+  </div>
+
+  <div class="tabs" id="tabs" style="display: none;">
+    <button class="tab active" data-tab="overview">Overview</button>
+    <button class="tab" data-tab="channels">Channels</button>
+    <button class="tab" data-tab="ring">Ring Memory</button>
+    <button class="tab" data-tab="snapshots">Snapshots</button>
+  </div>
+
+  <div class="main-content">
+    <div class="tab-content active" id="tab-overview">
+      <div class="empty-state">
+        <div class="empty-icon">◎</div>
+        <div>No session loaded</div>
+        <button class="load-btn" onclick="document.getElementById('fileInput').click()">LOAD JSON FILE</button>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-channels"></div>
+    <div class="tab-content" id="tab-ring"></div>
+    <div class="tab-content" id="tab-snapshots"></div>
+  </div>
+
+  <div class="footer">
+    <div>LEGOS SESSION VIEWER · TETRAD SYSTEMS</div>
+    <div class="footer-stats" id="footerStats">
+      <div class="footer-stat">
+        <span class="footer-number" id="channelCount">0</span>
+        <span>Channels</span>
+      </div>
+      <div class="footer-stat">
+        <span class="footer-number" id="messageCount">0</span>
+        <span>Messages</span>
+      </div>
+      <div class="footer-stat">
+        <span class="footer-number" id="ringCount">0</span>
+        <span>Ring Entries</span>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="fileInput" accept=".json" hidden>
+
+  <script src="session-viewer-main.js"></script>
+</body>
+</html>

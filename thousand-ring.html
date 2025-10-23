@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>LEGOS Tetrad Analyzer - McLuhan's Four Laws</title>
+  <title>LEGOS Ring Memory - Tetrad Analyzer with Temporal Intelligence</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='80'>✦</text></svg>">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
   <style>
@@ -1988,6 +1988,254 @@
   </div>
 
   <script>
+    // ═══════════════════════════════════════════════════════════════════
+    // RING BUFFER & TEMPORAL INDEX - Memory Management System
+    // ═══════════════════════════════════════════════════════════════════
+    
+    // Memory profiles for different devices
+    const MEMORY_PROFILES = {
+      desktop: { ringCapacity: 96, telemetryDepth: 1000, gridHistory: 50 },
+      tablet: { ringCapacity: 48, telemetryDepth: 500, gridHistory: 25 },
+      mobile: { ringCapacity: 24, telemetryDepth: 200, gridHistory: 10 },
+      lowMemory: { ringCapacity: 12, telemetryDepth: 50, gridHistory: 5 }
+    };
+    
+    // Ring Buffer - Circular memory with graceful degradation
+    class RingBuffer {
+      constructor(options = {}) {
+        this.memoryProfile = this.detectMemoryProfile();
+        const profile = MEMORY_PROFILES[this.memoryProfile];
+        this.capacity = options.capacity || profile.ringCapacity;
+        this._entriesArray = new Array(this.capacity);  // Private internal array
+        this.pointer = 0;
+        this.size = 0;
+        this.index = { byId: new Map(), byChannel: new Map(), byType: new Map(), byTime: [] };
+        this.telemetry = { totalWrites: 0, overwriteCount: 0, compactionCount: 0, memoryChecks: 0, lastMemoryUsage: 0 };
+        console.log(`[RingBuffer] Init: ${this.memoryProfile}, capacity: ${this.capacity}`);
+      }
+      
+      detectMemoryProfile() {
+        const deviceMemory = navigator.deviceMemory || 4;
+        let heapUsed = 0;
+        if (performance.memory) heapUsed = performance.memory.usedJSHeapSize;
+        if (deviceMemory >= 8 && heapUsed < 100_000_000) return 'desktop';
+        else if (deviceMemory >= 4 && heapUsed < 50_000_000) return 'tablet';
+        else if (deviceMemory >= 2 && heapUsed < 30_000_000) return 'mobile';
+        else return 'lowMemory';
+      }
+      
+      write(entry) {
+        if (!entry || !entry.id || !entry.timestamp) return false;
+        if (this.index.byId.has(entry.id)) return false;
+        const oldEntry = this._entriesArray[this.pointer];
+        if (oldEntry) { this.removeFromIndex(oldEntry); this.telemetry.overwriteCount++; }
+        this._entriesArray[this.pointer] = entry;
+        this.addToIndex(entry);
+        this.pointer = (this.pointer + 1) % this.capacity;
+        this.size = Math.min(this.size + 1, this.capacity);
+        this.telemetry.totalWrites++;
+        if (this.telemetry.totalWrites % 100 === 0) this.checkMemoryPressure();
+        return true;
+      }
+      
+      addToIndex(entry) {
+        this.index.byId.set(entry.id, entry);
+        if (!this.index.byChannel.has(entry.channelId)) this.index.byChannel.set(entry.channelId, []);
+        this.index.byChannel.get(entry.channelId).push(entry);
+        if (!this.index.byType.has(entry.type)) this.index.byType.set(entry.type, []);
+        this.index.byType.get(entry.type).push(entry);
+        this.index.byTime.push({ timestamp: new Date(entry.timestamp), id: entry.id });
+        this.index.byTime.sort((a, b) => a.timestamp - b.timestamp);
+      }
+      
+      removeFromIndex(entry) {
+        this.index.byId.delete(entry.id);
+        const chEntries = this.index.byChannel.get(entry.channelId);
+        if (chEntries) { const idx = chEntries.findIndex(e => e.id === entry.id); if (idx >= 0) chEntries.splice(idx, 1); }
+        const typeEntries = this.index.byType.get(entry.type);
+        if (typeEntries) { const idx = typeEntries.findIndex(e => e.id === entry.id); if (idx >= 0) typeEntries.splice(idx, 1); }
+        const timeIdx = this.index.byTime.findIndex(t => t.id === entry.id);
+        if (timeIdx >= 0) this.index.byTime.splice(timeIdx, 1);
+      }
+      
+      checkMemoryPressure() {
+        this.telemetry.memoryChecks++;
+        if (!performance.memory) return;
+        const heapUsed = performance.memory.usedJSHeapSize;
+        const heapLimit = performance.memory.jsHeapSizeLimit;
+        const usage = heapUsed / heapLimit;
+        this.telemetry.lastMemoryUsage = usage;
+        if (usage > 0.8) { console.warn(`[RingBuffer] Memory pressure: ${(usage*100).toFixed(1)}%`); this.compactOldEntries(); }
+        if (usage > 0.9) this.reduceCapacity();
+      }
+      
+      compactOldEntries() {
+        const keepFields = ['id', 'type', 'timestamp', 'channelId', 'headline', 'symbol'];
+        const recentThreshold = Math.floor(this.capacity * 0.25);
+        this._entriesArray.forEach((entry, i) => {
+          if (!entry) return;
+          const distance = (this.pointer - i + this.capacity) % this.capacity;
+          if (distance > recentThreshold) Object.keys(entry).forEach(key => { if (!keepFields.includes(key)) delete entry[key]; });
+        });
+        this.telemetry.compactionCount++;
+      }
+      
+      reduceCapacity() {
+        const newCapacity = Math.max(12, Math.floor(this.capacity * 0.75));
+        const toKeep = this.getAll().slice(-newCapacity);
+        this._entriesArray = new Array(newCapacity);
+        this.pointer = 0;
+        this.size = 0;
+        this.capacity = newCapacity;
+        this.index.byId.clear();
+        this.index.byChannel.clear();
+        this.index.byType.clear();
+        this.index.byTime = [];
+        toKeep.forEach(entry => this.write(entry));
+        console.log(`[RingBuffer] Capacity reduced to ${newCapacity}`);
+      }
+      
+      get(id) { return this.index.byId.get(id); }
+      getAll() { 
+        // Access internal array directly to avoid infinite recursion with compatibility getter
+        const result = [];
+        for (let i = 0; i < this.capacity; i++) {
+          if (this._entriesArray[i] !== undefined && this._entriesArray[i] !== null) {
+            result.push(this._entriesArray[i]);
+          }
+        }
+        return result;
+      }
+      getByChannel(channelId) { return this.index.byChannel.get(channelId) || []; }
+      getByType(type) { return this.index.byType.get(type) || []; }
+      getRecent(count = 10) { return this.getAll().slice(-count); }
+      
+      toJSON() {
+        return { capacity: this.capacity, size: this.size, pointer: this.pointer, memoryProfile: this.memoryProfile, entries: this.getAll(), telemetry: this.telemetry };
+      }
+      
+      fromJSON(data) {
+        this.capacity = data.capacity;
+        this.size = data.size || 0;
+        this.pointer = data.pointer || 0;
+        this._entriesArray = new Array(this.capacity);
+        this.index.byId.clear();
+        this.index.byChannel.clear();
+        this.index.byType.clear();
+        this.index.byTime = [];
+        if (data.entries && Array.isArray(data.entries)) {
+          data.entries.forEach((entry, i) => { if (entry) { this._entriesArray[i] = entry; this.addToIndex(entry); } });
+        }
+      }
+      
+      getStats() {
+        return { capacity: this.capacity, size: this.size, utilizationPercent: (this.size / this.capacity * 100).toFixed(1), memoryProfile: this.memoryProfile, channelCount: this.index.byChannel.size, typeCount: this.index.byType.size, ...this.telemetry };
+      }
+    }
+    
+    // Temporal Index - "Chat Across Time" queries
+    class TemporalIndex {
+      constructor(ringBuffer) {
+        this.ringBuffer = ringBuffer;
+        this.indices = { timeline: [], byChannel: new Map(), byEntity: new Map(), byPosition: new Map(), searchIndex: new Map() };
+      }
+      
+      rebuildAll() {
+        this.indices.timeline = [];
+        this.indices.byChannel.clear();
+        this.indices.byEntity.clear();
+        this.indices.byPosition.clear();
+        this.indices.searchIndex.clear();
+        const entries = this.ringBuffer.getAll();
+        entries.forEach(entry => this.indexEntry(entry));
+        this.indices.timeline.sort((a, b) => a.timestamp - b.timestamp);
+      }
+      
+      indexEntry(entry) {
+        const timestamp = new Date(entry.timestamp);
+        this.indices.timeline.push({ timestamp, entryId: entry.id, type: entry.type, channelId: entry.channelId, headline: entry.headline });
+        if (!this.indices.byChannel.has(entry.channelId)) {
+          this.indices.byChannel.set(entry.channelId, { entries: [], firstSeen: timestamp, lastSeen: timestamp, count: 0 });
+        }
+        const chData = this.indices.byChannel.get(entry.channelId);
+        chData.entries.push(entry.id);
+        chData.lastSeen = timestamp;
+        chData.count++;
+        if (entry.type && entry.type.toLowerCase().includes('persp')) {
+          const entityId = this.extractEntityId(entry);
+          if (entityId) {
+            if (!this.indices.byEntity.has(entityId)) this.indices.byEntity.set(entityId, { perspectives: [], appearances: [], narrative: [] });
+            this.indices.byEntity.get(entityId).perspectives.push(entry.id);
+          }
+        }
+        if (entry.symbol) {
+          const position = this.parsePosition(entry.symbol);
+          if (position) {
+            const key = `${position.x},${position.y}`;
+            if (!this.indices.byPosition.has(key)) this.indices.byPosition.set(key, { events: [], history: [] });
+            this.indices.byPosition.get(key).events.push({ entryId: entry.id, timestamp, type: entry.type });
+            if (entry.headline) this.indices.byPosition.get(key).history.push(entry.headline);
+          }
+        }
+        if (entry.headline || entry.summary) {
+          const text = `${entry.headline || ''} ${entry.summary || ''}`.toLowerCase();
+          text.split(/\W+/).filter(w => w.length > 3).forEach(word => {
+            if (!this.indices.searchIndex.has(word)) this.indices.searchIndex.set(word, []);
+            if (!this.indices.searchIndex.get(word).includes(entry.id)) this.indices.searchIndex.get(word).push(entry.id);
+          });
+        }
+      }
+      
+      extractEntityId(entry) {
+        if (entry.headline) {
+          const match = entry.headline.match(/Perspective:\s*(.+?)(?:\s+\d+)?$/i);
+          if (match) return match[1].trim().toLowerCase().replace(/\s+/g, '_');
+        }
+        return null;
+      }
+      
+      parsePosition(symbol) {
+        if (!symbol) return null;
+        const parts = symbol.trim().split(/\s+/);
+        if (parts.length >= 2) {
+          const x = parseInt(parts[parts.length - 2]);
+          const y = parseInt(parts[parts.length - 1]);
+          if (!isNaN(x) && !isNaN(y)) return { x, y };
+        }
+        return null;
+      }
+      
+      search(query) {
+        if (!query || query.length < 3) return [];
+        const searchTerms = query.toLowerCase().split(/\W+/).filter(w => w.length > 3);
+        if (searchTerms.length === 0) return [];
+        const matchingIds = new Set();
+        searchTerms.forEach(term => {
+          if (this.indices.searchIndex.has(term)) this.indices.searchIndex.get(term).forEach(id => matchingIds.add(id));
+          this.indices.searchIndex.forEach((ids, word) => { if (word.startsWith(term)) ids.forEach(id => matchingIds.add(id)); });
+        });
+        return Array.from(matchingIds).map(id => this.ringBuffer.get(id)).filter(e => e).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      }
+      
+      getByChannel(channelId) {
+        const data = this.indices.byChannel.get(channelId);
+        if (!data) return null;
+        return { ...data, entries: data.entries.map(id => this.ringBuffer.get(id)).filter(e => e) };
+      }
+      
+      getStats() {
+        return { totalEntries: this.indices.timeline.length, channelCount: this.indices.byChannel.size, entityCount: this.indices.byEntity.size, locationsTracked: this.indices.byPosition.size, uniqueWords: this.indices.searchIndex.size };
+      }
+    }
+    
+    // Global instances
+    let sessionRingBuffer = null;
+    let sessionIndex = null;
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // LEGOS CORE SYSTEM
+    // ═══════════════════════════════════════════════════════════════════
+    
     const blockPalette = [
       { type: 'Location', symbol: 'L' },
       { type: 'Entity', symbol: 'E' },
@@ -4510,14 +4758,21 @@
     let channelColorIndex = 0;
     let channelSequence = 1;
 
-    const ringMemory = {
-      capacity: 48,
-      entries: [],
-      pointer: 0,
-      mainline: null,
-      contextMode: 'all',
-      contextAnchor: null
-    };
+    // Initialize enhanced ring buffer system
+    sessionRingBuffer = new RingBuffer();
+    sessionIndex = new TemporalIndex(sessionRingBuffer);
+    
+    // Add compatibility properties for legacy code
+    Object.defineProperty(sessionRingBuffer, 'entries', {
+      get() { return this.getAll(); },
+      set(val) { console.warn('Direct entries assignment deprecated'); }
+    });
+    sessionRingBuffer.mainline = null;
+    sessionRingBuffer.contextMode = 'all';
+    sessionRingBuffer.contextAnchor = null;
+    
+    // Legacy compatibility
+    const ringMemory = sessionRingBuffer;
     let ringEntryCounter = 1;
     const MAX_HANDLE_LENGTH = 10;
 
@@ -4576,16 +4831,14 @@
         headline: payload.headline || '',
         summary: payload.summary || ''
       };
-      ringMemory.entries.push(entry);
-      if (ringMemory.entries.length > ringMemory.capacity) {
-        const removed = ringMemory.entries.shift();
-        if (removed?.id === ringMemory.mainline) {
-          ringMemory.mainline = null;
-        }
-        if (removed?.id === ringMemory.contextAnchor) {
-          ringMemory.contextAnchor = null;
-        }
-      }
+      
+      // Use new ring buffer write method
+      sessionRingBuffer.write(entry);
+      
+      // Rebuild temporal index for queries
+      sessionIndex.rebuildAll();
+      
+      // Legacy compatibility tracking
       if (!ringMemory.contextAnchor) {
         ringMemory.contextAnchor = entry.id;
       }

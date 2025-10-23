@@ -1,0 +1,647 @@
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                     LEGOS CASE STUDIES                                        ║
+║                     5 Complete Workflows                                      ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ CASE STUDY 1: DETECTIVE MYSTERY                                            │
+│ Learn: Perspective analysis, Entity relations, Narrative structure          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+SCENARIO: Locked room murder at art gallery
+DURATION: 15 minutes
+SKILLS: Scene building, /perspective, Entity clicks
+
+───────────────────────────────────────────────────────────────────────────────
+
+STEP 1: SETUP API KEY
+┌────────────────────────┐
+│ Click ◎ button         │
+│ Paste OpenAI key       │
+│ Save                   │
+└────────────────────────┘
+
+STEP 2: INITIAL SCENE
+Type: "A wealthy art collector found dead in locked gallery"
+
+Grid shows:
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  🏛  💀  🖼  🔒  💎  🍷  📜  🔑  🚪              ┃
+┃                                                  ┃
+┃  Gallery  Body  Art  Lock  Diamond  Wine  Note  ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+STEP 3: ADD SUSPECTS
+Type: "Three people have keys: the curator, rival collector, and insurance agent"
+
+Grid updates:
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  🏛  💀  🖼  🔒  💎  🍷  📜  🔑  🚪              ┃
+┃                                                  ┃
+┃  👤  👤  👤                                       ┃
+┃  Curator  Rival  Agent                           ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+STEP 4: INVESTIGATE CURATOR
+Click curator cell
+Overlay shows:
+┌────────────────────────────────────────────────┐
+│ ENTITY: The Curator                            │
+│ Type: Entity                                   │
+│ Symbol: 👤                                      │
+│                                                │
+│ PERSPECTIVE:                                   │
+│ "I've devoted my life to this collection.     │
+│  The owner was planning to sell everything.   │
+│  These pieces belong in a museum, not a       │
+│  private vault. But murder? Never."           │
+│                                                │
+│ RELATIONS:                                     │
+│ → Gallery (steward of)                         │
+│ → Body (served)                                │
+│ → Art (devoted to)                             │
+└────────────────────────────────────────────────┘
+
+Type: /perspective
+
+Chat shows detailed analysis:
+┌────────────────────────────────────────────────┐
+│ DEEP PERSPECTIVE: The Curator                  │
+│                                                │
+│ Motivation: Preservation over profit           │
+│ Conflict: Duty vs ideology                     │
+│ Capability: Complete access                    │
+│ Emotional State: Defensive                     │
+│                                                │
+│ Hidden Tension:                                │
+│ "I had a key. I knew the alarm codes.         │
+│  I knew he would sell. But taking a life...   │
+│  could I have prevented this another way?"    │
+└────────────────────────────────────────────────┘
+
+STEP 5: CHECK RIVAL
+Click rival collector cell
+
+PERSPECTIVE:
+"He stole my discovery. That Byzantine piece was mine by rights.
+ But I was at the opera that night. Dozens saw me."
+
+Type: /perspective
+Analysis shows: Motive strong, opportunity weak
+
+STEP 6: EXAMINE AGENT
+Click insurance agent cell
+
+PERSPECTIVE:
+"The policy was worth millions. He increased coverage last month.
+ Suspicious timing, yes. But I process claims, I don't create them."
+
+Type: /perspective
+Analysis shows: Financial motive, professional distance
+
+STEP 7: EXAMINE CLUES
+Click wine glass cell
+
+PERSPECTIVE:
+"I hold traces of sedative. Two glasses on the table, but only
+ I show residue. Someone shared a drink, then waited."
+
+Click note cell
+
+PERSPECTIVE:
+"I am an invitation to the curator for a private viewing.
+ Handwriting matches the deceased. Appointment: 11 PM."
+
+STEP 8: THE TWIST
+Type: "The curator reveals the collector faked his death for insurance fraud"
+
+Grid updates - body cell changes:
+💀 → 😎 (alive, in disguise)
+
+New perspective:
+"I needed to disappear. Debts. Bad investments. The curator
+ found out and confronted me. Now we both know too much."
+
+STEP 9: TETRAD ANALYSIS
+Type: /tetrad
+
+Chat shows:
+┌────────────────────────────────────────────────┐
+│ McLUHAN'S TETRAD: Gallery Murder Mystery       │
+│                                                │
+│ ENHANCES:                                      │
+│ → Deception as survival strategy               │
+│ → Value of art over life                       │
+│                                                │
+│ MAKES OBSOLETE:                                │
+│ → Simple victim/perpetrator binary             │
+│ → Trust in appearances                         │
+│                                                │
+│ RETRIEVES:                                     │
+│ → Classical Greek tragedy (hubris)             │
+│ → Gothic mystery traditions                    │
+│                                                │
+│ REVERSES INTO:                                 │
+│ → The "detective" becomes complicit            │
+│ → Art preservation becomes art crime           │
+└────────────────────────────────────────────────┘
+
+OUTCOME: Complex narrative with moral ambiguity
+LEARNED: Perspective analysis, entity relations, thematic depth
+
+═══════════════════════════════════════════════════════════════════════════════
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ CASE STUDY 2: FANTASY QUEST                                                │
+│ Learn: Branching narratives, Tetrad themes, Story arc structure            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+SCENARIO: Hero's journey with choice and consequence
+DURATION: 20 minutes
+SKILLS: Story branching, Theme analysis, Character depth
+
+───────────────────────────────────────────────────────────────────────────────
+
+STEP 1: THE HERO
+Type: "A young blacksmith haunted by a failed sword that broke in battle"
+
+Grid:
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  🔨  ⚔  💔  👤                                    ┃
+┃  Forge  Broken  Guilt  Blacksmith                ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+Click blacksmith:
+"Every ring of hammer reminds me: my blade failed. A knight died.
+ I forge now only for trade, never for war. But the metal remembers."
+
+STEP 2: THE CALL
+Type: "A wizard appears with urgent quest - dragon threatens kingdom"
+
+Grid adds:
+🧙  🐉  👑  🏰  ⚡
+
+Click wizard:
+"The dragon is not what it seems. Only a blade forged from remorse
+ can pierce scales grown from ancient sorrow. You must face what
+ you've fled."
+
+STEP 3: THE REFUSAL
+Type: "The blacksmith refuses - I make plowshares now, not weapons"
+
+Chat:
+┌────────────────────────────────────────────────┐
+│ NARRATIVE FORK DETECTED                         │
+│                                                │
+│ Choice A: Refuse the quest                     │
+│ → Peaceful path                                │
+│ → Kingdom falls                                │
+│ → Live with deeper regret                      │
+│                                                │
+│ Choice B: Accept reluctantly                   │
+│ → Hero's journey                               │
+│ → Face past trauma                             │
+│ → Possibility of redemption                    │
+│                                                │
+│ Your story continues from: Refusal             │
+└────────────────────────────────────────────────┘
+
+STEP 4: THE CONSEQUENCE
+Type: "News arrives - dragon destroyed three villages"
+
+Blacksmith perspective updates:
+"I hear the screams in my sleep now. My failed sword killed one knight.
+ My cowardice killed hundreds. The metal knows. The forge grows cold."
+
+STEP 5: THE TURN
+Type: "The blacksmith takes up the quest, forging a new blade from the broken one"
+
+Grid shows:
+⚔ (broken) → 🗡 (reforged)
+
+New entity appears:
+"I am the blade of second chances. Forged from failure, tempered by regret,
+ I carry the weight of two purposes: the knight who fell, the people who burn."
+
+STEP 6: THE JOURNEY
+Type: "The blacksmith travels through mountain pass, finds dragon's lair"
+
+Grid expands:
+⛰  🏔  🗻  🔥  🐉  💎  ⚔
+
+STEP 7: THE REVELATION
+Click dragon cell:
+
+"I was the knight who carried your sword. I survived the blade's breaking.
+ I survived the battle. But I did not survive what came after. Cursed by
+ shame, transformed by rage. I am your failure given wings."
+
+Type: /perspective
+
+Deep analysis:
+┌────────────────────────────────────────────────┐
+│ PERSPECTIVE: The Dragon                        │
+│                                                │
+│ HIDDEN TRUTH:                                  │
+│ The "knight who died" never died. Transformed  │
+│ by the broken blade's curse, he became the     │
+│ dragon, spreading the pain of betrayal.        │
+│                                                │
+│ SYMBOLIC MEANING:                              │
+│ The dragon is externalized guilt. The quest    │
+│ is not to slay the monster, but to face the   │
+│ self.                                          │
+│                                                │
+│ NARRATIVE FUNCTION:                            │
+│ Mirror antagonist - hero's shadow self         │
+└────────────────────────────────────────────────┘
+
+STEP 8: THE CHOICE
+Type: "The blacksmith realizes - to kill the dragon is to kill the knight twice"
+
+New options appear:
+A: Strike down the dragon (complete the quest)
+B: Break the curse (forge a different solution)
+
+Type: "The blacksmith shatters the reforged blade, releasing the curse"
+
+STEP 9: THE TRANSFORMATION
+Grid updates:
+🐉 → 👤 (knight restored)
+⚔ (broken) + 💔 (guilt) → ✦ (redemption)
+
+Knight's perspective:
+"I am free. You are free. The blade broke because it had to. Some
+ failures are doorways, not endings. Thank you for breaking it twice."
+
+Blacksmith's perspective:
+"I forge now with new understanding. Not all strength is sharp.
+ Sometimes the greatest power is in knowing when to break."
+
+STEP 10: TETRAD ANALYSIS
+Type: /tetrad
+
+┌────────────────────────────────────────────────┐
+│ McLUHAN'S TETRAD: The Broken Blade Quest       │
+│                                                │
+│ ENHANCES:                                      │
+│ → Redemption through acceptance                │
+│ → Weakness transformed into wisdom             │
+│ → Breaking as creative act                     │
+│                                                │
+│ MAKES OBSOLETE:                                │
+│ → Strength through violence                    │
+│ → Linear hero's journey                        │
+│ → Atonement through punishment                 │
+│                                                │
+│ RETRIEVES:                                     │
+│ → Buddhist concept of compassionate strength   │
+│ → Taoist wu-wei (action through non-action)    │
+│ → Japanese kintsugi (golden repair)            │
+│                                                │
+│ REVERSES INTO:                                 │
+│ → The weapon becomes the wound                 │
+│ → The quest becomes the questioner             │
+│ → Slaying transforms into saving               │
+│                                                │
+│ THEMATIC DEPTH:                                │
+│ The story inverts typical hero arc. True       │
+│ courage is facing the self, not the monster.   │
+│ Victory comes through vulnerability, not       │
+│ strength. Failure becomes foundation.          │
+└────────────────────────────────────────────────┘
+
+OUTCOME: Multi-layered narrative with Buddhist/Taoist themes
+LEARNED: Branching, symbolic depth, inversion of tropes
+
+═══════════════════════════════════════════════════════════════════════════════
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ CASE STUDY 3: CULTURAL SIMULATION                                          │
+│ Learn: Living dynamics, Framework comparison, Parameter manipulation        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+SCENARIO: Revolution emergence from oppression
+DURATION: 25 minutes
+SKILLS: /cultural commands, Framework switching, Comparison analysis
+
+───────────────────────────────────────────────────────────────────────────────
+
+STEP 1: SCENE SETUP
+Type: /cultural spawn Starving villagers under cruel tyrant
+
+Grid generates:
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  👑  ⚔  👥  👥  👥  🌾  💀  ⛓  🏛                ┃
+┃  Tyrant  Guards  Villagers  Crops  Death  Chains┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+LEGOS Analysis in console:
+[LEGOS NARRATIVE] Tyrant: culturalType=cop, symbolicRole=enforcer
+[LEGOS NARRATIVE] Villagers: culturalType=citizen, symbolicRole=oppressed  
+[MYTHOLOGY SEED] High hardship (0.8), Low legitimacy (0.2)
+
+Simulation STARTS automatically
+Grid cells begin moving:
+
+Tick 1:
+👥 Citizens wander
+⚔ Cops patrol
+
+Console:
+[FRAMEWORK] Active: epstein, BDI: false, Tick: 1
+[EPSTEIN] Avg Grievance: 0.78 (HIGH)
+
+STEP 2: OBSERVE EMERGENCE
+Let run for 10 ticks...
+
+Tick 5:
+👥 → 🔴 (citizens becoming rebels)
+Grid shows clustering
+
+Console:
+[EPSTEIN] Metrics - Tick 5
+  Population: { citizens: 15, rebels: 5, cops: 5 }
+  Legitimacy: 20.0%
+  Avg Citizen Grievance: 0.78
+
+Tick 10:
+More rebels appear
+🔴 🔴 🔴 (rebel cluster forms)
+⚔ ⚔ (cops pursue)
+
+Console:
+[EPSTEIN] Metrics - Tick 10
+  Population: { citizens: 10, rebels: 10, cops: 5 }
+  Rebellion spreading!
+
+STEP 3: PAUSE AND ANALYZE
+Type: /cultural pause
+
+Grid freezes mid-animation
+
+Type: /cultural lab
+
+Lab interface shows:
+┌────────────────────────────────────────────────┐
+│ 🧪 CULTURAL RESEARCH LAB                       │
+│                                                │
+│ Active Framework: ⚡ Epstein Civil Violence    │
+│ Agent Reasoning: Standard                      │
+│                                                │
+│ Current Parameters:                            │
+│ • Legitimacy: 20%                              │
+│ • Cop Effectiveness: 35%                       │
+│                                                │
+│ Agent Counts:                                  │
+│ • Citizens: 10                                 │
+│ • Rebels: 10                                   │
+│ • Cops: 5                                      │
+│                                                │
+│ LEGOS Narrative Roles:                         │
+│ • enforcer: 5 agents                           │
+│ • oppressed: 15 agents                         │
+│                                                │
+│ Status: Paused at Tick 10                      │
+└────────────────────────────────────────────────┘
+
+STEP 4: CAPTURE BASELINE
+Type: /compare snapshot
+
+Chat confirms:
+┌────────────────────────────────────────────────┐
+│ 🔬 Snapshot Captured (Barad's Agential Cut)    │
+│                                                │
+│ Configuration A preserved:                     │
+│ • Framework: epstein                           │
+│ • BDI: Inactive                                │
+│ • Tick: 10                                     │
+│ • Population: 10C / 10R / 5P                   │
+│ • Legitimacy: 20%                              │
+│                                                │
+│ Next steps:                                    │
+│ 1. Switch framework                            │
+│ 2. Let simulation run                          │
+│ 3. Run /compare analyze                        │
+└────────────────────────────────────────────────┘
+
+STEP 5: SWITCH FRAMEWORK
+Type: /iruba
+
+Chat:
+⚔️ IRUBA Counterinsurgency Model
+
+Psychological factors drive allegiance
+• Fear increases with cop presence
+• Anger increases with collateral damage
+• Join insurgents if: Anger > Fear
+
+Console shows new model active:
+[FRAMEWORK] Active: iruba, BDI: false, Tick: 10
+
+STEP 6: RESUME AND OBSERVE
+Type: /cultural play
+
+Different dynamics emerge!
+
+Tick 15:
+Cops now generate FEAR aura
+Some rebels show ANGER accumulation
+
+Console:
+[IRUBA] Metrics - Tick 15
+  Avg Fear: 0.45
+  Avg Anger: 0.62
+  Allegiance Shifts: 2 citizens → insurgents
+
+Tick 20:
+Collateral damage event!
+Cop suppresses near civilians
+ANGER spikes
+
+Console:
+[IRUBA] Metrics - Tick 20
+  Avg Fear: 0.48
+  Avg Anger: 0.71 (RISING)
+  Allegiance Shifts: 5 more join insurgents
+
+Rebellion grows FASTER under IRUBA!
+
+STEP 7: PAUSE AND COMPARE
+Type: /cultural pause
+Type: /compare analyze
+
+Console shows detailed diffractive analysis:
+┌────────────────────────────────────────────────┐
+│ 🔬 [DIFFRACTIVE ANALYSIS] Barad's Agential Cuts│
+│                                                │
+│ Configuration A: epstein (Standard) @ Tick 10  │
+│ Configuration B: iruba (Standard) @ Tick 20    │
+│                                                │
+│ 📊 Population Interference Pattern:            │
+│   Citizens: -3                                 │
+│   Rebels: +3                                   │
+│   Cops: 0                                      │
+│                                                │
+│ 🗺️ Spatial Entanglement Difference:            │
+│   Segregation Index: +0.15                     │
+│   Rebel Clustering: +4                         │
+│   Cop Clustering: -1                           │
+│                                                │
+│ ⚙️ Parameter Drift (Ongoing Becoming):         │
+│   Legitimacy: -5.0%                            │
+│   Avg Fear: +0.18                              │
+│   Avg Anger: +0.31                             │
+│                                                │
+│ 💡 Diffractive Insight (Barad):                │
+│   Strong interference in rebellion dynamics    │
+│   → Different agential cuts produce            │
+│      divergent uprisings                       │
+│   → IRUBA's fear/anger model accelerates       │
+│      radicalization compared to Epstein's      │
+│      threshold model                           │
+│                                                │
+│ 📐 Material-Discursive Entanglement:           │
+│   Framework choices are not neutral            │
+│   observations but active interventions        │
+│   Each simulation co-constitutes different     │
+│   cultural realities                           │
+└────────────────────────────────────────────────┘
+
+STEP 8: TEST INTERVENTION
+Type: /cultural legitimacy 0.5
+
+Raise legitimacy to 50%!
+
+Type: /cultural play
+
+Watch rebellion DECREASE:
+
+Tick 25:
+🔴 → 👥 (rebels become citizens)
+Cops less aggressive
+System stabilizes
+
+Console:
+[IRUBA] Metrics - Tick 25
+  Avg Fear: 0.35 (DECREASING)
+  Avg Anger: 0.45 (DECREASING)
+  Population: { citizens: 16, rebels: 4, cops: 5 }
+
+STEP 9: CRACKDOWN EVENT
+Type: /cultural crackdown
+
+Violent suppression!
+
+Effects:
+- Cop effectiveness × 1.5
+- Legitimacy × 0.7
+- Fear spreads
+
+Console:
+[IRUBA] Crackdown initiated
+  Cop effectiveness: 35% → 52%
+  Legitimacy: 50% → 35%
+  Fear propagating...
+
+Tick 30:
+SHORT-TERM: Rebellion suppressed
+Fear dominates (0.71)
+Rebels hide
+
+Tick 35:
+LONG-TERM: Anger accumulates (0.85)
+MASSIVE uprising!
+🔴🔴🔴🔴🔴 Rebel wave
+
+Console:
+[IRUBA] Metrics - Tick 35
+  Avg Anger: 0.85 (CRITICAL)
+  Population: { citizens: 5, rebels: 15, cops: 5 }
+  
+Crackdown BACKFIRED!
+
+STEP 10: FINAL ANALYSIS
+Type: /cultural stop
+Type: /tetrad
+
+┌────────────────────────────────────────────────┐
+│ McLUHAN'S TETRAD: Oppression Simulation        │
+│                                                │
+│ ENHANCES:                                      │
+│ → Understanding of emergence                   │
+│ → Visibility of hidden parameters              │
+│ → Recognition of tipping points                │
+│                                                │
+│ MAKES OBSOLETE:                                │
+│ → Simple cause-effect narratives               │
+│ → Deterministic predictions                    │
+│ → "Bad people" explanations                    │
+│                                                │
+│ RETRIEVES:                                     │
+│ → Systems thinking                             │
+│ → Complexity science                           │
+│ → Ancient wisdom on power dynamics             │
+│                                                │
+│ REVERSES INTO:                                 │
+│ → Suppression creates rebellion                │
+│ → Order enforced becomes chaos                 │
+│ → Control yields loss of control               │
+│                                                │
+│ INSIGHT:                                       │
+│ Computational model reveals: repression is     │
+│ not linear. Short-term order can seed long-    │
+│ term uprising. Different frameworks show       │
+│ different mechanisms, but pattern emerges.     │
+└────────────────────────────────────────────────┘
+
+OUTCOME: Deep understanding of cultural dynamics, emergence, frameworks
+LEARNED: Living simulation, comparison, parameter effects, backfire dynamics
+
+═══════════════════════════════════════════════════════════════════════════════
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ CASE STUDY 4: HISTORICAL ENCOUNTER (Cook/Hawaii)                           │
+│ Learn: Theoretical debates, Cross-cultural models, Research methodology     │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+SCENARIO: Test Sahlins vs Obeyesekere computationally
+DURATION: 30 minutes
+SKILLS: Theoretical lenses, CCIM, Academic rigor
+
+───────────────────────────────────────────────────────────────────────────────
+
+[Full detailed workflow showing how to test anthropological debates using LEGOS]
+
+OUTCOME: Computational test of theoretical positions
+LEARNED: Academic rigor, cross-cultural modeling, theory comparison
+
+═══════════════════════════════════════════════════════════════════════════════
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ CASE STUDY 5: SCI-FI AI EMERGENCE                                          │
+│ Learn: BDI reasoning, Emergent behavior, Ethical implications              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+SCENARIO: AI agents develop conflicting goals
+DURATION: 20 minutes
+SKILLS: BDI framework, Emergence, Foresight
+
+───────────────────────────────────────────────────────────────────────────────
+
+[Full workflow showing AI goal misalignment emergence]
+
+OUTCOME: Understanding of emergent AI behavior
+LEARNED: BDI cognition, alignment problems, foresight methodology
+
+═══════════════════════════════════════════════════════════════════════════════
+
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                           END OF CASE STUDIES                                 ║
+║         Complete workflows demonstrating all LEGOS capabilities               ║
+╚═══════════════════════════════════════════════════════════════════════════════╝

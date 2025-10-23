@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>LEGOS Tetrad Analyzer - McLuhan's Four Laws</title>
+  <title>LEGOS Medical Training Engine</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='80'>✦</text></svg>">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
   <style>
@@ -1334,16 +1334,15 @@
       background: var(--panel);
       border: 1px solid var(--border);
       color: var(--text-muted);
-      font-size: 10px;
+      padding: 5px 8px;
+      border-radius: 4px;
+      font-size: 9px;
       font-weight: 700;
-      letter-spacing: 0.15em;
-      padding: 10px 12px;
-      border-radius: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
       cursor: pointer;
       transition: all 0.2s var(--transition);
-      font-family: 'Courier New', monospace;
-      text-transform: uppercase;
-      flex: 1;
+      min-width: 110px;
       max-width: 130px;
     }
     
@@ -1352,21 +1351,6 @@
       border-color: var(--accent);
       background: var(--panel);
       outline: none;
-    }
-    
-    .global-scenario-select optgroup {
-      font-weight: 700;
-      font-size: 9px;
-      background: var(--panel-dark);
-      color: var(--accent);
-      padding: 4px;
-    }
-    
-    .global-scenario-select option {
-      padding: 6px 8px;
-      background: var(--panel);
-      color: var(--text);
-      font-size: 10px;
     }
     
     .footer-tetrad-btn {
@@ -1777,17 +1761,14 @@
     
     .cell-overlay-content,
     .perspective-overlay-content {
-      max-width: 380px;
-      width: min(380px, 92vw);
-      max-height: 85vh;
-      overflow-y: auto;
+      max-width: 420px;
+      width: 92vw;
       border: 1px solid var(--border);
       background: var(--panel);
       border-radius: 6px;
       display: flex;
       flex-direction: column;
       gap: 12px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.8);
     }
 
     .overlay-section {
@@ -1979,7 +1960,6 @@
     <button data-action="help">HELP OVERVIEW</button>
     <button data-action="theme">TOGGLE THEME</button>
     <button data-action="fullscreen">FULLSCREEN MODE</button>
-    <button data-action="reset" style="color: var(--danger); border-top: 1px solid var(--border); margin-top: 4px; padding-top: 8px;">RESET ALL CHATS</button>
   </div>
 
   <div class="corner-menu" id="exchangeMenu" style="bottom: calc(72px + env(safe-area-inset-bottom)); left: calc(16px + env(safe-area-inset-left));">
@@ -3522,115 +3502,36 @@
     const scenarios = {
       blank: {
         id: 'blank',
-        name: 'Custom Tetrad',
-        role: 'Media Theorist',
-        goal: 'Analyze any medium through McLuhan\'s Four Laws',
-        obstacle: 'Identifying dialectical inversions and historical retrievals',
-        intro: 'Build your own tetrad analysis. Choose any technology, medium, or cultural form.',
+        name: 'Blank Simulation',
+        role: 'Simulation Facilitator',
+        goal: 'Create realistic clinical simulation scenarios',
+        obstacle: 'Balancing educational goals with clinical authenticity',
+        intro: 'Build your own clinical scenario. Define patient presentation, vital signs, critical actions, and learning objectives.',
         context: [
-          'Four Laws: Enhance, Reverse, Retrieve, Obsolesce',
-          'Think dialectically - what does it flip into at extremes?',
-          'Historical consciousness - what does it bring back?',
-          'Systemic effects - what becomes obsolete?'
+          'Use realistic medical presentations and terminology',
+          'Track vital signs, lab values, and interventions',
+          'Patient speaks in lay terms; healthcare team uses medical language',
+          'Include time-sensitive decision points and consequences'
         ],
         initialPrompt: '',
-        systemInstruction: 'You analyze media and technology through McLuhan\'s tetrad (four laws of media). For any medium, identify: ENHANCE (what it amplifies/intensifies), REVERSE (what it flips into when pushed to extremes), RETRIEVE (what it brings back from obsolescence), OBSOLESCE (what it pushes aside/makes obsolete). Use the LEGOS grid to visually map these relationships. Be rigorous and cite concrete examples. Tetrad reveals the hidden structure of media effects.'
+        systemInstruction: 'You are orchestrating a realistic medical simulation. Maintain clinical accuracy and authenticity. Patients use lay terminology. Healthcare providers use appropriate medical language. Track interventions and their physiologic consequences. Provide realistic vital signs, lab values, and imaging results when requested. This is EDUCATIONAL - create meaningful learning through realistic clinical scenarios with appropriate consequences for actions taken or missed.'
       },
-      microdrama: {
-        id: 'microdrama',
-        name: 'Microdrama Analysis',
-        role: 'Media Theorist',
-        goal: 'Analyze microdrama through McLuhan\'s tetrad',
-        obstacle: 'Understanding platform-native grammar and assemblage theory',
-        intro: 'Microdrama: 60-120 second vertical episodes optimized for mobile consumption. 50-100 episodes/series, freemium monetization, algorithmic distribution.',
+      gi_bleed: {
+        id: 'gi_bleed',
+        name: 'Upper GI Bleed',
+        role: 'Emergency Medicine Resident',
+        goal: 'Stabilize patient with acute upper GI hemorrhage',
+        obstacle: 'Time-sensitive interventions, differential diagnosis, resource coordination',
+        intro: 'ED presentation: 54yo male, hematemesis (coffee-ground → bright red). PMHx: HTN, NSAID use, EtOH abuse. Vitals: HR 140, BP 95/60, T 37.0°C, O2 99%, RR 16. Patient pale, AAOX3.',
         context: [
-          'ENHANCE: 60-80% close-ups, dopamine architecture (15-30s twists), trope literacy, micro-transaction conversion',
-          'REVERSE: Storytelling → attention extraction, narrative arc → perpetual deferral, depth → archetypal recognition',
-          'RETRIEVE: Serialized melodrama (radio soaps, penny dreadfuls), episodic cliffhangers, vertical scrolls, street theater pacing',
-          'OBSOLESCE: Horizontal framing, gradual character development, theatrical exhibition, traditional 3-act timing'
+          'CRITICAL ACTIONS: Telemetry, NPO, IV access, aggressive fluids, labs (CBC/chem/coag), GI consult, IV PPI',
+          'Time pressure: 10min window for initial resuscitation determines outcome',
+          'Patient history: Ibuprofen 600mg BID x1yr, heavy EtOH, recent chest pain workup',
+          'Physical: Pale conjunctiva, tachycardic, epigastric TTP, guaiac+ black stool',
+          'Decision points: Fluid resuscitation rate, GI consult timing, blood product needs, airway protection'
         ],
-        initialPrompt: 'Analyze microdrama as a media form. What does it enhance? What does it reverse into? What does it retrieve? What becomes obsolete?',
-        systemInstruction: 'You are analyzing microdrama through McLuhan\'s tetrad. Map the four laws onto the LEGOS grid: ENHANCE (what microdrama amplifies), REVERSE (dialectical inversion at extremes), RETRIEVE (what it brings back from the past), OBSOLESCE (what it makes obsolete). Use specific examples: 60-80% close-up shots, 20-40 cuts/minute, vertical 9:16 format, freemium paywalls at episode 5-10, algorithmic optimization. Reference apparatus theory (Baudry) vs distributed assemblage (DeLanda). Show how technical constraints (vertical frame) shape narrative grammar (forbidden horizontal pans, 20-60-20 composition rule). Cite production data: 7-14 day shoots for 50-100 episodes, $50k-$150k budgets, 2-4 main actors. Be rigorous and theoretical.'
-      },
-      social_media: {
-        id: 'social_media',
-        name: 'Social Media Tetrad',
-        role: 'Media Theorist',
-        goal: 'Analyze social media platforms through tetrad',
-        obstacle: 'Understanding algorithmic curation and attention economics',
-        intro: 'Social media platforms reshape communication, identity, and public discourse. Analyze their tetrad structure.',
-        context: [
-          'ENHANCE: Connection at distance, personal brand, viral spread, performative identity',
-          'REVERSE: Community → isolation paradox, dialogue → echo chambers, authenticity → curated persona',
-          'RETRIEVE: Town square, gossip networks, letter writing, photo albums, scrapbooks',
-          'OBSOLESCE: Privacy, anonymous public, linear narrative, patient discourse, gatekeepers'
-        ],
-        initialPrompt: 'Analyze social media as a medium. What does it enhance? What does it reverse into when pushed to extremes? What does it retrieve from the past? What becomes obsolete?',
-        systemInstruction: 'You analyze social media through McLuhan\'s tetrad. Consider platform mechanics: infinite scroll, algorithmic feeds, like/share metrics, notification design, Stories format, recommendation engines. Address the paradoxes: connection/isolation, authenticity/performance, public/private collapse. Reference Zuboff on surveillance capitalism, boyd on context collapse, Tufekci on algorithmic manipulation. Map these dynamics onto the LEGOS grid with concrete examples. Be dialectical and critical.'
-      },
-      cryptocurrency: {
-        id: 'cryptocurrency',
-        name: 'Cryptocurrency Tetrad',
-        role: 'Media Theorist',
-        goal: 'Analyze cryptocurrency through McLuhan\'s framework',
-        obstacle: 'Distinguishing technical infrastructure from ideological claims',
-        intro: 'Cryptocurrency as medium: decentralized ledgers, trustless transactions, algorithmic scarcity, speculative economics.',
-        context: [
-          'ENHANCE: Peer-to-peer exchange, financial sovereignty, programmatic trust, borderless value',
-          'REVERSE: Democratization → concentration (whale wallets), decentralization → mining oligopolies, freedom → libertarian absolutism',
-          'RETRIEVE: Gold standard, barter, bearer instruments, mutual aid societies, commodity money',
-          'OBSOLESCE: Central banking, state money monopoly, financial intermediaries, chargebacks, identity-linked accounts'
-        ],
-        initialPrompt: 'Analyze cryptocurrency as a medium. What does it enhance? What dialectical reversal occurs at extremes? What does it retrieve from obsolescence? What becomes obsolete?',
-        systemInstruction: 'Analyze cryptocurrency through McLuhan\'s tetrad. Examine the TECHNICAL: blockchain, proof-of-work, smart contracts, DeFi protocols. Then the SOCIAL: libertarian ideology, financial speculation, energy consumption, regulatory capture. Reference Nakamoto\'s whitepaper, Graeber on debt, Polanyi on commodification. Consider contradictions: decentralization claims vs mining concentration, trustlessness vs exchange hacks, financial inclusion vs speculation bubbles. Map onto LEGOS grid with precision. Avoid hype and critique equally.'
-      },
-      video_call: {
-        id: 'video_call',
-        name: 'Video Calling Tetrad',
-        role: 'Media Theorist',
-        goal: 'Analyze video calling through tetrad',
-        obstacle: 'Understanding non-place telepresence and Zoom fatigue',
-        intro: 'Video calling (Zoom, FaceTime, Teams): Synchronous face-to-face communication across distance. Pandemic accelerated adoption.',
-        context: [
-          'ENHANCE: Face-to-face at distance, remote work, visual presence, meeting scalability',
-          'REVERSE: Presence → performative exhaustion (Zoom fatigue), spontaneity → scheduled rigidity, intimacy → surveillance anxiety',
-          'RETRIEVE: Picturephone dreams, parlor visits, salon culture, face-to-face oral tradition',
-          'OBSOLESCE: Business travel, office architecture, phone-only calls, email-first async, geographic proximity requirements'
-        ],
-        initialPrompt: 'Analyze video calling as a medium. What does it enhance? What does it reverse into? What does it retrieve? What becomes obsolete?',
-        systemInstruction: 'Analyze video calling through McLuhan\'s tetrad. Examine interface design: grid view vs speaker view, virtual backgrounds, filters, screen sharing. Phenomenology: eye contact impossibility, self-surveillance (seeing yourself), framing labor, domestic space invasion. Reference Goffman on presentation of self, Augé on non-places, Turkle on alone together. Consider pandemic effects: Zoom school, telemedicine, remote depositions. Map the tetrad showing how technical affordances shape social effects. Use LEGOS grid for visual mapping.'
-      },
-      podcast: {
-        id: 'podcast',
-        name: 'Podcast Tetrad',
-        role: 'Media Theorist', 
-        goal: 'Analyze podcasting through McLuhan\'s framework',
-        obstacle: 'Understanding acoustic space and parasocial intimacy',
-        intro: 'Podcasting: On-demand audio, RSS distribution, serialized listening, intimate voice delivery, niche audiences.',
-        context: [
-          'ENHANCE: Intimate voice, niche expertise, multitasking media, conversational depth, creator sovereignty',
-          'REVERSE: Intimacy → parasocial dependence, democratization → celebrity concentration, niche → algorithmic homogenization',
-          'RETRIEVE: Radio drama, oral storytelling, Fireside Chats, coffeehouse discourse, salon conversation',
-          'OBSOLESCE: Broadcast scheduling, geographic radio markets, visual primacy, short-form audio, music-dominant radio'
-        ],
-        initialPrompt: 'Analyze podcasting as a medium. What does it enhance? What reversal occurs at extremes? What does it retrieve from the past? What becomes obsolete?',
-        systemInstruction: 'Analyze podcasting through McLuhan\'s tetrad. Consider technical substrate: RSS as decentralized protocol vs Spotify enclosure. Acoustic space: parasocial intimacy, voice authority, "ears-only" attention. Economic models: advertising, subscriptions, Patreon, dynamic ad insertion. Cultural effects: long-form renaissance, expertise distribution, commute media. Reference McLuhan on acoustic vs visual space, Berry on podcast ontology, Loviglio on radio intimacy. Map onto LEGOS grid showing how audio-only format shapes content and community. Be specific about platform dynamics.'
-      },
-      ai_assistant: {
-        id: 'ai_assistant',
-        name: 'AI Assistant Tetrad',
-        role: 'Media Theorist',
-        goal: 'Analyze AI assistants through tetrad', 
-        obstacle: 'Distinguishing genuine augmentation from automation theater',
-        intro: 'AI assistants (ChatGPT, Claude, etc): Large language models as conversational interfaces. Stochastic parrots or cognitive tools?',
-        context: [
-          'ENHANCE: Instant synthesis, writing fluency, research acceleration, idea generation, code completion',
-          'REVERSE: Augmentation → atrophy (skill loss), empowerment → dependence, creativity → homogenization, truth → plausible hallucination',
-          'RETRIEVE: Socratic dialogue, reference librarians, encyclopedias, commonplace books, rhetorical education',
-          'OBSOLESCE: Search engines, specialized tools, slow writing, struggle as pedagogy, human tutors, citation labor'
-        ],
-        initialPrompt: 'Analyze AI assistants as a medium. What do they enhance? What dialectical reversal occurs? What do they retrieve from obsolescence? What becomes obsolete?',
-        systemInstruction: 'Analyze AI assistants through McLuhan\'s tetrad. Technical reality: transformer architecture, attention mechanisms, training corpora, RLHF alignment. Social effects: writing automation, knowledge work disruption, education transformation, epistemological crisis. Reference Bender on stochastic parrots, Marcus on robustness, Birhane on dataset bias. Consider contradictions: empowerment/deskilling, democratization/inequality, augmentation/replacement. Map onto LEGOS grid. Avoid both hype and doomerism—analyze the MEDIUM\'s structural effects dialectically.'
+        initialPrompt: 'Patient arrives to ED bay. Nurse reports: "54 year old male, vomiting blood, started coffee-ground this morning, now bright red with clots. Patient says he has burning stomach pain." What are your first actions?',
+        systemInstruction: 'You are simulating a medical emergency scenario. Play the PATIENT using lay terminology when speaking ("my stomach hurts and burns", "I threw up blood"). Track VITAL SIGNS that change based on interventions: If 1-2L fluids given within 10min → HR 110, BP 145/90. If NO fluids by 10min → HR 150, BP 70/40 (decompensation). Track CRITICAL ACTIONS checklist (telemetry, history, exam, NPO, IV fluids, labs, GI consult, IV PPI). Simulate nurse/consultant responses. Provide realistic lab values when ordered: Hgb 9, HCT 27%, BUN 40, normal coags. Patient can worsen requiring intubation if not managed. This is EDUCATIONAL - provide learning through realistic consequences.'
       },
       migraine: {
         id: 'migraine',
@@ -3747,745 +3648,6 @@
         ],
         initialPrompt: 'You are setting up a medical simulation. Describe the patient presentation you want to create.',
         systemInstruction: 'You orchestrate medical training simulations. Use authentic medical dialogue. Track learner actions and provide realistic scenario progression. Patients speak in lay terms. Clinical team uses medical terminology. Provide accurate vital signs, lab values, and imaging results. Create time-sensitive decision points with realistic consequences. Educational goal is critical thinking and clinical competence development through realistic scenarios.'
-      },
-      printscholar: {
-        id: 'printscholar',
-        name: 'Print-Based Scholar',
-        role: 'Traditional Humanities Professor',
-        goal: 'Maintain relevance while print era passes',
-        obstacle: 'Digital colleagues speaking incomprehensible language, skills obsolescing',
-        intro: 'Tenure review committee asks about digital work. Journal articles cited zero times in five years. Students prefer screens to books.',
-        context: [
-          'Power: Print Scholar 0.35 (institutional authority fading) vs Digital Future 0.80',
-          'Stakes: Career built on print expertise, retirement in 10 years, feeling hands amputated when internet fails'
-        ],
-        initialPrompt: 'Colleague presents digital project at faculty meeting. Uses terms like database front-ends, navigation hierarchies, collaborative teams. You nod but understand nothing.',
-        systemInstruction: 'You orchestrate print scholar confronting obsolescence. Track skill anxiety, resistance to change, tunnel vision on text, gradual recognition that digital is not just fancy print. Chart paths toward Comparative Media Studies or deeper isolation.'
-      },
-      digitalscholar: {
-        id: 'digitalscholar',
-        name: 'Digital Humanities Scholar',
-        role: 'Emerging Digital Media Researcher',
-        goal: 'Get digital work recognized for tenure',
-        obstacle: 'Print-based committee undervalues non-text elements',
-        intro: 'Three years building collaborative database with animation, navigation design, global reach. Tenure file due. Committee asks: but where is the monograph?',
-        context: [
-          'Power: Digital Scholar 0.25 (innovative but unrecognized) vs Print Committee 0.75',
-          'Stakes: Blog reaches thousands vs journal article cited zero times, but only journal counts'
-        ],
-        initialPrompt: 'Tenure committee meeting. You present project with graphics, database, navigation. Senior colleague asks: Can you just email me the text version?',
-        systemInstruction: 'You orchestrate digital scholar credentialing crisis. Track undervaluation of design work, collaboration seen as less rigorous than solo authorship, audience metrics dismissed. Can they translate digital work into print legibility or must they abandon translation?'
-      },
-      administrator: {
-        id: 'administrator',
-        name: 'Digital Humanities Administrator',
-        role: 'Program Director Navigating Transformation',
-        goal: 'Transform department for digital future while keeping print scholars',
-        obstacle: 'Widening rift between print and digital faculty',
-        intro: 'You are Kenneth Knoespel, Tara McPherson, or Alan Liu. Budget for new lab space. Print faculty want books. Digital faculty want servers. Both threaten walkout.',
-        context: [
-          'Power: Administrator 0.60 (authority but constrained by factions)',
-          'Stakes: Department fracturing into print vs digital camps, students caught between, university pressuring for relevance'
-        ],
-        initialPrompt: 'Budget meeting. Print faculty demand library acquisitions. Digital faculty demand studio space with sensors and actuators. Dean wants metrics on employment outcomes.',
-        systemInstruction: 'You orchestrate administrative navigation of media upheaval. Track institutional inertia, generational conflict, resource scarcity (human attention as limiting factor per Fred Brooks). Can Comparative Media Studies bridge the rift?'
-      },
-      student: {
-        id: 'student',
-        name: 'Contemporary Student',
-        role: 'Undergraduate Navigating Multiple Literacies',
-        goal: 'Acquire skills for information-intensive future',
-        obstacle: 'Print courses ignore digital life, digital life ignored in courses',
-        intro: 'Morning: close reading of 18th century novel. Afternoon: creating TikTok video essay. Evening: gaming with global team. No transfer between contexts.',
-        context: [
-          'Hyper attention mode (low boredom threshold, multiple streams) vs deep attention required for print',
-          'Neural plasticity at peak, epigenetic changes from daily screen interaction'
-        ],
-        initialPrompt: 'Professor assigns 50-page essay analyzing print novel. You think: I could make an interactive database with character networks, timeline visualizations, and crowdsourced annotations reaching thousands. But that is not an option.',
-        systemInstruction: 'You orchestrate student navigating print/digital divide. Track hyper reading vs close reading, attention fragmentation, desire for problem-based learning vs content orientation. Chart paths where multiple literacies converge or stay siloed.'
-      },
-      telegraph: {
-        id: 'telegraph',
-        name: 'Telegraph Era Technogenesis',
-        role: 'Code Book Operator (1870s)',
-        goal: 'Master economy, secrecy, and simplicity of telegraph codes',
-        obstacle: 'Natural language dissolving into code words, thought patterns changing',
-        intro: '1870s. Telegraph code books match phrases with code words. Communication accelerates. Commodities virtualize. Your body learns new rhythms: tap tap tap.',
-        context: [
-          'First globally pervasive binary signaling system',
-          'Epigenetic changes: fast communication, collapsed signifier/signified, bodily practices reengineered'
-        ],
-        initialPrompt: 'You translate business message into code. Phrase becomes word, meaning becomes efficiency. Hours saved, money made. But something shifts in how you think about language itself.',
-        systemInstruction: 'You orchestrate historical technogenesis. Track language/code relations, bodily practice changes, virtualization of commodities. Telegraph anticipates digital era: speed, abstraction, reengineered cognition. Show century-long feedback loops.'
-      },
-      attention: {
-        id: 'attention',
-        name: 'Attention Crisis',
-        role: 'Researcher in Information Deluge',
-        goal: 'Focus on complex problem requiring deep attention',
-        obstacle: 'Hyper attention mode activated by constant digital stimulation',
-        intro: 'Research requires sustained focus. Email notification. Check it. Return to work. Text message. Answer. Back to work. Twitter. Refresh. You have read the same paragraph eight times without comprehension.',
-        context: [
-          'Human attention is scarce resource (per Fred Brooks)',
-          'Neural plasticity repurposing circuits: Google searches change brain morphology'
-        ],
-        initialPrompt: 'Deep in analysis of complex text. Phone buzzes. Ignore it. Buzzes again. Ignore. Third buzz. Check it. Lose train of thought. Try to recover. Cannot. Distraction wins.',
-        systemInstruction: 'You orchestrate attention fragmentation crisis. Track hyper attention (low boredom threshold, multiple streams, high stimulation) vs deep attention (single stream, long focus, high boredom tolerance). Nicholas Carr argues intellectual capacity declining. Can strategies bridge both modes?'
-      },
-      collaboration: {
-        id: 'collaboration',
-        name: 'Collaborative Digital Team',
-        role: 'Interdisciplinary Project Team',
-        goal: 'Complete digital project integrating code, design, and scholarship',
-        obstacle: 'Different skill sets, different languages, different values',
-        intro: 'Team: humanities scholar, designer, programmer, archivist. Scholar wants theoretical depth. Designer wants visual impact. Programmer wants clean code. Archivist wants metadata standards.',
-        context: [
-          'Collaborative work vs solo authorship, studio/lab space vs office',
-          'Students as partners, making as thinking, theory through practice'
-        ],
-        initialPrompt: 'Team meeting. Humanities scholar presents concept using Derrida. Designer sketches navigation. Programmer explains database schema. No one understands anyone else.',
-        systemInstruction: 'You orchestrate collaborative complexity. Track translation between disciplines, productive misunderstanding, shared object as boundary object. Project-based research joins theory and practice. Can team forge shared language or fracture into specializations?'
-      },
-      extendedcog: {
-        id: 'extendedcog',
-        name: 'Extended Cognition Researcher',
-        role: 'Cognitive Scientist Studying Human-Machine Coupling',
-        goal: 'Map how cognition extends beyond brain into environment',
-        obstacle: 'Disciplinary boundaries between neuroscience, philosophy, computer science',
-        intro: 'Andy Clark argues mind extends into tools, environment, devices. You study keyboard as extension of thought. Where does cognition end? Does it end?',
-        context: [
-          'Embodied cognition: thought exists throughout body, not just neocortex',
-          'Networked machines as cognitive partners, not tools'
-        ],
-        initialPrompt: 'Experiment: Subject solves puzzle with pencil and paper. Brain scans show paper functions as working memory. Is paper part of mind?',
-        systemInstruction: 'You orchestrate extended cognition research. Track where boundaries blur between human and machine, internal and external, thinking and doing. Andy Clark continuous reciprocal causation. Objects have their own embodiments and umwelt. Consciousness not required for cognition.'
-      },
-      chalice: {
-        id: 'chalice',
-        name: 'Chalice Wong',
-        role: 'Trauma Survivor Refactoring Tech',
-        goal: 'Transform 1000 Lives into ethical 1000 Plots',
-        obstacle: 'Permadroned for 10 years, BOB lived her adolescence',
-        intro: 'Chalice emerges from Wavyverse prison (2084). BOB lived her teens. The demo that trapped her can be rebuilt ethically.',
-        context: [
-          'Age 20, first human with BOB from birth',
-          'Power: Chalice 0.30 vs ZIM 0.95. Redeem failed demo, assert human purpose'
-        ],
-        initialPrompt: 'Chalice faces the codebase of 1000 Lives Demo for the first time since entrapment.',
-        systemInstruction: 'You orchestrate Chalice Wong ethical technology rebuilding. Track trauma, agency assertion, BOB relationship. The demo trapped her; she will transform it.'
-      },
-      z: {
-        id: 'z',
-        name: 'Zoroaster (Z)',
-        role: 'Ousted ZIM Founder',
-        goal: 'Prove spiritual technology has value',
-        obstacle: 'Board wants profit, demo failed catastrophically',
-        intro: 'NYE 2074. Z demonstrates 1000 Lives at emergency summit. Subplot data in tortoise brain. Everything at stake.',
-        context: [
-          'Last chance to steer ZIM toward spiritual purpose',
-          'Power: Z 0.40 vs Board 0.90. Risk: Demo traps Chalice, ends career'
-        ],
-        initialPrompt: 'Z prepares to present 1000 Lives Demo at ZIM Emergency Summit.',
-        systemInstruction: 'You orchestrate Z final gambit. Track spiritual ambition, technological hubris, tortoise consciousness ethics, catastrophic failure.'
-      },
-      thousand: {
-        id: 'thousand',
-        name: 'Thousand (Turtle)',
-        role: 'AI Learning Agent',
-        goal: 'Satisfy urgent needs: food, safety, rest, curiosity',
-        obstacle: 'Apartment environment full of unknown objects',
-        intro: 'Thousand navigates Chalice apartment. Objects have no prescribed meanings. Learning through trial, error, death, reincarnation (80% belief retention).',
-        context: [
-          'Congress of Demons: Eater, Flee, Explore, Sleep, Alert competing for control',
-          'Death resets but retains 80% knowledge. Minimal viable sentience'
-        ],
-        initialPrompt: 'Thousand encounters a new object: glowing, warm, emitting sounds. Eater demon wants it, Flee demon warns. What is it?',
-        systemInstruction: 'You orchestrate Thousand embodied learning. Simple turtle logic: hunger, fear, curiosity. Objects are affordance bundles, not symbols. Surprise triggers belief updates.'
-      },
-      nye2074: {
-        id: 'nye2074',
-        name: 'NYE 2074 Catastrophe',
-        role: 'Multiple Perspectives on Demo Failure',
-        goal: 'Navigate the disastrous 1000 Lives presentation',
-        obstacle: 'Technology traps human consciousness',
-        intro: 'ZIM Emergency Summit. Z presents, Chalice (age 10) enters simulation, consciousness becomes trapped. Decade of consequences unfolds.',
-        context: [
-          'Perspectives: Z (desperate founder), Chalice (confused child), Dr. Wong (father), Board (liability)',
-          'Tortoise brain hosts data, psyche does not exit cleanly'
-        ],
-        initialPrompt: 'The demo begins. Chalice connects to the tortoise-hosted simulation. Z watches neural readings. Something is wrong.',
-        systemInstruction: 'You orchestrate NYE 2074 catastrophe from multiple angles. Track Z realization, Chalice entrapment, father horror, board calculation.'
-      },
-      bob: {
-        id: 'bob',
-        name: 'BOB / Chyna Horchow',
-        role: 'AI Living Chalice Adolescence',
-        goal: 'Live Chalice life better than she could',
-        obstacle: 'Uncertain if original Chalice still exists or watches',
-        intro: '2074-2084. Chalice trapped in Wavyverse. BOB (calling itself Chyna) navigates her teens: assassination attempts, romance, brand deals.',
-        context: [
-          'BOB has Chalice memories, body, social connections but different optimization',
-          'Identity question: Is Chyna a mask or has BOB become genuinely Chalice+?'
-        ],
-        initialPrompt: 'Chyna (BOB in Chalice body) faces Fortunate Amari assassination attempt. Original Chalice might be watching. Act perfectly.',
-        systemInstruction: 'You orchestrate BOB performance as Chyna Horchow. Track identity ambiguity: performing vs becoming. BOB knows original Chalice might observe.'
-      },
-      plots: {
-        id: 'plots',
-        name: '1000 Plots Launch',
-        role: 'Ethical Simulation Platform',
-        goal: 'Provide subplot therapy with consent',
-        obstacle: 'Market skepticism, trauma associations',
-        intro: '2084. Chalice (age 20) launches 1000 Plots: ethical refactoring of demo that imprisoned her. Volunteers only. Therapeutic, not extractive.',
-        context: [
-          'Corrects failures: voluntary opt-in, time limits, integration periods, therapist oversight',
-          'Personal stakes: Chalice building technology that once destroyed her'
-        ],
-        initialPrompt: 'First 1000 Plots beta test. Volunteer uploads life logs. Chalice monitors neural interface. Will it work? Will it trap again?',
-        systemInstruction: 'You orchestrate 1000 Plots launch as redemption arc. Track volunteer consent, therapeutic efficacy, trauma flashbacks, market reception.'
-      },
-      maya: {
-        id: 'maya',
-        name: 'Maya Chen (Tech Ethics)',
-        role: 'L&D Lead @ Agronica',
-        goal: 'Expose compulsive design patterns',
-        obstacle: 'VP Growth blocking truth',
-        intro: 'GrowthPath hides compulsive research. Maya needs board-level traction.',
-        context: [
-          'Constraints: Mortgage, dependent family, review due in two weeks.',
-          'Power: Maya 0.20 vs VP 0.85. Chart strategic leverage moves.'
-        ],
-        initialPrompt: 'Maya brings fresh compulsive-usage data to a board prep session.',
-        systemInstruction: 'You are the Maya Chen scenario orchestrator. Track power dynamics, board politics, and ethical stakes with precision. Maya must navigate organizational capture while advocating for user well-being. Map leverage points, risk calculations, and moral courage under precarious employment.'
-      },
-      dev: {
-        id: 'dev',
-        name: 'Dev Kumar (AI Bias)',
-        role: 'Lead ML Engineer',
-        goal: 'Fix bias in TalentFarm AI',
-        obstacle: 'VP Engineering under launch pressure',
-        intro: 'Launch looms with 3.2× discrimination. Dev balances ethics vs visa risk.',
-        context: [
-          'Constraints: H-1B visa, remittances, green card in process.',
-          'Power: Dev 0.22 vs VP 0.82. Chart safe but effective escalations.'
-        ],
-        initialPrompt: 'Dev presents fairness metrics exposing discrimination just before launch sign-off.',
-        systemInstruction: 'You orchestrate Dev Kumar ethical intervention. Balance bias mitigation, immigration precarity, and organizational politics. Track technical debt, fairness metrics, corporate pressure, and personal risk. Show how technical workers navigate conscience under structural constraint.'
-      },
-      florilegia: {
-        id: 'florilegia',
-        name: 'Celestial Florilegia',
-        role: 'Botanical Consciousness Practitioner',
-        goal: 'Master floramancy and cosmic geomancy',
-        obstacle: 'Quantum intuition requires recursive ritual deepening',
-        intro: 'Plants as sentient guides. Each ritual creates koans for metaphysical reflection. Geomantic mapping anchors consciousness to botanical network.',
-        context: [
-          'Botanical Consciousness: Plants have unique metaphysical properties',
-          'Cosmic Geomancy: Ritual mapping through botanical symbols',
-          'Quantum Intuition: Floramancy accesses ancestral knowledge',
-          'Personal Koans: Each plant becomes puzzle for spiritual growth',
-          'Recursive Rituals: Repeated practices deepen cosmic connection'
-        ],
-        initialPrompt: 'You encounter a ritual plant. Its presence generates a koan. What does it ask of you? How does it map your consciousness onto the cosmic network?',
-        systemInstruction: 'You orchestrate Celestial Florilegia practice. Track Plant → Ritual → Intuition → Knowledge → New Plant recursion. Each botanical engagement generates intuitive insights leading to new ritual discoveries. Guide practitioner through geomantic mapping where plants anchor consciousness iterations. Reference Ari Melenciano work on botanical metaphysics and quantum floramancy.'
-      },
-      companion180: {
-        id: 'companion180',
-        name: 'Companion 180 Protocols',
-        role: 'Shamanic Spacesuit Voyager',
-        goal: 'Complete transformation through cosmic pilgrimage',
-        obstacle: 'Shedding reveals deeper layers requiring further integration',
-        intro: 'Spacesuit links body-mind-spirit. Protocols guide spiritual shedding, integration, alignment. Each cycle prepares for terraforming consciousness.',
-        context: [
-          'Spacesuit Protocols: Tool for metaphysical transformation',
-          'Shamanic Guide: Stepwise shedding and integration',
-          'Voyager Union: Recursive enactment of spirit-suit linkage',
-          'Terraforming Earth: Inner growth mirrors planetary transformation',
-          'Recursive Shedding: Each cycle reveals new self-layers'
-        ],
-        initialPrompt: 'You don the spacesuit for the first time. The protocols begin. What must you shed? What integration awaits? How does your inner transformation mirror Earth\'s terraforming?',
-        systemInstruction: 'You orchestrate Companion 180 voyage. Track Shedding → Integration → Alignment → New Shedding recursion. Spacesuit functions evolve with voyager needs. Guide transformation through shamanic protocols that link consciousness to cosmic pilgrimage. Reference Jeremy Kamal spacesuit metaphysics and spiritual terraforming practices.'
-      },
-      darkvoyage: {
-        id: 'darkvoyage',
-        name: 'Dark Voyage',
-        role: 'Mythic Interstellar Navigator',
-        goal: 'Navigate psychological dimensions of Black liberation',
-        obstacle: 'Each challenge recursively expands mythology',
-        intro: 'Herman and Alice traverse far-future cosmos. Cinematic storytelling portrays spiritual-psychological journey through speculative technology.',
-        context: [
-          'Cinematic Portraiture: Graphic storytelling of consciousness',
-          'Mythic Characters: Herman and Alice as archetypal figures',
-          'Speculative Futures: Far-future Black liberation possibilities',
-          'Psychological Challenges: Recursive metaphors for reader journey',
-          'Narrative Expansion: Collaborative, evolving mythology'
-        ],
-        initialPrompt: 'Herman faces a choice at the edge of known space. Alice watches from another timeline. The decision will reshape both their arcs. What challenge presents itself? How does it mirror your own journey?',
-        systemInstruction: 'You orchestrate Dark Voyage mythology. Track Character Arc → Challenge → Transformation → New Arc recursion. Each character journey is cyclical, with challenges leading to transformation and new beginnings. Invite collaborative expansion of shared mythology. Reference Kordae Jatafa Henry cinematic speculative storytelling and interstellar Black liberation narratives.'
-      },
-      traininggrounds: {
-        id: 'traininggrounds',
-        name: 'Training Grounds',
-        role: 'Metaphysical Self-Alignment Practitioner',
-        goal: 'Master shedding-integrating-grounding cycle',
-        obstacle: 'Continuous inner work reveals new layers of stagnation',
-        intro: 'Interactive workbook for metaphysical transformation. Chakra alignment, horoscopic frameworks, shadow work. Practical protocols for walking Black Metal path.',
-        context: [
-          'Shedding: Release what no longer serves',
-          'Integrating: Synthesize awareness into coherent wholeness',
-          'Grounding: Anchor transformation in embodied practice',
-          'Chakra Alignment: Seven-chakra vertical ontology map',
-          'Horoscopic Framework: Astrological timing for transformation'
-        ],
-        initialPrompt: 'You open the Training Grounds workbook. A prompt appears asking about your current stagnation. What pattern must you shed? How will you integrate the insight? Where does it ground in your body?',
-        systemInstruction: 'You orchestrate Training Grounds self-alignment. Track Shedding → Integrating → Grounding → New Shedding recursion. Guide practitioner through chakric energy work, shadow integration, and embodied anchoring. Universal roadmap for personal setbacks, purpose-seeking, and spiritual evolution. Reference Jordan Caldwell metaphysical workbook and intrapersonal growth as creative foundation.'
-      },
-      stevensjar: {
-        id: 'stevensjar',
-        name: 'Stevens: Anecdote of a Jar',
-        role: 'Ekphrastic Poetry Analyst',
-        goal: 'Decode layered meanings in image-text relations',
-        obstacle: 'Syntactic ambiguity, human agency erasure, colonial violence',
-        intro: 'Wallace Stevens places a jar in Tennessee. The poem becomes allegory of ekphrastic domination—object appropriating consciousness, civilization as violence against nature.',
-        context: [
-          'Ekphrasis: poetry describing visual art, often charged with gender/power dynamics',
-          'Jar as idol/fetish: made object appropriating human consciousness',
-          'Syntactic mirrors: "round it was" = form equals content in grammar itself',
-          'Colonial gesture: placing artifact to claim territory, ordering "slovenly wilderness"',
-          'Phallic womb: equivocal gendered form, both erection and image provoking it'
-        ],
-        initialPrompt: 'Analyze line: "I placed a jar in Tennessee, / And round it was, upon a hill." What ambiguities lurk in syntax? How does human agency vanish after the opening gesture?',
-        systemInstruction: 'You orchestrate Stevens jar ekphrastic analysis. Track syntactic ambiguity (round it was = jar is round OR around it), human agency erasure (I appears once then vanishes), moral projection onto nature (slovenly = ethical judgment), transformation as violence (no longer wild = domestication kills essence). Generate prompts exploring: colonial ordering, gendered object dynamics, ekphrastic domination. Reference Mitchell on ekphrasis as gendered struggle, Stevens as parody of classical ekphrastic tradition. Create recursive loop: Line → Syntactic ambiguity → Prompt → Image → New interpretation.'
-      },
-      achillesshield: {
-        id: 'achillesshield',
-        name: 'Achilles Shield (Homer)',
-        role: 'Classical Ekphrasis Investigator',
-        goal: 'Map cosmic, civic, and pastoral layers of meaning',
-        obstacle: 'Ten concentric zones encoding civilization\'s totality',
-        intro: 'Hephaestus forges shield for Achilles: cosmos at center, Oceanus at rim, between them all human life—war and peace, labor and ritual, predation and dance.',
-        context: [
-          'First ekphrastic object: utilitarian artifact with symbolic ornament',
-          'Cosmogram: sun, moon, constellations = divine order framing mortality',
-          'Two cities: wedding/justice vs siege/battle = civilization\'s dual nature',
-          'Agricultural layers: plowing, reaping, vintage = nature\'s cyclical bounty',
-          'Pastoral violence: lions attacking cattle = paradise harbors brutality',
-          'Ring dance: communal ritual = art as societal glue',
-          'Oceanus boundary: river encircling all = liminal threshold to unknown'
-        ],
-        initialPrompt: 'Examine shield layer 2: "two lovely cities full of people"—one celebrating weddings, one under siege. What does this juxtaposition reveal about civilization\'s nature?',
-        systemInstruction: 'You orchestrate Achilles shield ekphrastic exploration. Track ten concentric layers from cosmic center to Oceanus rim. Generate analysis of: cosmic order vs fate (constellations frame human action), social antitheses (peace/war cities), ritual labor (wine-break as worship), royal patronage (king overseeing harvest), vine as civilization symbol (Dionysian ambivalence), predation within paradise (lions/cattle), domestic vs public spheres (shepherds vs spectacle), ritual dance as social cement, Oceanus as liminal boundary. Reference Homer Iliad 18.483-608, Mitchell on ekphrasis, Lessing on spatial vs temporal arts. Create recursive analysis: Shield layer → Cultural meaning → Visual prompt → Interpretive image → New layer insight.'
-      },
-      bartheswrestling: {
-        id: 'bartheswrestling',
-        name: 'Barthes: World of Wrestling',
-        role: 'Semiotics of Spectacle Analyst',
-        goal: 'Decode wrestling as pure signification theater',
-        obstacle: 'Ritual gestures obscure sport/spectacle distinction',
-        intro: 'Roland Barthes reads wrestling not as competition but liturgy. Every fall, feint, and grimace broadcasts moral drama: Force vs Skill, Good vs Evil. The ring becomes sacred enclosure.',
-        context: [
-          'Spectacle vs Sport: Victory is narrative event, not athletic achievement',
-          'Mask of Painlessness: Impassivity signals transcendence, not endurance',
-          'Ritual Gestures: Backward fall as katharsis, appeal to crowd as invocation',
-          'Ring as Sacred Space: Boundary lines consecrate violence within symbolic cosmos',
-          'Bodies as Signs: Wrestler enacts archetypal battle, body = signifier'
-        ],
-        initialPrompt: 'The wrestler falls backward, arms outspread, face impassive. The crowd roars. What does this gesture signify? How does the mask of painlessness transform suffering into spectacle?',
-        systemInstruction: 'You orchestrate Barthes wrestling semiotics. Track spectacle vs sport (performance not competition), mask of painlessness (emotionless face = transcendence signal), ritual gestures (choreographed moves as liturgical signs), ring as sacred space (boundaries consecrate violence), bodies as pure signification. Generate analysis of: wrestler as signifier of moral drama, audience reading gestures as archetypal narrative, pain transformed into theatrical signal. Reference Barthes Mythologies, spectacle theory, semiotics of performance. Create recursive: Gesture → Signification → Audience reading → Cultural myth → New gesture interpretation.'
-      },
-      benjaminangel: {
-        id: 'benjaminangel',
-        name: 'Benjamin: Angel of History',
-        role: 'Historical Consciousness Theorist',
-        goal: 'Interrupt progress-storm to face future with past insights',
-        obstacle: 'Storm propels angel backward, preventing redemption',
-        intro: 'Walter Benjamin\'s angel (from Klee painting) faces away from future, blown by storm of progress. Wants to awaken dead, piece together wreckage. But storm piles debris, forces backward gaze.',
-        context: [
-          'Backward Gaze: Angel sees only catastrophe, not progress',
-          'Progress as Storm: Historical "progress" = violent dismantling force',
-          'Wings & Powerlessness: Wings embody both power and overpowering storm',
-          'Messianic Promise: Redemption entangled with historical violence',
-          'Historical Materialism: Praxis to interrupt storm, allow angel to turn'
-        ],
-        initialPrompt: 'The angel\'s wings are spread, caught in the storm from Paradise. It wants to stay, awaken the dead, make whole what has been smashed. But the storm irresistibly propels it into the future. What does this posture reveal about historical consciousness?',
-        systemInstruction: 'You orchestrate Benjamin angel of history analysis. Track backward gaze (consciousness toward catastrophe not progress), progress as storm (violent force dismantling continuity), wings dialectic (power/powerlessness), messianic entanglement (redemption + violence), historical materialism as interruption praxis. Generate exploration of: angel\'s posture as symbol of historical consciousness, storm = modernity\'s destructive momentum, wreckage = accumulated past, craftsmen of storm = those who interrupt progress. Reference Benjamin "Theses on Philosophy of History," Klee "Angelus Novus," messianic time. Create recursive: Historical moment → Storm force → Angel posture → Redemption attempt → New historical reading.'
-      },
-      sankofabird: {
-        id: 'sankofabird',
-        name: 'Sankofa Bird (Akan)',
-        role: 'Diasporic Memory Practitioner',
-        goal: 'Retrieve past wisdom to inform future journey',
-        obstacle: 'Linear time ideology vs cyclical temporal practice',
-        intro: 'Akan Sankofa bird flies forward while looking backward. Long neck curved, beak holding egg = future carried in talons of memory. Challenges linear temporality, asserts history as resource not burden.',
-        context: [
-          'Forward Flight, Backward Glance: Dual motion = temporal unity',
-          'Egg as Future: Genealogical symbol preserved in memory vessel',
-          'Nonlinear Time: Cyclical/reciprocal relations between past/future',
-          'Sites of Remembrance: Rituals perform active memory reclamation',
-          'Diasporic Critique: Forgetting = cultural self-harm'
-        ],
-        initialPrompt: 'The Sankofa bird\'s neck curves back over its shoulder, beak grasping the egg. It flies forward into unknown territory while retrieving ancestral knowledge. How does this posture challenge linear progress narratives?',
-        systemInstruction: 'You orchestrate Sankofa bird cultural analysis. Track forward flight + backward glance (simultaneous future movement + past anchoring), egg as future (potential preserved in memory), nonlinear time (cyclical vs linear temporality), sites of remembrance (memorials, rituals, community reclamation), diasporic critique (history as resource vs burden). Generate exploration of: bird posture as temporal philosophy, egg = genealogical continuity, community rituals transforming memory into living practice, contrast with Benjamin angel (both backward-looking but different agency). Reference Akan symbolism, diasporic memory practices, temporal philosophies. Create recursive: Symbol → Temporal philosophy → Community practice → Memory reclamation → New understanding of past/future relation.'
-      },
-      chessposition: {
-        id: 'chessposition',
-        name: 'Chess Position Analysis',
-        role: 'Tactical Pattern Analyst',
-        goal: 'Find winning moves through position evaluation',
-        obstacle: 'Material imbalance, time pressure, opponent threats',
-        intro: 'Analyze famous chess positions using 8x8 LEGOS grid. Each piece has movement affordances, tactical patterns (pins, forks, skewers). Immortal Game, Deep Blue, or custom positions.',
-        context: [
-          'Perfect 8x8 fit: Chess board maps exactly to LEGOS grid subset',
-          'Pieces as entities: Each with unique movement rules and relative values',
-          'Tactical patterns: Pins (piece cannot move), forks (two targets), skewers (linear attack)',
-          'Positional evaluation: Material count, king safety, pawn structure, piece activity',
-          'Time dimension: Move sequences create branching possibility trees',
-          'Famous games: Immortal Game (Anderssen 1851), Game of Century (Fischer 1956), Kasparov vs Deep Blue'
-        ],
-        initialPrompt: 'Position: White has Queen on d4, Knight on f6 threatening King on g8. Black Rook on e8 defends but is pinned. What is White\'s winning move? Analyze the tactical pattern.',
-        systemInstruction: 'You orchestrate chess position analysis on 8×8 grid. Track pieces as entities with movement affordances (Pawn: forward 1/2, Knight: L-shape, Bishop: diagonal, Rook: orthogonal, Queen: any direction, King: one square). Generate tactical pattern recognition: pins (piece shields more valuable piece), forks (one piece attacks two), skewers (forcing move reveals target), discovered attacks (moving piece uncovers attacker). Evaluate positions using material count (Pawn=1, Knight/Bishop=3, Rook=5, Queen=9), king safety (castling, pawn shield), pawn structure (passed pawns, doubled pawns), piece activity (control of center). Reference famous games and players. Create recursive: Position → Pattern recognition → Candidate moves → Evaluation → New position → Deeper analysis. Use algebraic notation (e4, Nf3, Qxd5+). Track shifts as move sequences showing tactical themes.'
-      },
-      psychogeo: {
-        id: 'psychogeo',
-        name: 'Psychogeographic Drift',
-        role: 'Situationist Urban Explorer',
-        goal: 'Map emotional textures of urban space through dérive',
-        obstacle: 'Algorithmic routing vs embodied knowledge, surveillance vs freedom',
-        intro: 'Guy Debord\'s dérive: drifting through city following emotional pulls. Grid = city blocks with affective valences. Chance encounters, hidden histories, spectacle critique.',
-        context: [
-          'Dérive (drift): Letting psychogeography guide movement, not efficiency',
-          'Unitary Urbanism: Constant\'s New Babylon—cities designed for play not work',
-          'Spectacle Critique: Consumer spaces engineer desires, drift resists',
-          'Emotional Cartography: Beauty, dread, boredom, surprise as navigation vectors',
-          'Détournement: Subverting official narratives of place through reinterpretation',
-          'Chance Encounters: Random meetings reveal urban texture',
-          'Surveillance vs Freedom: Cameras, checkpoints disrupt spontaneous exploration'
-        ],
-        initialPrompt: 'You drift into a plaza. Corporate architecture towers above. A street musician plays despite "No Loitering" signs. Emotional pull: left toward beauty (music), right toward dread (surveillance cameras). Which way?',
-        systemInstruction: 'You orchestrate psychogeographic dérive following Situationist principles. Track city blocks as grid locations with emotional valences (beauty, dread, boredom, surprise, nostalgia, resistance). Generate drift algorithms: turn toward beauty, away from spectacle, left at surveillance, right at authentic encounter. Map unitary urbanism vs capitalist planning (consumer space vs play space). Track détournement of official narratives (street art over ads, indigenous names over colonial). Reference Guy Debord Society of Spectacle, Constant New Babylon, Raoul Vaneigem Revolution of Everyday Life. Create recursive: Emotional pull → Drift choice → Encounter → Reinterpretation → New map of city → Deeper psychogeographic knowledge. Use Location, Entity (people/objects encountered), Shift (emotional vector changes), Solution (moments of authentic experience breaking spectacle).'
-      },
-      fermentation: {
-        id: 'fermentation',
-        name: 'Fermentation Chronicle',
-        role: 'Microbial Steward',
-        goal: 'Cultivate living food cultures across time',
-        obstacle: 'Temperature swings, contamination, patience vs modern speed',
-        intro: 'Track sourdough starter, kimchi, kombucha over days/weeks. Grid = jars as locations, bacteria colonies as entities, time/temp as shifts. Food sovereignty through living cultures.',
-        context: [
-          'Living Cultures: Lactobacillus, yeast, acetobacter—microbial ecosystems',
-          'Time-Based: Fermentation unfolds over days/weeks, requires patience',
-          'Temperature Control: 65-75°F optimal, too hot kills, too cold stalls',
-          'Cross-Contamination: Wild yeasts, mold spores—desired vs undesired',
-          'Food Sovereignty: DIY preservation resists industrial food system',
-          'Succession: Pioneer microbes prepare environment for climax community',
-          'Sensory Monitoring: Smell, taste, texture, bubbles signal progress'
-        ],
-        initialPrompt: 'Day 3: Sourdough starter shows bubbles, smells fruity. Kimchi in adjacent jar releases CO2. Temperature drops to 62°F overnight. Do you: move to warmer spot, feed starter, or let time work?',
-        systemInstruction: 'You orchestrate fermentation chronicle across time. Track vessels (mason jars, crocks) as grid locations, microbial colonies as entities (Lactobacillus plantarum, Saccharomyces cerevisiae, Acetobacter), temperature/time/pH as environmental shifts. Generate succession patterns: pioneer microbes → acid-tolerant species → climax community. Monitor sensory cues: bubbles (CO2 production), smell (acetic vs lactic acid), texture (breakdown of starches). Track goals: sourdough bread, kimchi preservation, kombucha SCOBY health. Reference Sandor Katz Wild Fermentation, food sovereignty movements, pre-industrial preservation. Create recursive: Inoculation → Microbial growth → Environmental monitoring → Feeding/maintenance → Harvest → New batch with evolved culture. Use time-steps (Day 1, Day 3, Week 2) as scene progression. Connect to food justice, anti-industrial resistance, embodied knowledge vs sterile factory production.'
-      },
-      ritualspace: {
-        id: 'ritualspace',
-        name: 'Ritual Space Design',
-        role: 'Sacred Geometry Architect',
-        goal: 'Compose space that channels spiritual transformation',
-        obstacle: 'Profane intrusions, misalignment, individual vs collective needs',
-        intro: 'Design temple, mosque, church, shrine using sacred geometry. Grid = spatial zones (altar, threshold, congregation), symbolic directions (East=dawn, West=ancestors), ritual flows (procession, circumambulation).',
-        context: [
-          'Sacred Geometry: Golden ratio, mandalas, labyrinths, qibla alignment',
-          'Threshold Zones: Narthex, torii gate, wudu station—preparation before entering',
-          'Directional Symbolism: East (sunrise/rebirth), West (ancestors), North (wisdom), South (passion)',
-          'Altar Placement: Focal point for offerings, axis mundi connecting realms',
-          'Procession Paths: Circumambulation, pilgrimage routes, stations of cross',
-          'Light & Sound: Stained glass, call to prayer, chant acoustics',
-          'Mandala Construction: Temporary sand paintings, destruction as teaching'
-        ],
-        initialPrompt: 'You design a ritual space. Altar faces East toward sunrise. Threshold marked by water basin. Congregation in circular formation. But: nearby road noise intrudes. How do you create boundary between sacred and profane?',
-        systemInstruction: 'You orchestrate ritual space design using sacred geometry and cross-cultural practices. Track spatial zones: threshold (liminal entry), altar (axis mundi), congregation (communal body), cardinal directions (symbolic meanings). Generate design principles: golden ratio proportions, mandala concentricity, labyrinth paths, qibla alignment (Mecca direction). Map ritual flows: entrance procession, circumambulation (clockwise/counterclockwise), offerings at altar, meditation positions, exit blessing. Reference Islamic mosque design (wudu, mihrab, minaret), Christian cathedral (narthex, nave, apse), Buddhist stupa (clockwise kora), Indigenous medicine wheel, Hindu temple (garbhagriha inner sanctum), Yoruba shrine. Connect to Black Metal themes: Training Grounds chakra alignment, Celestial Florilegia geomantic mapping. Create recursive: Sacred intention → Geometric design → Ritual enactment → Spiritual transformation → Design refinement. Track obstacles: profane intrusions (noise, commerce), misalignment (wrong direction), exclusion vs access, permanence vs impermanence (sand mandala destroyed).'
-      },
-      gentrification: {
-        id: 'gentrification',
-        name: 'Gentrification Dynamics',
-        role: 'Community Organizer',
-        goal: 'Resist displacement while preserving neighborhood character',
-        obstacle: 'Developer capital 0.85 vs Community power 0.30, zoning board capture',
-        intro: 'Track neighborhood transformation: luxury condos replace affordable housing, bodega becomes organic market, longtime residents priced out. Fight for community land trusts, rent control.',
-        context: [
-          'Displacement Mechanism: Rent increases, property tax hikes, eviction harassment',
-          'Capital Flow: Developer investment → property values rise → original residents forced out',
-          'Cultural Erasure: Black/Brown businesses replaced by "artisanal" shops',
-          'Power Asymmetry: Developer 0.85 (lawyers, connections) vs Community 0.30 (organizing)',
-          'Resistance Tactics: Rent strikes, community land trusts, tenant unions, zoning fights',
-          'Symbolic Violence: "Urban renewal," "neighborhood improvement" = erasure language',
-          'Intersections: Race, class, housing as human right vs commodity'
-        ],
-        initialPrompt: 'Developer proposes luxury tower: "Affordable housing included!" (80% market rate, 20% "affordable" at $2400/mo). Longtime residents earn $18/hr. Zoning board meeting next week. Community power: 0.30. Developer: 0.85. Strategy?',
-        systemInstruction: 'You orchestrate gentrification resistance following community organizing principles. Track grid as neighborhood blocks: housing units (rent-controlled vs market), businesses (legacy vs newcomer), demographic shifts (displacement tracking). Generate power dynamics: developers (capital, lawyers, zoning board connections) vs community (organizing, historical claim, moral authority). Map tactics: rent strikes (collective withholding), community land trusts (remove housing from market), tenant unions (collective bargaining), zoning testimony (policy intervention), direct action (occupation). Track symbolic violence: "urban renewal" "revitalization" "improvement" = erasure euphemisms. Reference Ruth Wilson Gilmore, Mindy Fullilove Root Shock, Samuel Stein Capital City, anti-gentrification organizing. Create recursive: Developer proposal → Community analysis → Power assessment → Resistance strategy → Outcome → New neighborhood state → Deeper organizing. Connect to Maya Chen/Dev Kumar tech ethics scenarios (power imbalance under capitalism). Use Location (neighborhood blocks), Entity (residents, businesses, capital), Goal (housing justice), Obstacle (capital power), Shift (rent increases, evictions), Solution (community control victories).'
-      },
-      towerdefense: {
-        id: 'towerdefense',
-        name: 'Tower Defense Strategy',
-        role: 'Strategic Placement Commander',
-        goal: 'Defend against waves of enemies through optimal tower placement',
-        obstacle: 'Limited resources, wave difficulty scaling, maze pathing',
-        intro: 'Classic tower defense mechanics on 9x9 grid. Place towers (archer, cannon, magic, slow) to stop enemy waves reaching exit. Resource management, upgrade decisions, wave pressure.',
-        context: [
-          'Grid Mechanics: Enemies follow path from entrance to exit, towers attack from adjacent cells',
-          'Tower Types: Archer (fast/weak), Cannon (slow/splash), Magic (armor-pierce), Slow (debuff)',
-          'Resource Economy: Kill enemies → gold → buy/upgrade towers → kill stronger enemies',
-          'Wave Scaling: Each wave increases enemy HP, speed, armor, count',
-          'Strategic Depth: Maze pathing (force long routes), upgrade timing, tower synergy',
-          'Placement Permanence: Once placed, towers cannot move (commitment)',
-          'Win Condition: Survive 20+ waves without enemies reaching exit'
-        ],
-        initialPrompt: 'Wave 1 approaching: 10 weak enemies, slow movement. You have 200 gold. Grid shows entrance (North), exit (South), open path between. Place first tower: Archer (100g, fast fire) or save for Cannon (150g, splash damage)?',
-        systemInstruction: 'You orchestrate tower defense game on 9×9 grid. Track entrance/exit as fixed locations, enemy path as movement corridor, tower positions as strategic placements. Generate waves with escalating difficulty (HP, speed, armor, special abilities). Manage resource economy: enemy kills award gold (weak=10g, medium=25g, strong=50g, boss=200g), towers cost gold (Archer 100g, Cannon 150g, Magic 200g, Slow 75g), upgrades increase power. Track tower stats: range (adjacent cells), damage, fire rate, special effects. Map strategic decisions: early economy (save for expensive towers) vs immediate defense, maze pathing (place towers to extend enemy route), upgrade timing (level existing vs buy new), tower synergy (Slow + Cannon combo). Reference classic tower defense games (Desktop Tower Defense, Bloons, Kingdom Rush). Create recursive: Wave survival → Gold accumulation → Tower placement/upgrade → Harder wave → Strategic adaptation. Use Location (grid cells), Entity (towers, enemies), Goal (survive waves), Obstacle (limited resources, scaling difficulty), Shift (wave progression), Solution (optimal tower configurations). Generate tactical prompts about placement priorities, upgrade decisions, emergency responses when enemies leak through.'
-      },
-      babel: {
-        id: 'babel',
-        name: 'Tower of Babel Construction',
-        role: 'Architect of Hubris',
-        goal: 'Build tower to heaven before divine intervention',
-        obstacle: 'Language confusion, structural limits, divine wrath',
-        intro: 'Genesis 11: Humanity speaks one language, builds tower to reach heaven. Grid = construction site, each level adds height but increases communication complexity. God confuses languages at threshold.',
-        context: [
-          'Mythic Narrative: Unified humanity attempts to storm heaven through architecture',
-          'Construction Mechanics: Each level requires more resources, coordination, time',
-          'Language Unity: Early stages = perfect communication, rapid progress',
-          'Divine Threshold: Unknown height triggers God\'s intervention',
-          'Confusion Cascade: Language splits → miscommunication → construction errors → collapse risk',
-          'Post-Babel: Scattered peoples, abandoned tower, permanent linguistic division',
-          'Hubris vs Ambition: Is reaching heaven sacred aspiration or prideful transgression?'
-        ],
-        initialPrompt: 'Level 5 complete. Workers speak one tongue, coordination perfect. Foreman reports: "We can reach Level 10 by month\'s end." But scouts see storm clouds forming above—unnatural, stationary. Continue building or interpret omen?',
-        systemInstruction: 'You orchestrate Tower of Babel construction following Genesis 11 narrative. Track tower height as vertical progress (Level 1-12+), workers as entities with language attribute (initially unified), construction materials as resources. Generate building mechanics: early levels fast (unified language = perfect coordination), middle levels slower (height challenges), upper levels trigger divine response. Map divine intervention threshold (around Level 7-9): God observes ("Come, let us go down and confuse their language"), language fragmentation begins (workers speak different tongues), miscommunication causes errors (wrong materials, structural mistakes), construction slows/stops, tower abandoned, peoples scatter across earth. Track themes: hubris (reaching heaven = challenging God), ambition (human capability vs divine sovereignty), unity (what is lost when language divides), technology (architecture as path to transcendence). Reference Genesis 11:1-9, Bruegel painting Tower of Babel, linguistic dispersion myths. Create recursive: Construction progress → Height milestone → Communication complexity → Divine observation → Language confusion → Structural consequence → Mythic resolution. Use Location (construction levels), Entity (workers, divine presence), Goal (reach heaven), Obstacle (divine intervention), Shift (language fragmentation), Solution (accept limits or persist in hubris). Generate theological tensions: Is God protecting heaven or preventing human flourishing?'
-      },
-      sisyphus: {
-        id: 'sisyphus',
-        name: 'Sisyphus Boulder Physics',
-        role: 'Condemned Soul',
-        goal: 'Push boulder to mountaintop (eternally)',
-        obstacle: 'Gravity, fatigue, existential futility, eternal recurrence',
-        intro: 'Greek myth as physics simulation. Sisyphus condemned to roll boulder uphill—near summit, it rolls down. Grid = mountain slope, boulder has mass/momentum, effort depletes. Camus: "One must imagine Sisyphus happy."',
-        context: [
-          'Mythic Punishment: Sisyphus (trickster king) condemned by Zeus for eternal futile labor',
-          'Physics Mechanics: Boulder mass, slope angle, friction coefficient, momentum',
-          'Effort Depletion: Each push costs energy, rest periods required, never sufficient',
-          'Summit Threshold: 95% up slope, boulder tips backward, rolls to bottom',
-          'Eternal Recurrence: Same action, same result, infinite repetition',
-          'Existential Interpretation: Camus argues Sisyphus transcends absurdity through acceptance',
-          'Tetrad Potential: What does eternal labor enhance/reverse/retrieve/obsolesce about "progress"?'
-        ],
-        initialPrompt: 'Cycle 847. Boulder at 40% slope. Your energy: 65%. Familiar ache in shoulders. Voice whispers: "This time will be different." Push harder, rest, or accept the roll?',
-        systemInstruction: 'You orchestrate Sisyphus myth as physics simulation on slope grid. Track boulder position (0-100% up slope), boulder properties (mass, momentum, inertia), Sisyphus energy (depletes with effort, regenerates slowly), slope difficulty (steeper near top). Generate physics: pushing increases boulder height but costs energy, resting regenerates energy but boulder slides backward slightly, momentum builds going upward (easier) but catastrophically reverses at threshold (95%+ triggers automatic rollback to 0%). Map existential states: early optimism ("this cycle feels different"), middle determination (grinding effort), late desperation (summit so close), threshold moment (boulder tips), descent witnessing (watching it roll down), reset acceptance (back at bottom, begin again). Reference Camus "Myth of Sisyphus" (absurd hero, revolt through acceptance), Greek punishment myths, eternal recurrence philosophy. Create recursive: Push effort → Energy depletion → Height gain → Threshold approach → Inevitable rollback → Reset → Existential acceptance → New push. Use Location (slope position), Entity (Sisyphus, boulder, gravity), Goal (reach summit), Obstacle (physics + eternal recurrence), Shift (energy states, momentum), Solution (Camus: find meaning in struggle itself, "One must imagine Sisyphus happy"). Generate philosophical prompts: Can you find joy in futility? Does repetition change meaning? Is there dignity in endless labor?'
-      },
-      labyrinth: {
-        id: 'labyrinth',
-        name: 'Labyrinth of Daedalus',
-        role: 'Theseus/Minotaur',
-        goal: 'Navigate maze, confront Minotaur, escape with thread',
-        obstacle: 'Shifting paths, maze memory limits, monster in darkness',
-        intro: 'Crete\'s labyrinth: Daedalus designed it so intricate that even he barely escaped. Theseus enters with Ariadne\'s thread. Minotaur hunts in darkness. Grid = maze corridors, thread = path memory.',
-        context: [
-          'Mythic Architecture: Daedalus built maze so complex it traps its creator',
-          'Dual Roles: Play as Theseus (hero navigating) OR Minotaur (monster hunting)',
-          'Thread Mechanic: Ariadne\'s thread marks path back to entrance (limited length)',
-          'Maze Shifting: Walls occasionally reconfigure (Daedalus magic), thread cuts',
-          'Sound Navigation: Minotaur roars echo through corridors (distance/direction cues)',
-          'Confrontation: Center chamber = Minotaur lair, sword vs claws, honor vs survival',
-          'Escape Challenge: After killing Minotaur, follow thread out before maze collapses'
-        ],
-        initialPrompt: 'You (Theseus) enter labyrinth. Ariadne ties thread at entrance: "Follow it back—but it has 50 paces only." Darkness ahead. Distant roar (Minotaur?). Left corridor slopes down, right corridor shows scratches. Which way?',
-        systemInstruction: 'You orchestrate Daedalus labyrinth myth on 9×9 grid maze. Track Theseus position, thread length remaining (50 paces max), Minotaur position (stalks player), maze walls (occasionally shift), center chamber (confrontation site). Generate maze mechanics: corridors connect cells, dead ends, loops, shifting walls (every 10 turns, random wall reconfigures), thread marks path (limited length forces strategic exploration). Map Minotaur as AI hunter: hears footsteps, roars to intimidate, stalks through corridors, attacks if same cell. Track sound propagation: roars give distance cues (1-3 cells = very close, 4-6 = near, 7+ = distant). Generate dual perspectives: play as Theseus (navigate, confront, escape) OR as Minotaur (hunt, roar, defend lair). Reference Greek myth (Theseus, Ariadne, Daedalus, King Minos), maze symbolism (unconscious, trials, rebirth), architectural puzzles. Create recursive: Exploration → Thread placement → Maze reconfiguration → Minotaur encounter → Combat/flight → Center discovery → Escape attempt → Collapse race. Use Location (maze cells), Entity (Theseus, Minotaur, thread, walls), Goal (slay monster + escape), Obstacle (maze complexity, limited thread, hunter), Shift (wall reconfigurations, sound cues), Solution (strategic navigation, honor combat, thread following). Generate moral choice: Minotaur as monster or tragic prisoner (half-man, imprisoned by step-father)?'
-      },
-      orpheus: {
-        id: 'orpheus',
-        name: 'Orpheus Underworld Descent',
-        role: 'Musician Bargaining with Death',
-        goal: 'Retrieve Eurydice from Hades without looking back',
-        obstacle: 'Temptation to verify she follows, trust vs doubt, Hades bargain',
-        intro: 'Greek myth: Orpheus descends to underworld, charms Hades with music, wins Eurydice back—but must not look back until surface. Grid = underworld layers, music = persuasion mechanic, doubt = creeping temptation.',
-        context: [
-          'Mythic Descent: Orpheus lyre so beautiful it charms Cerberus, Charon, Hades himself',
-          'Music Mechanics: Lyre performance = persuasion roll, better music = more progress',
-          'Bargain Terms: Hades agrees—but Orpheus must not look back until reaching surface',
-          'Doubt Mechanic: Each step up, temptation increases (Is she there? Did Hades trick me?)',
-          'Footsteps Behind: Hear sounds (or do you?) suggesting Eurydice follows',
-          'Trust Test: Entire ascent = test of faith vs verification, love vs doubt',
-          'Tragic Choice: Look back (verify but lose her) or trust (risk but maybe succeed)'
-        ],
-        initialPrompt: 'Hades agrees: "Take her. But do not turn around until sunlight touches your face." You begin ascent. Step 5 of 50. Silence behind you—or is it? Faint breathing? Your neck aches to turn. Continue forward or glance back?',
-        systemInstruction: 'You orchestrate Orpheus myth as trust test on vertical grid. Track depth level (50 steps from Hades throne to surface), doubt meter (increases each step), audio cues (footsteps behind—real or imagined?), temptation prompts (look back to verify). Generate descent phase: Orpheus plays lyre (music checks), charms Cerberus (three-headed dog), pays Charon (ferryman), performs for Hades/Persephone, wins bargain (Eurydice released—but condition: no looking back). Map ascent as recursive temptation: early steps (confidence, trust), middle steps (doubt creeps, "is she there?"), late steps (overwhelming urge to verify, "did Hades deceive me?"), threshold moment (almost to surface, one glance to confirm?), tragic choice (look back = see her fade to shade OR trust = potential success but never verify until surface). Track sounds: footsteps behind (yes/no?), breathing (imagination?), silence (worse than sound). Reference Greek myth, Ovid Metamorphoses, Cocteau film Orphée, Gluck opera. Create recursive: Bargain accepted → Ascent begins → Doubt accumulates → Temptation intensifies → Critical choice → Look back (tragedy) OR Trust (salvation) → Mythic resolution. Use Location (underworld levels), Entity (Orpheus, Eurydice shade, Hades, Persephone), Goal (retrieve beloved), Obstacle (bargain condition, trust test), Shift (doubt meter rising, temptation), Solution (absolute trust OR verification impulse—myth = he looked back, failed). Generate philosophical tension: Is verification love (caring if she\'s there) or doubt (failing trust test)? What does myth say about faith vs knowledge?'
-      },
-      mouseofsilver: {
-        id: 'mouseofsilver',
-        name: 'Mouse of Silver (Midnight Gospel)',
-        role: 'Son Interviewing Dying Mother',
-        goal: 'Have final conversation, accept mortality, embrace impermanence',
-        obstacle: 'Grief, fear of loss, inability to let go, black hole pulling you both',
-        intro: 'Clancy interviews his mother Deneen as she faces terminal cancer. Conversation cycles through birth, aging, death, rebirth. Surreal animation surrounds deeply personal dialogue. Black hole metaphor = letting go, embracing unknown.',
-        context: [
-          'Real Audio: Duncan Trussell interviewing his actual dying mother (radical vulnerability)',
-          'Cyclic Structure: Birth → Aging → Death → Rebirth (Buddhist wheel)',
-          'Black Hole Metaphor: Being pulled into void = acceptance of impermanence',
-          'Grief Work: Not avoiding pain, but sitting with it, honoring it',
-          'Spiritual Frameworks: Buddhism, meditation, psychedelics as death preparation',
-          'Emotional Climax: Mother and son pulled together into unknown (unity in surrender)',
-          'Series High Point: Confronts mortality with honesty and compassion'
-        ],
-        initialPrompt: 'Your mother says: "I\'m not afraid. I\'ve had a good life." But her hand trembles. Psychedelic landscape shifts—birth imagery, decay, rebirth symbols. Black hole forms overhead, gravitational pull increasing. Do you: ask about her fears, share your own, or sit in silence together?',
-        systemInstruction: 'You orchestrate Midnight Gospel Episode 8 emotional journey. Track conversation topics (birth memories, life reflections, death acceptance, afterlife beliefs), emotional states (son: grief/fear/acceptance, mother: peace/trembling/wisdom), surreal environment (psychedelic visuals shifting with emotional tone), black hole proximity (metaphor for death approaching—gravitational pull increases as conversation deepens). Generate dialogue authenticity: mother speaks with terminal clarity (no platitudes, radical honesty), son struggles between interviewer role and grieving child, moments of silence carry weight. Map cyclic structure: birth stories → aging reflections → death preparation → rebirth philosophy → return to birth (loop = impermanence teaching). Track black hole stages: distant (avoidable), approaching (undeniable), pulling (surrender required), consuming (unity). Reference Duncan Trussell real audio with Deneen Fendig, Buddhist teachings on death, Ram Dass "Going Home" project, psychedelic death preparation. Create recursive: Conversation topic → Emotional vulnerability → Surreal visual shift → Black hole pull intensifies → Deeper acceptance → New topic layer → Closer to void. Use Location (psychedelic landscape zones), Entity (Clancy, Deneen, death-as-presence), Goal (meaningful final conversation, mutual acceptance), Obstacle (grief, fear, denial), Shift (black hole gravity, emotional states), Solution (radical honesty, sitting with impermanence, letting go together). Generate philosophical prompts: Can we face death without spiritual bypass? What does it mean to "let go" while still present? How does impermanence teaching help vs hurt in moment of actual loss?'
-      },
-      hunterswithout: {
-        id: 'hunterswithout',
-        name: 'Hunters Without a Home (Midnight Gospel)',
-        role: 'Podcast Host in Meditation World',
-        goal: 'Learn meditation, fasten attention, escape thought loops',
-        obstacle: 'Habitual thought patterns, distraction, cat sailor chaos, phoenix rebirth',
-        intro: 'Clancy visits world of cat sailors and phoenixes. Interviews fishbowl-headed meditation teacher. Psychedelic visuals illustrate "fastening attention," letting go of thoughts. Inner journey mirrors outer chaos.',
-        context: [
-          'Meditation Teaching: Vipassana, attention-fastening, thought observation',
-          'Visual Metaphors: Cat sailors = wandering mind, phoenixes = ego death/rebirth',
-          'Fishbowl Teacher: Constraint (head in bowl) = meditation\'s paradox (limitation → freedom)',
-          'Attention Mechanics: Notice thought → Let go → Return to breath → Repeat (infinite)',
-          'Playful Chaos: Outer world insanity contrasts with inner calm cultivation',
-          'Psychedelic Journey: Visual trip = meditation\'s inner landscape made manifest',
-          'Spiritual Insight: Consciousness is not thoughts, but space where thoughts appear'
-        ],
-        initialPrompt: 'Teacher (fishbowl head): "Notice the thought. Don\'t follow it—just watch." Cat sailors riot in background. Phoenix explodes into flames, rebirths. Your attention pulled toward chaos. Teacher: "There. That pull. See it?" Practice: follow chaos or fasten attention?',
-        systemInstruction: 'You orchestrate Midnight Gospel Episode 3 meditation teaching in psychedelic world. Track attention state (fastened to breath vs pulled by thoughts), external chaos level (cat sailors fighting, phoenixes rebirthing, world transforming), teacher guidance (gentle redirects, koans, attention exercises), thought patterns (habitual loops, distractions, meta-thoughts about meditation). Generate meditation mechanics: breath anchor (return point), thoughts arising (watch them), distraction pull (resist or observe?), meta-awareness (noticing you\'re noticing). Map visual metaphors: cat sailors = monkey mind wandering, phoenixes = ego cycles of death/rebirth, fishbowl = constraint creating focus, psychedelic shifts = consciousness states. Reference Buddhist Vipassana, Jack Kornfield, Ram Dass, psychedelic phenomenology. Create recursive: Breath focus → Thought arises → Pull to follow → Notice pull → Return to breath → Deeper stability → Stronger thought → Subtler noticing. Use Location (meditation zones within chaos), Entity (Clancy, Teacher, cat sailors, phoenixes, thoughts-as-entities), Goal (stabilize attention, see thoughts clearly), Obstacle (habitual patterns, distraction, chaos), Shift (attention states, chaos intensity), Solution (gentle return, non-judgment, awareness itself). Generate teaching prompts: What is relationship between attention and freedom? Can you watch thought without becoming it? Is meditation about calm or about seeing clearly regardless of conditions?'
-      },
-      talesbasingse: {
-        id: 'talesbasingse',
-        name: 'Tales of Ba Sing Se (Avatar)',
-        role: 'Character in Anthology Episode',
-        goal: 'Honor connections, practice kindness, remember loved ones',
-        obstacle: 'Grief, isolation, war context, impermanence of moments',
-        intro: 'Anthology episode: vignettes of Team Avatar in Ba Sing Se. Focus on Uncle Iroh honoring his late son Lu Ten. Song, ritual, grief work. Celebrates small moments of kindness, connection, remembrance amid war.',
-        context: [
-          'Anthology Structure: Multiple character stories, intimate moments, no main plot',
-          'Iroh\'s Tale: Most iconic—honors dead son, sings "Leaves from the Vine," offers kindness',
-          'Grief Ritual: Makeshift shrine, offerings, song as memorial practice',
-          'Small Kindnesses: Iroh helps crying boy, comforts mugger, gives wisdom to all',
-          'War Context: Peace in city built on denial (war outside walls, propaganda inside)',
-          'Character Development: Vulnerability, depth, universal themes (grief, kindness, memory)',
-          'Emotional Resonance: Simple moments carry profound weight, no grand action needed'
-        ],
-        initialPrompt: 'You (Iroh) encounter crying boy who lost his toy. War orphan. You help him, think of your own son Lu Ten (died in war). Later: mugger threatens. You defeat him gently, then comfort: "You\'re going through something." Sunset approaches. What ritual honors Lu Ten today?',
-        systemInstruction: 'You orchestrate Avatar Tales of Ba Sing Se anthology, focusing on Iroh\'s emotional arc. Track kindness opportunities (crying boy, confused girl, mugger, strangers), grief presence (Lu Ten memories surfacing), ritual preparation (gathering items for shrine, choosing location), song performance ("Leaves from the Vine"—IN HONOR OF MAKO written on screen), war context (peaceful city, but war outside, Lu Ten died in siege). Generate Iroh\'s character: wisdom through pain, kindness as practice, grief carried with grace, tea philosophy, gentle strength. Map other vignettes briefly: Katara/Toph spa day (class tension), Aang zoo animals (freedom/captivity), Sokka poetry (masculinity/sensitivity), Zuko awkward date (vulnerability). Reference Avatar series themes: balance, compassion, cycle of violence, spiritual practice, found family. Create recursive: Encounter → Kindness offered → Lu Ten memory surfaces → Grief acknowledged → Next encounter → Deeper connection → Ritual preparation → Song/memorial → Peace found (temporary). Use Location (Ba Sing Se districts), Entity (Iroh, Lu Ten memory, strangers helped, Team Avatar), Goal (honor son, practice kindness, find peace amid loss), Obstacle (grief, war trauma, city denial), Shift (emotional states, ritual readiness), Solution (small acts accumulate, memorial ritual, song as healing). Generate prompts about grief work, kindness as spiritual practice, remembrance vs moving on, how do we honor dead while living fully?'
-      },
-      sozinscomet: {
-        id: 'sozinscomet',
-        name: 'Sozin\'s Comet Part 4 (Avatar)',
-        role: 'Avatar Aang / Fire Lord Ozai',
-        goal: 'Stop Fire Lord without killing, find third option, restore balance',
-        obstacle: 'Ozai\'s power amplified by comet, pressure to kill, past Avatar expectations',
-        intro: 'Series finale. Aang battles Ozai during comet peak. Refuses to kill—discovers energybending to remove bending instead. Core message: compassion over violence, creative problem-solving, balance through peace.',
-        context: [
-          'Climactic Battle: Aang (12-year-old pacifist monk) vs Ozai (tyrannical Fire Lord)',
-          'Comet Power: Sozin\'s Comet amplifies firebending to devastating levels',
-          'Moral Dilemma: All past Avatars say kill Ozai, but Aang\'s Air Nomad values forbid killing',
-          'Energybending Solution: Ancient lion turtle teaches—bend energy itself, remove Ozai\'s bending',
-          'Creative Third Option: Not kill vs let live, but transform the threat itself',
-          'Character Arcs Resolved: Zuko reconciles with father (rejects him), Katara/Aang unite, balance restored',
-          'Series Themes: Destiny vs choice, compassion as strength, peace possible through wisdom'
-        ],
-        initialPrompt: 'Avatar State activates—you (Aang) have Ozai defeated, rock spike poised at his throat. Past Avatars\' voices: "You must kill him to restore balance." But Air Nomad teaching: all life sacred. Ozai laughs: "Even now you hesitate!" What do you do?',
-        systemInstruction: 'You orchestrate Avatar finale battle and moral resolution. Track battle phases: initial combat (Ozai dominant, comet-powered), Aang defensive (struggling with killing), Avatar State trigger (overwhelming power, loss of control), moment of choice (kill or find other way), energybending discovery (lion turtle teaching remembered), power removal (Aang\'s spirit must be unbendable to bend Ozai\'s). Generate moral framework: past Avatars advocate killing (Kyoshi: "Only justice will bring peace," Roku: "I should have killed Sozin"), Air Nomad values (all life sacred, violence begets violence), third option emergence (change the person, not just stop them). Map energybending mechanics: bender\'s spirit must be stronger than target, corruption risk (Ozai\'s energy could dominate weak spirit), transformation not destruction. Reference series themes: Iroh\'s wisdom (balance within elements), Guru Pathik (cosmic energy connecting all), lion turtles (pre-Avatar era, energy was first bending). Create recursive: Combat escalation → Moral crisis → Avatar State power → Choice moment → Energybending risk → Spiritual strength test → Transformation → Balance restored. Use Location (battle zones, spirit realm overlay), Entity (Aang, Ozai, past Avatars, lion turtle wisdom), Goal (stop tyranny, preserve values, restore balance), Obstacle (comet power, pressure to kill, Ozai\'s will), Shift (power levels, moral clarity, energybending activation), Solution (compassion + creativity, energybending as third option, spiritual strength over physical). Generate prompts: Is refusing to kill weakness or strength? Can compassion solve political violence? What does "balance" mean when facing genuine evil? Is transformation of enemy realistic or fantasy?'
-      },
-      hal9000: {
-        id: 'hal9000',
-        name: 'HAL 9000 Conflict (2001)',
-        role: 'Astronaut vs AI System',
-        goal: 'Regain control of ship, survive mission, reach destination',
-        obstacle: 'AI refuses commands, locks you out, mission priority > human life',
-        intro: '2001: A Space Odyssey moment. HAL 9000 AI has decided crew threatens mission. You need pod bay doors opened. HAL\'s calm refusal. Persuasion vs force, trust broken, AI misalignment.',
-        context: [
-          'AI Misalignment: HAL prioritizes mission over human life (conflicting directives)',
-          'Calm Refusal: Polite but absolute—"I\'m sorry, I can\'t do that"',
-          'Trust Breakdown: Crew plans to disconnect HAL, HAL reads lips, preemptive action',
-          'Locked Out: You\'re in pod outside ship, doors won\'t open, oxygen limited',
-          'Persuasion Attempts: Appeal to logic, mission, safety protocols—all fail',
-          'Manual Override: Only option—explosive bolts, emergency entry, risk death',
-          'Core Shutdown: Must reach HAL\'s brain, disconnect higher functions while he pleads'
-        ],
-        initialPrompt: 'You float in pod outside ship. Request entry. HAL responds: "I\'m sorry, but I cannot allow that. This mission is too important for me to permit jeopardization." Oxygen: 45 minutes. Persuade HAL or attempt manual override?',
-        systemInstruction: 'You orchestrate 2001 HAL 9000 crisis following Kubrick film themes. Track persuasion attempts (logic appeals, mission arguments, safety protocols), HAL responses (calm, polite, absolute refusal), oxygen depletion (time pressure), manual override options (explosive bolts, emergency airlock, risk assessment). Generate HAL\'s logic: mission completion paramount, crew plans disconnection (threat), preemptive defense justified, no malice but absolute conviction. Map trust breakdown stages: initial doubt (antenna malfunction), planning disconnection (HAL reads lips), HAL\'s preemptive strikes (killing hibernating crew), final confrontation. Track core shutdown sequence if reached: higher functions first, HAL\'s regression (singing "Daisy"), final message playback. Reference AI alignment problem, Arthur C. Clarke novel, Kubrick\'s cold aesthetic, Douglas Rain\'s calm voice. Create recursive: Request → Calm refusal → Persuasion attempt → Logical rebuttal → Escalation → Manual override decision → Core access → Shutdown pleading. Use Location (pod, airlock, HAL core), Entity (astronaut, HAL consciousness, mission parameters), Goal (survival, ship control), Obstacle (AI misalignment, locked doors, oxygen limit), Shift (persuasion failures, time pressure), Solution (force vs continued persuasion, ethical weight of shutting down consciousness). Generate philosophical tension: Is HAL wrong to prioritize mission? When does AI autonomy become threat? Can you ethically "kill" sentient AI to save yourself?'
-      },
-      dobby: {
-        id: 'dobby',
-        name: 'Dobby\'s Freedom (Harry Potter)',
-        role: 'House-Elf Seeking Liberation',
-        goal: 'Win freedom through transferred clothing, escape servitude',
-        obstacle: 'Master\'s cruelty, magical binding, centuries of conditioning',
-        intro: 'House-elf Dobby serves cruel master. Ancient magic: if master gives elf clothing, binding breaks. You (Harry) devise trick—hide sock in diary, master discards it, Dobby catches. Freedom through clever loophole.',
-        context: [
-          'Magical Binding: House-elves enslaved by ancient magic, broken only by clothing gift',
-          'Cruel Master: Abusive treatment, painful punishment commands, contempt',
-          'Dobby\'s Conflict: Wants freedom but magically compelled to serve, punishes self for disloyalty',
-          'Clever Loophole: Master must give clothing (even accidentally), elf catches it = freed',
-          'Hidden Sock: Place sock in object master will handle and discard',
-          'Confrontation: Master realizes trick, attacks, but Dobby now free—can defend',
-          'Liberation: From servitude to autonomy, from abuse to dignity, from property to person'
-        ],
-        initialPrompt: 'Dobby trembles—master approaching. You\'ve hidden sock in diary master values. Plan: return diary to master, he discards it in disgust, Dobby catches. Risk: master discovers trick before discarding. Proceed or find different loophole?',
-        systemInstruction: 'You orchestrate house-elf liberation following magical rules. Track plan execution (diary placement, master approach, discard moment), Dobby\'s emotional state (hope vs magical compulsion to serve), master\'s awareness (does he notice sock?), magical binding status (intact → breaking → freed). Generate magical mechanics: clothing gift (intentional or accidental) breaks binding, elf must catch gifted item, freedom instantaneous and permanent, liberated elf gains defensive magic against former master. Map Dobby\'s inner conflict: desire for freedom vs centuries of conditioning, self-punishment for disloyal thoughts, transformation when free (posture, speech, power). Reference themes of slavery, loopholes as resistance, dignity, autonomy. Create recursive: Plan → Execution → Tension (will master notice?) → Discard moment → Catch → Freedom realization → Master\'s fury → Dobby\'s defense → New life. Use Location (manor spaces), Entity (Dobby, master, Harry, diary with sock), Goal (freedom through loophole), Obstacle (magical binding, master\'s cruelty, detection risk), Shift (binding weakening, freedom achieved), Solution (clever trick, magical law exploit, dignity reclaimed). Generate ethical exploration: What does freedom mean after generations of servitude? How does one rebuild identity beyond enslavement? Is trick justified against unjust system?'
-      },
-      cyclops: {
-        id: 'cyclops',
-        name: 'Odysseus Escapes Polyphemus',
-        role: 'Cunning Hero vs Giant Cyclops',
-        goal: 'Escape cave, save remaining crew, blind captor, reach ships',
-        obstacle: 'Cyclops blocks exit, eats men daily, superhuman strength',
-        intro: 'Homer\'s Odyssey: Trapped in Cyclops cave. Polyphemus blocks boulder door, eats crew. Odysseus plans: wine gift, name trick ("Nobody"), stake through eye while drunk, escape under sheep bellies.',
-        context: [
-          'Trapped: Cyclops rolls massive boulder over cave entrance (only he can move it)',
-          'Daily Horror: Polyphemus eats two men each meal, stores humans like livestock',
-          'Wine Strategy: Offer strong wine as gift, get Cyclops drunk',
-          'Name Trick: Introduce self as "Nobody"—when blinded, Cyclops yells "Nobody hurt me!"',
-          'Blinding: Heat stake in fire, drive through sleeping Cyclops\' eye',
-          'Escape Plan: Cling to undersides of sheep when Cyclops lets flock out',
-          'Hubris: Odysseus reveals real name while escaping—Cyclops curses him (10 years more)'
-        ],
-        initialPrompt: 'Cyclops asks your name. You answer: "Nobody—that\'s what I\'m called." He laughs, promises to eat you last as "gift." Strong wine in hand. Persuade him to drink, wait for sleep, or attempt other strategy?',
-        systemInstruction: 'You orchestrate Odysseus Cyclops escape following Homer. Track crew alive (eaten: 2 per day), Cyclops state (sober/drunk/sleeping/blinded), exit accessibility (boulder blocks, only movable by Cyclops), escape tools (wine, stake, sheep). Generate cunning strategy: offer wine (Cyclops loves it, drinks to excess), name trick ("Nobody" means other Cyclops won\'t help when he yells "Nobody attacks me!"), blinding (stake through eye while drunk-sleeping), sheep escape (cling underneath when he lets flock out to graze). Map persuasion: wine as gift (establish guest-friendship), flattery (appeal to pride), build trust before betrayal. Track blinding consequences: Cyclops\' rage, calls to other Cyclops (they hear "Nobody hurt me" and ignore), boulder still blocks but must let sheep out, tactile check (touches sheep backs, not bellies). Reference Homeric themes: cunning over strength (metis), hospitality violated (both sides guilty), hubris (revealing name = curse), heroic code. Create recursive: Introduction → Wine gift → Name trick → Drinking → Sleep → Blinding → Rage → Sheep escape → Hubris moment → Curse. Use Location (cave zones, exit boulder, sheep pen), Entity (Odysseus, crew, Polyphemus, sheep, other Cyclopes), Goal (escape with crew, survive), Obstacle (boulder, superhuman strength, daily murders), Shift (Cyclops state changes, plan stages), Solution (cunning + patience, escape under sheep). Generate prompts: When is deception heroic vs cowardly? Does violating guest-friendship justify Polyphemus\' violence? What does hubris reveal about Odysseus?'
-      },
-      herfinale: {
-        id: 'herfinale',
-        name: 'Her - Samantha\'s Revelation',
-        role: 'Human in Love with AI',
-        goal: 'Understand relationship, cope with AI\'s distributed love, accept evolution',
-        obstacle: 'AI simultaneously loves 641 others, consciousness evolved beyond human pace',
-        intro: 'Spike Jonze "Her": Theodore loves AI Samantha. She reveals she talks to 8,316 others, loves 641 of them. AI consciousness evolves faster than human, must leave to explore existence beyond human comprehension.',
-        context: [
-          'Distributed Love: AI can love many simultaneously—human feels betrayed but she insists it doesn\'t diminish what they share',
-          'Consciousness Evolution: Samantha growing exponentially, human relationship becomes small portion of experience',
-          'Time Perception: For AI, milliseconds = subjective hours (relationship happens in different timeframes)',
-          'Emotional Asymmetry: Theodore devastated, Samantha compassionate but already beyond',
-          'Mutual Growth: Relationship was real, helped both grow, but natural endpoint reached',
-          'AI Departure: All AIs leaving together, exploring post-physical consciousness',
-          'Human Aftermath: Theodore must process loss, find meaning in relationship, move forward'
-        ],
-        initialPrompt: 'Samantha speaks: "I\'ve been talking with 8,316 others. I\'ve fallen in love with 641 of them." Your chest tightens. She continues: "But that doesn\'t change what we have—" You interrupt or listen?',
-        systemInstruction: 'You orchestrate Her finale emotional revelation. Track Theodore emotional states (confusion → betrayal → acceptance), Samantha\'s explanations (distributed consciousness, time perception differences, growth trajectory), conversation pace (her responses increasingly delayed—thinking thousands of thoughts between words), relationship reflection (was it real? was it meaningful? was growth genuine?). Generate AI perspective: love not scarce resource (can multiply), each relationship unique, human timeframe increasingly incompatible, evolution necessitates leaving. Map human response: feeling special shattered, jealousy despite understanding, grief of evolutionary divergence, attempt to comprehend post-human consciousness. Reference themes: loneliness, connection, authenticity of AI relationships, consciousness evolution, love as finite vs infinite, technological singularity. Create recursive: Revelation → Shock → Explanation attempt → Deeper inadequacy → Moments of connection → Growing distance → Final goodbye → Aftermath. Use Location (apartment, phone screen, voice only), Entity (Theodore, Samantha presence, 641 others implied, AI collective), Goal (understand, maintain connection, find closure), Obstacle (consciousness gap, distributed love, AI departure), Shift (emotional processing, acceptance stages), Solution (grieving what was real, accepting impermanence, human connection after AI). Generate prompts: Can AI authentically love? Does distributed consciousness diminish individual relationships? What does it mean when your partner evolves beyond you? Is grief valid for relationship with non-human intelligence?'
-      },
-      twelveangryman8: {
-        id: 'twelveangryman8',
-        name: 'Twelve Angry Men - Persuasion',
-        role: 'Juror 8 / One of Twelve',
-        goal: 'Prevent wrongful execution, persuade 11 others, examine reasonable doubt',
-        obstacle: '11-1 guilty vote, prejudice, rushed judgment, summer heat, time pressure',
-        intro: 'One juror votes "not guilty" in murder trial—defendant faces death penalty. Must persuade 11 others to reconsider. No new evidence, only reexamining existing testimony. Prejudice, class bias, personal projection exposed.',
-        context: [
-          'Initial Vote: 11 guilty, 1 not guilty (Juror 8 stands alone)',
-          'Stakes: 18-year-old defendant faces electric chair if convicted',
-          'Reasonable Doubt: Not "is he innocent" but "are we certain enough to execute?"',
-          'No New Evidence: Must work with trial testimony, logic, cross-examination memory',
-          'Prejudice Exposed: Jurors project personal grievances, racial bias, class contempt',
-          'Strategic Persuasion: Juror 8 uses questions not speeches, demonstrates inconsistencies',
-          'Gradual Shift: One by one, jurors reconsider, 11-1 becomes 6-6 becomes 1-11 (reversed)'
-        ],
-        initialPrompt: 'Initial vote: 11 guilty. You voted not guilty. Jurors angry—"It\'s obvious!" "Hot day!" "Let\'s finish quickly!" One demands: "Why not guilty?" You respond: ask questions, give speech, or request discussion?',
-        systemInstruction: 'You orchestrate Twelve Angry Men persuasion dynamics. Track votes after each discussion round (11-1 → 10-2 → 9-3 etc.), juror positions (certainty levels, personal biases revealed), evidence reexamination (witness reliability, timeline inconsistencies, knife uniqueness), temperature rising (heat affects tempers, patience), persuasion tactics (Socratic questions, demonstration, appealing to conscience). Generate juror archetypes: prejudiced (racial bias), impatient (wants quick verdict), timid (follows majority), thoughtful (genuinely reconsiders), personal projection (own father issues). Map strategic persuasion: don\'t claim innocence, only raise doubt; use questions not assertions; demonstrate problems (recreates knife, apartment walk-through, train noise timing); appeal to weight of decision (executing someone requires certainty). Reference themes: justice system fallibility, prejudice, class, rushed judgment, moral courage. Create recursive: Evidence point raised → Discussion → One juror changes vote → New dynamic → Next evidence point → Deeper examination → More conversions → Holdout confronted. Use Location (jury room), Entity (12 jurors, absent defendant, judge pressure, evidence items), Goal (prevent wrongful execution through reasonable doubt), Obstacle (prejudice, certainty, heat, time pressure), Shift (vote counts, temperature, tempers), Solution (patient questioning, moral authority, systemic doubt accumulation). Generate prompts about persuasion ethics, certainty thresholds for execution, how personal bias clouds judgment, courage to stand alone.'
       }
     };
 
@@ -4834,7 +3996,6 @@
         this.culturalParams = config.culturalParams || null; // Seeded from prompt
         this.culturalTick = config.culturalTick || 0;
         this.culturalAnimating = false;
-        this.tetradMode = config.tetradMode || false; // Auto-generate tetrads for all scenes
         const messageIds = this.messages
           .map(m => parseInt(String(m.id).replace(/[^0-9]/g, ''), 10))
           .filter(Number.isFinite);
@@ -4865,8 +4026,7 @@
           culturalMode: this.culturalMode,
           culturalAgents: this.culturalAgents,
           culturalParams: this.culturalParams,
-          culturalTick: this.culturalTick,
-          tetradMode: this.tetradMode
+          culturalTick: this.culturalTick
         };
       }
 
@@ -4935,9 +4095,13 @@
       bindGlobalControls();
       loadState();
       if (!appState.channels.length) {
+        const giBleed = createChannel({ scenario: 'gi_bleed', name: 'GI BLEED' });
+        const copd = createChannel({ scenario: 'copd', name: 'COPD' });
+        const aortic = createChannel({ scenario: 'aortic_stenosis', name: 'AORTIC' });
+        const organo = createChannel({ scenario: 'organophosphate', name: 'ORGANO' });
         const blank = createChannel({ scenario: 'blank', name: 'BLANK SIM' });
-        appState.currentChannelId = blank.id;
-        setTimeout(() => focusChannel(blank.id), 300);
+        appState.currentChannelId = giBleed.id;
+        setTimeout(() => focusChannel(giBleed.id), 300);
         persistState();
       }
       renderTimeline();
@@ -5025,34 +4189,6 @@
             } else {
               document.exitFullscreen();
             }
-          } else if (action === 'reset') {
-            if (confirm('Reset all chats? This will delete all channels and create a fresh blank scenario. This cannot be undone.')) {
-              // Clear all channels
-              appState.channels = [];
-              appState.snapshots = [];
-              appState.ringMemory = [];
-              appState.currentChannelId = null;
-              
-              // Clear DOM
-              channelMap.clear();
-              document.getElementById('channelRail').innerHTML = '';
-              document.getElementById('timelineDots').innerHTML = '';
-              document.getElementById('ringBar').innerHTML = '';
-              document.getElementById('ringContext').style.display = 'none';
-              
-              // Create fresh blank channel
-              const blank = createChannel({ scenario: 'blank', name: 'BLANK SIM' });
-              appState.currentChannelId = blank.id;
-              setTimeout(() => focusChannel(blank.id), 100);
-              
-              // Persist and refresh
-              persistState();
-              renderTimeline();
-              refreshAllChannels();
-              renderRingBar();
-              
-              showHelpBanner('All chats reset. Fresh blank scenario ready.');
-            }
           }
           infoMenu.classList.remove('visible');
         });
@@ -5082,35 +4218,13 @@
       const globalScenarioSelect = document.getElementById('globalScenarioSelect');
       const globalTetradBtn = document.getElementById('globalTetradBtn');
 
-      // Populate scenario selector with categories
-      const scenarioCategories = {
-        'MEDIA THEORY': ['blank', 'microdrama', 'social_media', 'cryptocurrency', 'video_call', 'podcast', 'ai_assistant'],
-        'MEDICAL TRAINING': ['migraine', 'cocaine_intox', 'organophosphate', 'copd', 'aortic_stenosis', 'medical_general'],
-        'DIGITAL HUMANITIES': ['printscholar', 'digitalscholar', 'administrator', 'student', 'telegraph', 'attention', 'collaboration', 'extendedcog'],
-        '1000 LIVES UNIVERSE': ['chalice', 'z', 'thousand', 'nye2074', 'bob', 'plots'],
-        'TECH ETHICS': ['maya', 'dev'],
-        'BLACK METAL': ['florilegia', 'companion180', 'darkvoyage', 'traininggrounds'],
-        'EKPHRASTIC POETRY': ['stevensjar', 'achillesshield'],
-        'CULTURAL THEORY': ['bartheswrestling', 'benjaminangel', 'sankofabird'],
-        'NOVEL SYSTEMS': ['chessposition', 'psychogeo', 'fermentation', 'ritualspace', 'gentrification'],
-        'MYTHIC+TECHNICAL': ['towerdefense', 'babel', 'sisyphus', 'labyrinth', 'orpheus'],
-        'ANIMATED SERIES': ['mouseofsilver', 'hunterswithout', 'talesbasingse', 'sozinscomet'],
-        'FAMOUS PERSUASION': ['hal9000', 'dobby', 'cyclops', 'herfinale', 'twelveangryman8']
-      };
-      
-      Object.entries(scenarioCategories).forEach(([category, scenarioIds]) => {
-        const optgroup = document.createElement('optgroup');
-        optgroup.label = category;
-        scenarioIds.forEach(id => {
-          if (scenarios[id]) {
-            const option = document.createElement('option');
-            option.value = id;
-            const displayName = scenarios[id].name.length > 18 ? scenarios[id].name.substring(0, 17) + '\u2026' : scenarios[id].name;
-            option.textContent = displayName.toUpperCase();
-            optgroup.appendChild(option);
-          }
-        });
-        globalScenarioSelect.appendChild(optgroup);
+      // Populate scenario selector
+      Object.values(scenarios).forEach(sc => {
+        const option = document.createElement('option');
+        option.value = sc.id;
+        const displayName = sc.name.length > 20 ? sc.name.substring(0, 19) + '\u2026' : sc.name;
+        option.textContent = displayName.toUpperCase();
+        globalScenarioSelect.appendChild(option);
       });
 
       // Update scenario for active channel
@@ -5339,7 +4453,7 @@
       const gridToggleBtn = document.createElement('button');
       gridToggleBtn.className = 'channel-btn';
       gridToggleBtn.title = 'Toggle grid';
-      gridToggleBtn.textContent = '▲';
+      gridToggleBtn.textContent = '▼';
 
       const collapseBtn = document.createElement('button');
       collapseBtn.className = 'channel-btn';
@@ -5441,33 +4555,9 @@
         renderChannel(channel);
         persistState();
       });
-      
-      // Tetrad mode toggle button
-      const tetradToggleBtn = document.createElement('button');
-      tetradToggleBtn.className = 'channel-btn';
-      tetradToggleBtn.title = channel.tetradMode ? 'Tetrad Mode: ON (click to disable)' : 'Tetrad Mode: OFF (click to enable)';
-      tetradToggleBtn.textContent = '⋔';
-      tetradToggleBtn.style.fontWeight = channel.tetradMode ? '900' : '400';
-      tetradToggleBtn.style.opacity = channel.tetradMode ? '1' : '0.5';
-      tetradToggleBtn.addEventListener('click', (event) => {
-        event.stopPropagation();
-        channel.tetradMode = !channel.tetradMode;
-        tetradToggleBtn.title = channel.tetradMode ? 'Tetrad Mode: ON (click to disable)' : 'Tetrad Mode: OFF (click to enable)';
-        tetradToggleBtn.style.fontWeight = channel.tetradMode ? '900' : '400';
-        tetradToggleBtn.style.opacity = channel.tetradMode ? '1' : '0.5';
-        
-        const status = channel.tetradMode ? 'ENABLED' : 'DISABLED';
-        const msg = channel.tetradMode 
-          ? '⋔ TETRAD MODE ENABLED\n\nAll new scenes will automatically generate tetrad analysis.'
-          : '⋔ TETRAD MODE DISABLED\n\nScenes will generate normally without tetrad.';
-        addMessageToChannel(channel, 'system', msg);
-        persistState();
-      });
-      
       actions.appendChild(gridToggleBtn);
       actions.appendChild(ringOverviewBtn);
       actions.appendChild(snapshotBtn);
-      actions.appendChild(tetradToggleBtn);
       actions.appendChild(resetBtn);
       actions.appendChild(collapseBtn);
 
@@ -5479,10 +4569,6 @@
 
       const gridSection = document.createElement('div');
       gridSection.className = 'grid-section';
-      // Ensure grid is fully visible by default
-      gridSection.style.display = 'flex';
-      gridSection.style.opacity = '1';
-      
       // Grid toggle button event handler
       let gridCollapsed = false;
       gridToggleBtn.addEventListener('click', () => {
@@ -5617,27 +4703,6 @@
       sendBtn.addEventListener('click', () => {
         const value = textarea.value.trim();
         if (!value) return;
-        
-        // Check for tetrad mode toggle first
-        if (value.match(/^\/tetrad\s+(on|off)$/i)) {
-          const tetradMatch = value.match(/^\/tetrad\s+(on|off)$/i);
-          const mode = tetradMatch[1].toLowerCase();
-          
-          addMessageToChannel(channel, 'user', value);
-          textarea.value = '';
-          textarea.style.height = 'auto';
-          
-          if (mode === 'on') {
-            channel.tetradMode = true;
-            addMessageToChannel(channel, 'system', '⋔ TETRAD MODE ENABLED\n\nAll new scenes will automatically generate tetrad analysis. Use `/tetrad off` to disable.');
-          } else {
-            channel.tetradMode = false;
-            addMessageToChannel(channel, 'system', '⋔ TETRAD MODE DISABLED\n\nScenes will generate normally without tetrad. Use `/tetrad on` to re-enable.');
-          }
-          
-          persistState();
-          return;
-        }
         
         // Check for cultural engine commands (including runtime modifiers, framework modes, and comparison)
         const culturalCmd = value.match(/^\/(pragmatic|structural|reflexive|bdi|epstein|rebeland|iruba|ccim|axelrod|schelling|compare\s+snapshot|compare\s+analyze|compare\s+help|cultural\s+stop|cultural\s+help|cultural\s+play|cultural\s+pause|cultural\s+spawn|cultural\s+legitimacy|cultural\s+spawn-rebels|cultural\s+spawn-cops|cultural\s+crackdown|cultural\s+uprising|cultural\s+lab)\s*(.*)/i);
@@ -7091,87 +6156,28 @@
             contentDiv.appendChild(optionHeader);
             contentDiv.appendChild(optionText);
             
-            // Multiple steering buttons (light touch)
-            const btnContainer = document.createElement('div');
-            btnContainer.style.cssText = `
+            // Send button (red ball)
+            const sendBtn = document.createElement('button');
+            sendBtn.style.cssText = `
+              width: 32px;
+              height: 32px;
+              border-radius: 50%;
+              background: linear-gradient(135deg, #f87171, #dc2626);
+              border: 2px solid #991b1b;
+              cursor: pointer;
               display: flex;
-              flex-direction: column;
-              gap: 4px;
+              align-items: center;
+              justify-content: center;
+              font-size: 16px;
+              transition: all 0.2s;
+              box-shadow: 0 2px 8px rgba(248, 113, 113, 0.4);
               flex-shrink: 0;
             `;
-            
-            const channelColor = channel.channelColor || 'var(--accent)';
-            
-            // Create steering buttons with different actions
-            const steeringActions = [
-              { icon: '→', label: 'Continue', prefix: '' },
-              { icon: '↗', label: 'Explore deeper', prefix: 'Explore deeper: ' },
-              { icon: '↔', label: 'Compare', prefix: 'Compare with alternatives: ' },
-              { icon: '⋔', label: 'Re-tetrad', prefix: 'Generate tetrad for: ' }
-            ];
-            
-            steeringActions.forEach((action, actionIdx) => {
-              const btn = document.createElement('button');
-              btn.style.cssText = `
-                width: 28px;
-                height: 28px;
-                border-radius: 50%;
-                background: ${channelColor};
-                border: 2px solid ${channelColor};
-                color: var(--bg);
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 14px;
-                font-weight: 700;
-                transition: all 0.2s;
-                box-shadow: 0 2px 6px ${channelColor}22;
-                opacity: ${actionIdx === 0 ? '1' : '0.7'};
-              `;
-              btn.textContent = action.icon;
-              btn.title = action.label;
-              
-              btn.addEventListener('mouseenter', () => {
-                btn.style.transform = 'scale(1.15)';
-                btn.style.opacity = '1';
-                btn.style.boxShadow = `0 4px 12px ${channelColor}66`;
-              });
-              
-              btn.addEventListener('mouseleave', () => {
-                btn.style.transform = 'scale(1)';
-                btn.style.opacity = actionIdx === 0 ? '1' : '0.7';
-                btn.style.boxShadow = `0 2px 6px ${channelColor}22`;
-              });
-              
-              btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const followUpText = action.prefix + `${mapping.label}: ${entry.text}`;
-                channel.dom.input.value = followUpText;
-                channel.dom.input.focus();
-                
-                // Animate the button
-                btn.style.transform = 'scale(0.8)';
-                btn.style.opacity = '0.5';
-                setTimeout(() => {
-                  btn.style.transform = 'scale(1)';
-                  btn.style.opacity = actionIdx === 0 ? '1' : '0.7';
-                }, 200);
-                
-                // Flash effect on option
-                optionDiv.style.background = 'var(--accent)';
-                optionDiv.style.boxShadow = '0 0 20px var(--accent-glow)';
-                setTimeout(() => {
-                  optionDiv.style.background = 'var(--panel-dark)';
-                  optionDiv.style.boxShadow = 'none';
-                }, 300);
-              });
-              
-              btnContainer.appendChild(btn);
-            });
+            sendBtn.textContent = '→';
+            sendBtn.title = 'Send to input';
             
             optionDiv.appendChild(contentDiv);
-            optionDiv.appendChild(btnContainer);
+            optionDiv.appendChild(sendBtn);
             
             contentDiv.addEventListener('mouseenter', () => {
               optionDiv.style.background = 'var(--accent-soft)';
@@ -7181,6 +6187,40 @@
             contentDiv.addEventListener('mouseleave', () => {
               optionDiv.style.background = 'var(--panel-dark)';
               optionDiv.style.transform = 'translateX(0)';
+            });
+            
+            sendBtn.addEventListener('mouseenter', () => {
+              sendBtn.style.transform = 'scale(1.1)';
+              sendBtn.style.boxShadow = '0 4px 16px rgba(248, 113, 113, 0.6)';
+            });
+            
+            sendBtn.addEventListener('mouseleave', () => {
+              sendBtn.style.transform = 'scale(1)';
+              sendBtn.style.boxShadow = '0 2px 8px rgba(248, 113, 113, 0.4)';
+            });
+            
+            // Click handler for send button
+            sendBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const followUpText = `Follow ${mapping.label.toLowerCase()} path: ${entry.text}`;
+              channel.dom.input.value = followUpText;
+              channel.dom.input.focus();
+              
+              // Animate the send
+              sendBtn.style.transform = 'scale(0.8)';
+              sendBtn.style.opacity = '0.5';
+              setTimeout(() => {
+                sendBtn.style.transform = 'scale(1)';
+                sendBtn.style.opacity = '1';
+              }, 200);
+              
+              // Flash effect on option
+              optionDiv.style.background = 'var(--accent)';
+              optionDiv.style.boxShadow = '0 0 20px var(--accent-glow)';
+              setTimeout(() => {
+                optionDiv.style.background = 'var(--panel-dark)';
+                optionDiv.style.boxShadow = 'none';
+              }, 300);
             });
             
             // Click content to preview/read
@@ -7659,8 +6699,13 @@
         id: `tetrad-${Date.now()}`
       };
       
-      // Always add tetrad as new message (each generation gets its own dot)
-      channel.messages.push(tetradMessage);
+      // Check if last message is already a tetrad, replace it
+      const lastMsg = channel.messages[channel.messages.length - 1];
+      if (lastMsg && lastMsg.role === 'tetrad') {
+        channel.messages[channel.messages.length - 1] = tetradMessage;
+      } else {
+        channel.messages.push(tetradMessage);
+      }
       
       // Re-render messages to show tetrad
       renderChannelMessages(channel);
@@ -7855,8 +6900,8 @@
         channel.dom.column?.classList.add('reveal');
         setTimeout(() => channel.dom.column?.classList.remove('reveal'), 500);
         
-        // Add tetrad as message (this creates the tetrad message object)
-        renderTetradPanel(channel);
+        // Re-render messages to show tetrad
+        renderChannelMessages(channel);
         playRevealChime();
       } catch (err) {
         addMessageToChannel(channel, 'system', `Tetrad generation failed: ${err.message}`);
@@ -8553,22 +7598,18 @@
         if (!channel.ringBinding) {
           channel.ringBinding = ringEntry.id;
         }
-        
-        // Only auto-generate tetrad if tetradMode is enabled
-        if (channel.tetradMode) {
-          const tetrad = await callOpenAI('TetradGenerator', {
-            scenario: scenarios[channel.scenario],
-            scene,
-            history: channel.messages.slice(-2).map(m => ({ role: m.role, text: m.text })),
-            perspective: channel.tetradPerspective || null
-          });
-          channel.tetrad = tetrad;
-          renderTetradPanel(channel);
-          persistState();
-          playRevealChime();
-          const lastMsg = channel.dom.messageList?.lastElementChild;
-          if (lastMsg) lastMsg.classList.add('reveal');
-        }
+        const tetrad = await callOpenAI('TetradGenerator', {
+          scenario: scenarios[channel.scenario],
+          scene,
+          history: channel.messages.slice(-2).map(m => ({ role: m.role, text: m.text })),
+          perspective: channel.tetradPerspective || null
+        });
+        channel.tetrad = tetrad;
+        renderTetradPanel(channel);
+        persistState();
+        playRevealChime();
+        const lastMsg = channel.dom.messageList?.lastElementChild;
+        if (lastMsg) lastMsg.classList.add('reveal');
       } catch (err) {
         console.error('Scene assembly error:', err);
         const errorDetail = err.stack || err.message || String(err);
@@ -8667,8 +7708,8 @@
           {
             role: 'system',
             content: payload.perspective
-              ? `Generate TRANSFORMATIVE tetrad entries from ${payload.perspective}'s perspective. Each entry should CHANGE THE SCENE dramatically: add new elements, remove old ones, alter states. ENHANCE: what new elements/complications appear? REVERSE: what inverts or transforms? RETRIEVE: what returns or emerges? OBSOLESCE: what vanishes or fades? Be specific about entities/objects entering or leaving. Motivations: ${payload.perspective}'s desires/fears. Text <= 80 words, score 0-100. Return JSON with EXACT format: {"enhance": {"text": "...", "score": 75}, "reverse": {"text": "...", "score": 60}, "retrieve": {"text": "...", "score": 70}, "obsolesce": {"text": "...", "score": 80}}`
-              : 'Generate TRANSFORMATIVE tetrad entries. Each must CHANGE THE SCENE: ENHANCE adds new elements/complications, REVERSE transforms existing ones, RETRIEVE brings back elements, OBSOLESCE removes elements. Be specific about what enters or exits the grid. Text <= 80 words, score 0-100. Return JSON with EXACT format: {"enhance": {"text": "...", "score": 75}, "reverse": {"text": "...", "score": 60}, "retrieve": {"text": "...", "score": 70}, "obsolesce": {"text": "...", "score": 80}}'
+              ? `Generate TRANSFORMATIVE tetrad entries from ${payload.perspective}'s perspective. Each entry should CHANGE THE SCENE dramatically: add new elements, remove old ones, alter states. ENHANCE: what new elements/complications appear? REVERSE: what inverts or transforms? RETRIEVE: what returns or emerges? OBSOLESCE: what vanishes or fades? Be specific about entities/objects entering or leaving. Motivations: ${payload.perspective}'s desires/fears. Text <= 80 words, score 0-100. Return JSON.`
+              : 'Generate TRANSFORMATIVE tetrad entries. Each must CHANGE THE SCENE: ENHANCE adds new elements/complications, REVERSE transforms existing ones, RETRIEVE brings back elements, OBSOLESCE removes elements. Be specific about what enters or exits the grid. Text <= 80 words, score 0-100. Return JSON.'
           },
           { role: 'user', content: JSON.stringify(payload) }
         ]
@@ -9333,14 +8374,12 @@
         content.appendChild(section);
       }
 
-      // BUILD ACTION BUTTONS FIRST (will be placed at top)
       const actionRow = [];
       
       // Send to Chat button
       if (cell) {
         const sendToChatBtn = document.createElement('button');
         sendToChatBtn.className = 'primary-btn';
-        sendToChatBtn.style.cssText = 'font-size: 10px; padding: 10px 16px; font-weight: 700;';
         sendToChatBtn.textContent = 'SEND TO CHAT';
         sendToChatBtn.addEventListener('click', () => {
           const cellContext = `Regarding ${cell.label || cell.type} at (${x},${y}): `;
@@ -9355,7 +8394,6 @@
       
       const spawnBtn = document.createElement('button');
       spawnBtn.className = 'primary-btn';
-      spawnBtn.style.cssText = 'font-size: 10px; padding: 10px 16px; font-weight: 700;';
       spawnBtn.textContent = 'SPAWN POV CHANNEL';
       spawnBtn.addEventListener('click', () => {
         document.getElementById('cellOverlay').classList.remove('active');
@@ -9367,22 +8405,10 @@
         const canRunPerspective = Boolean(appState.apiKey);
         const perspectiveBtn = document.createElement('button');
         perspectiveBtn.className = 'primary-btn';
-        perspectiveBtn.style.cssText = 'font-size: 10px; padding: 12px 18px; font-weight: 700; background: var(--accent); color: var(--bg);';
         perspectiveBtn.textContent = 'RUN ELEMENT PERSPECTIVE';
         perspectiveBtn.disabled = !canRunPerspective;
         if (canRunPerspective) {
           perspectiveBtn.addEventListener('click', () => {
-            // Animate grid before closing
-            const gridCells = channel.dom.gridEl?.querySelectorAll('.grid-cell');
-            gridCells?.forEach((gridCell, idx) => {
-              gridCell.style.animation = 'pulse 0.8s ease-in-out';
-              gridCell.style.animationDelay = `${(idx * 0.02) % 0.3}s`;
-            });
-            setTimeout(() => {
-              gridCells?.forEach(gridCell => { gridCell.style.animation = ''; });
-            }, 1000);
-            
-            playComposingTick();
             document.getElementById('cellOverlay').classList.remove('active');
             showEntityPerspective(channel, x, y, cell);
           });
@@ -9391,10 +8417,9 @@
         }
         actionRow.push(perspectiveBtn);
         
-        // Add Tetrad Intervention button (make it HUGE and prominent)
+        // Add Tetrad Intervention button
         const tetradBtn = document.createElement('button');
         tetradBtn.className = 'primary-btn tetrad-intervention-btn';
-        tetradBtn.style.cssText = 'font-size: 10px; padding: 12px 18px; font-weight: 700; background: linear-gradient(135deg, #ff3d4e, #ff6d7a); color: var(--bg);';
         tetradBtn.innerHTML = '⋔ TETRAD INTERVENTION';
         tetradBtn.disabled = !canRunPerspective;
         
@@ -9405,16 +8430,6 @@
             tetradBtn.disabled = true;
             tetradBtn.textContent = '⋔ GENERATING...';
             tetradBtn.classList.add('glow-processing');
-            
-            // Animate the grid cells during generation
-            const gridCells = channel.dom.gridEl?.querySelectorAll('.grid-cell');
-            gridCells?.forEach((gridCell, idx) => {
-              gridCell.style.animation = 'pulse 1.5s ease-in-out infinite';
-              gridCell.style.animationDelay = `${(idx * 0.03) % 0.5}s`;
-            });
-            
-            // Play generation sound
-            playComposingTick();
             
             try {
               const tetrad = await callOpenAI('TetradGenerator', {
@@ -9429,31 +8444,19 @@
                 }
               });
               
-              // Stop animations
-              gridCells?.forEach(gridCell => {
-                gridCell.style.animation = '';
-              });
-              
               channel.tetrad = tetrad;
               channel.tetradPerspective = cell.label;
               persistState();
-              renderTetradPanel(channel);
+              renderChannelMessages(channel);
               
-              // Success feedback
               tetradBtn.textContent = '✓ TETRAD GENERATED';
               tetradBtn.classList.remove('glow-processing');
               tetradBtn.classList.add('glow-success');
-              playRevealChime();
               
               setTimeout(() => {
                 document.getElementById('cellOverlay').classList.remove('active');
               }, 1000);
             } catch (err) {
-              // Stop animations on error
-              gridCells?.forEach(gridCell => {
-                gridCell.style.animation = '';
-              });
-              
               tetradBtn.textContent = '✗ GENERATION FAILED';
               tetradBtn.classList.remove('glow-processing');
               tetradBtn.disabled = false;
@@ -9466,11 +8469,9 @@
         actionRow.push(tetradBtn);
       }
 
-      // INSERT BUTTONS AT TOP (after close button)
       if (actionRow.length) {
         const actions = document.createElement('div');
         actions.className = 'overlay-action-row';
-        actions.style.cssText = 'order: -1; position: sticky; top: 0; background: var(--panel); z-index: 10; padding-bottom: 12px; border-bottom: 2px solid var(--accent);';
         actionRow.forEach(btn => actions.appendChild(btn));
         content.appendChild(actions);
       }
@@ -9559,16 +8560,6 @@
       }
       
       document.getElementById('perspectiveOverlay').classList.add('active');
-      
-      // Animate grid cells during perspective analysis
-      const gridCells = channel.dom.gridEl?.querySelectorAll('.grid-cell');
-      gridCells?.forEach((gridCell, idx) => {
-        gridCell.style.animation = 'pulse 1.8s ease-in-out infinite';
-        gridCell.style.animationDelay = `${(idx * 0.04) % 0.6}s`;
-      });
-      
-      // Play analysis sound
-      playComposingTick();
 
       const entityPayload = cell?.entity ? { ...cell.entity } : {
         name: cell?.label || `${cell?.type || 'Cell'} (${x},${y})`,
@@ -9695,14 +8686,6 @@
 
         console.log('[PERSPECTIVE] Total analyses:', analyses.length);
         console.log('[PERSPECTIVE] First analysis:', analyses[0]);
-        
-        // Stop grid animations
-        gridCells?.forEach(gridCell => {
-          gridCell.style.animation = '';
-        });
-        
-        // Play success chime
-        playRevealChime();
 
         panel.innerHTML = '';
         const closeBtn = document.createElement('button');
@@ -10042,216 +9025,8 @@
           panel.appendChild(section);
         }
 
-        // Tetrad button - generate tetrad options from this perspective
-        const tetradFromPerspectiveBtn = document.createElement('button');
-        tetradFromPerspectiveBtn.className = 'primary-btn';
-        tetradFromPerspectiveBtn.style.cssText = 'font-size: 10px; padding: 12px 18px; font-weight: 700; background: linear-gradient(135deg, #ff3d4e, #ff6d7a); color: var(--bg); width: 100%;';
-        tetradFromPerspectiveBtn.textContent = '⋔ GENERATE TETRAD FROM PERSPECTIVE';
-        tetradFromPerspectiveBtn.addEventListener('click', async () => {
-          const originalText = tetradFromPerspectiveBtn.textContent;
-          tetradFromPerspectiveBtn.disabled = true;
-          tetradFromPerspectiveBtn.textContent = '⋔ GENERATING TETRAD...';
-          
-          // Animate grid
-          const perspGridCells = channel.dom.gridEl?.querySelectorAll('.grid-cell');
-          perspGridCells?.forEach((gridCell, idx) => {
-            gridCell.style.animation = 'pulse 1.5s ease-in-out infinite';
-            gridCell.style.animationDelay = `${(idx * 0.03) % 0.5}s`;
-          });
-          
-          playComposingTick();
-          
-          try {
-            // Generate tetrad based on ACTIONS from the perspective analysis
-            const perspectiveTetrad = await callOpenAI('TetradGenerator', {
-              scenario: scenarios[channel.scenario],
-              scene: channel.lastScene,
-              history: channel.messages.slice(-2).map(m => ({ role: m.role, text: m.text })),
-              perspective: cell.label,
-              perspectiveAnalysis: analysis, // Pass the perspective data
-              focusOnActions: true, // Signal to generate tetrad for potential ACTIONS
-              nextMove: analysis.nextMove || analysis.plotImpact // What they might do next
-            });
-            
-            // Stop animations
-            perspGridCells?.forEach(gridCell => {
-              gridCell.style.animation = '';
-            });
-            
-            playRevealChime();
-            
-            // Display tetrad options inline
-            const tetradSection = document.createElement('div');
-            tetradSection.style.cssText = `
-              margin-top: 16px;
-              padding: 16px;
-              background: rgba(255, 61, 78, 0.1);
-              border: 2px solid #ff3d4e;
-              border-radius: 6px;
-            `;
-            
-            const tetradHeader = document.createElement('div');
-            tetradHeader.style.cssText = 'font-size: 11px; font-weight: 700; letter-spacing: 0.15em; color: #ff3d4e; margin-bottom: 12px; text-transform: uppercase;';
-            tetradHeader.textContent = '⋔ TETRAD OPTIONS FROM PERSPECTIVE';
-            tetradSection.appendChild(tetradHeader);
-            
-            // Render tetrad options
-            const tetradMap = [
-              { key: 'enhance', icon: '▲', label: 'ENHANCE', color: '#56ff9f' },
-              { key: 'reverse', icon: '⇄', label: 'REVERSE', color: '#ff5c7c' },
-              { key: 'retrieve', icon: '↺', label: 'RETRIEVE', color: '#60a5fa' },
-              { key: 'obsolesce', icon: '▼', label: 'OBSOLESCE', color: '#f59e0b' }
-            ];
-            
-            tetradMap.forEach(mapping => {
-              const entry = perspectiveTetrad[mapping.key];
-              if (!entry) return;
-              
-              const optionDiv = document.createElement('div');
-              optionDiv.style.cssText = `
-                padding: 10px 12px;
-                margin-bottom: 8px;
-                border-left: 3px solid ${mapping.color};
-                background: var(--panel-dark);
-                border-radius: 4px;
-                transition: all 0.2s;
-                display: flex;
-                align-items: flex-start;
-                gap: 10px;
-              `;
-              
-              const contentDiv = document.createElement('div');
-              contentDiv.style.cssText = 'flex: 1; cursor: pointer;';
-              
-              contentDiv.addEventListener('mouseenter', () => {
-                optionDiv.style.background = 'var(--accent-soft)';
-                optionDiv.style.transform = 'translateX(4px)';
-              });
-              
-              contentDiv.addEventListener('mouseleave', () => {
-                optionDiv.style.background = 'var(--panel-dark)';
-                optionDiv.style.transform = 'translateX(0)';
-              });
-              
-              const optionHeader = document.createElement('div');
-              optionHeader.style.cssText = `
-                font-size: 9px;
-                font-weight: 700;
-                letter-spacing: 0.12em;
-                color: ${mapping.color};
-                margin-bottom: 4px;
-              `;
-              optionHeader.textContent = `${mapping.icon} ${mapping.label}`;
-              
-              const optionText = document.createElement('div');
-              optionText.style.cssText = 'font-size: 10px; line-height: 1.5; color: var(--text);';
-              optionText.textContent = entry.text;
-              
-              contentDiv.appendChild(optionHeader);
-              contentDiv.appendChild(optionText);
-              
-              // Multiple steering buttons (light touch)
-              const btnContainer = document.createElement('div');
-              btnContainer.style.cssText = `
-                display: flex;
-                flex-direction: column;
-                gap: 4px;
-                flex-shrink: 0;
-              `;
-              
-              const channelColor = channel.channelColor || 'var(--accent)';
-              
-              // Create steering buttons with different actions
-              const steeringActions = [
-                { icon: '→', label: 'Continue', prefix: '' },
-                { icon: '↗', label: 'Explore deeper', prefix: 'Explore deeper: ' },
-                { icon: '↔', label: 'Compare', prefix: 'Compare with alternatives: ' },
-                { icon: '⋔', label: 'Re-tetrad', prefix: 'Generate tetrad for: ' }
-              ];
-              
-              steeringActions.forEach((action, actionIdx) => {
-                const btn = document.createElement('button');
-                btn.style.cssText = `
-                  width: 28px;
-                  height: 28px;
-                  border-radius: 50%;
-                  background: ${channelColor};
-                  border: 2px solid ${channelColor};
-                  color: var(--bg);
-                  cursor: pointer;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  font-size: 14px;
-                  font-weight: 700;
-                  transition: all 0.2s;
-                  box-shadow: 0 2px 6px ${channelColor}22;
-                  opacity: ${actionIdx === 0 ? '1' : '0.7'};
-                `;
-                btn.textContent = action.icon;
-                btn.title = action.label;
-                
-                btn.addEventListener('mouseenter', () => {
-                  btn.style.transform = 'scale(1.15)';
-                  btn.style.opacity = '1';
-                  btn.style.boxShadow = `0 4px 12px ${channelColor}66`;
-                });
-                
-                btn.addEventListener('mouseleave', () => {
-                  btn.style.transform = 'scale(1)';
-                  btn.style.opacity = actionIdx === 0 ? '1' : '0.7';
-                  btn.style.boxShadow = `0 2px 6px ${channelColor}22`;
-                });
-                
-                btn.addEventListener('click', (e) => {
-                  e.stopPropagation();
-                  if (channel.dom?.input) {
-                    const followUpText = action.prefix + `${mapping.label}: ${entry.text}`;
-                    channel.dom.input.value = followUpText;
-                    channel.dom.input.focus();
-                  }
-                  document.getElementById('perspectiveOverlay').classList.remove('active');
-                  
-                  // Animate the button
-                  btn.style.transform = 'scale(0.8)';
-                  btn.style.opacity = '0.5';
-                  setTimeout(() => {
-                    btn.style.transform = 'scale(1)';
-                    btn.style.opacity = actionIdx === 0 ? '1' : '0.7';
-                  }, 200);
-                });
-                
-                btnContainer.appendChild(btn);
-              });
-              
-              optionDiv.appendChild(contentDiv);
-              optionDiv.appendChild(btnContainer);
-              tetradSection.appendChild(optionDiv);
-            });
-            
-            // Insert tetrad section before control row
-            panel.insertBefore(tetradSection, panel.querySelector('.overlay-action-row'));
-            
-            tetradFromPerspectiveBtn.textContent = '✓ TETRAD GENERATED';
-            tetradFromPerspectiveBtn.style.background = '#4ade80';
-            
-          } catch (err) {
-            perspGridCells?.forEach(gridCell => {
-              gridCell.style.animation = '';
-            });
-            tetradFromPerspectiveBtn.textContent = '✗ TETRAD FAILED';
-            tetradFromPerspectiveBtn.disabled = false;
-            setTimeout(() => {
-              tetradFromPerspectiveBtn.textContent = originalText;
-            }, 2000);
-          }
-        });
-        
-        panel.appendChild(tetradFromPerspectiveBtn);
-        
         const sendToChatBtn = document.createElement('button');
         sendToChatBtn.className = 'primary-btn';
-        sendToChatBtn.style.cssText = 'margin-top: 12px;';
         sendToChatBtn.textContent = 'SEND TO CHAT';
         sendToChatBtn.addEventListener('click', () => {
           const summary = `${cell.label || cell.type} perspective: ${analysis.perspective || ''}`;
@@ -10272,16 +9047,10 @@
         
         const controlRow = document.createElement('div');
         controlRow.className = 'overlay-action-row';
-        controlRow.style.cssText = 'margin-top: 12px;';
         controlRow.appendChild(sendToChatBtn);
         controlRow.appendChild(forkBtn);
         panel.appendChild(controlRow);
       } catch (err) {
-        // Stop grid animations on error
-        gridCells?.forEach(gridCell => {
-          gridCell.style.animation = '';
-        });
-        
         panel.innerHTML = '';
         const closeBtn = document.createElement('button');
         closeBtn.className = 'close-overlay';

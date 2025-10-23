@@ -1,0 +1,357 @@
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                     LEGOS TUTORIAL - USER MANUAL                              ║
+║                     Interactive Learning System                               ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ GETTING STARTED                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+1. Open tutorial:
+   → open thousands-tutorial.html
+   
+2. Interface loads automatically
+   
+3. Type commands in chat to navigate
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ INTERFACE LAYOUT                                                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                                                                            ┃
+┃  ┌────────────────────────┐  ┌──────────────────────────────────────────┐ ┃
+┃  │                        │  │ CHANNEL 1                                │ ┃
+┃  │    9×9 GRID            │  ├──────────────────────────────────────────┤ ┃
+┃  │                        │  │                                          │ ┃
+┃  │  ┌──┬──┬──┬──┬──┬──┐  │  │ System: LEGOS TUTORIAL                   │ ┃
+┃  │  │  │  │  │  │  │  │  │  │                                          │ ┃
+┃  │  ├──┼──┼──┼──┼──┼──┤  │  │ Learn by doing                           │ ┃
+┃  │  │  │  │  │  │  │  │  │  │ Watch the grid                           │ ┃
+┃  │  ├──┼──┼──┼──┼──┼──┤  │  │                                          │ ┃
+┃  │  │  │  │  │  │  │  │  │  │ Type 'next' to continue                  │ ┃
+┃  │  ├──┼──┼──┼──┼──┼──┤  │  │ Type 'skip' to exit                      │ ┃
+┃  │  │  │  │  │  │  │  │  │  │                                          │ ┃
+┃  │  ├──┼──┼──┼──┼──┼──┤  │  ├──────────────────────────────────────────┤ ┃
+┃  │  │  │  │  │  │  │  │  │  │                                          │ ┃
+┃  │  ├──┼──┼──┼──┼──┼──┤  │  │ [Type here...]                    [SEND] │ ┃
+┃  │  │  │  │  │  │  │  │  │  │                                          │ ┃
+┃  │  └──┴──┴──┴──┴──┴──┘  │  └──────────────────────────────────────────┘ ┃
+┃  │                        │                                               ┃
+┃  └────────────────────────┘                                               ┃
+┃                                                                            ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ TUTORIAL FLOW                                                               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+STEP 1: L - LOCATION
+═══════════════════════════════════════════════════════════════════════════════
+
+Grid shows:                        Chat shows:
+┌──────────────────────┐          ┌────────────────────────────────┐
+│ L                    │          │ [1/8] LOCATION                 │
+│ L                    │          │                                │
+│ L                    │          │ The grid is your narrative     │
+│ L                    │          │ canvas. Each cell holds a      │
+│ L                    │          │ story element.                 │
+│ L  L  L  L           │          │                                │
+│                      │          │ → Type 'next' to continue      │
+│                      │          └────────────────────────────────┘
+│                      │
+└──────────────────────┘
+
+You type: next ⏎
+
+
+STEP 2: E - ENTITY
+═══════════════════════════════════════════════════════════════════════════════
+
+Grid shows:                        Chat shows:
+┌──────────────────────┐          ┌────────────────────────────────┐
+│ E  E  E  E           │          │ [2/8] ENTITY                   │
+│ E                    │          │                                │
+│ E  E  E              │          │ Entities are characters,       │
+│ E                    │          │ objects, and ideas.            │
+│ E  E  E  E           │          │ Each has a unique perspective. │
+│                      │          │                                │
+│                      │          │ → Type 'next' to continue      │
+│                      │          └────────────────────────────────┘
+│                      │
+└──────────────────────┘
+
+You type: next ⏎
+
+
+STEP 3: G - GOAL
+═══════════════════════════════════════════════════════════════════════════════
+
+Grid shows:                        Chat shows:
+┌──────────────────────┐          ┌────────────────────────────────┐
+│    G  G  G           │          │ [3/8] GOAL                     │
+│ G           G        │          │                                │
+│ G                    │          │ Goals drive narratives forward.│
+│ G     G  G           │          │ They create tension and        │
+│ G           G        │          │ purpose.                       │
+│    G  G  G           │          │                                │
+│                      │          │ → Type 'next' to continue      │
+│                      │          └────────────────────────────────┘
+│                      │
+└──────────────────────┘
+
+You type: next ⏎
+
+
+STEP 4: O - OBSTACLE
+═══════════════════════════════════════════════════════════════════════════════
+
+Grid shows:                        Chat shows:
+┌──────────────────────┐          ┌────────────────────────────────┐
+│       O  O  O        │          │ [4/8] OBSTACLE                 │
+│    O           O     │          │                                │
+│    O           O     │          │ Obstacles create conflict.     │
+│    O           O     │          │ They test characters.          │
+│    O           O     │          │                                │
+│       O  O  O        │          │ → Type 'next' to continue      │
+│                      │          └────────────────────────────────┘
+│                      │
+│                      │
+└──────────────────────┘
+
+You type: next ⏎
+
+
+STEP 5: S - SHIFT
+═══════════════════════════════════════════════════════════════════════════════
+
+Grid shows:                        Chat shows:
+┌──────────────────────┐          ┌────────────────────────────────┐
+│          S  S  S  S  │          │ [5/8] SHIFT                    │
+│          S           │          │                                │
+│          S  S  S     │          │ Shifts transform the story.    │
+│                   S  │          │ Reversals, revelations,        │
+│          S  S  S     │          │ discoveries.                   │
+│                      │          │                                │
+│                      │          │ → Type 'next' to continue      │
+│                      │          └────────────────────────────────┘
+│                      │
+└──────────────────────┘
+
+You type: next ⏎
+
+
+STEP 6: U - SOLUTION
+═══════════════════════════════════════════════════════════════════════════════
+
+Grid shows:                        Chat shows:
+┌──────────────────────┐          ┌────────────────────────────────┐
+│             U     U  │          │ [6/8] SOLUTION                 │
+│             U     U  │          │                                │
+│             U     U  │          │ Solutions resolve conflicts.   │
+│             U     U  │          │ They complete narrative arcs.  │
+│             U     U  │          │                                │
+│                U  U  │          │ → Type 'next' to continue      │
+│                      │          └────────────────────────────────┘
+│                      │
+│                      │
+└──────────────────────┘
+
+You type: next ⏎
+
+
+STEP 7: FULL LEGOS
+═══════════════════════════════════════════════════════════════════════════════
+
+Grid shows:                        Chat shows:
+┌──────────────────────┐          ┌────────────────────────────────┐
+│ L     E     G     O  │          │ [7/8] LEGOS COMPLETE           │
+│ L     E     G     O  │          │                                │
+│ L     E     G     O  │          │ You know the elements.         │
+│ L     E     G     O  │          │ Now create your story.         │
+│ L     E     G     O  │          │                                │
+│ L     E     G     O  │          │ → Type 'next' to continue      │
+│                      │          └────────────────────────────────┘
+│                      │
+│             S     U  │
+└──────────────────────┘
+
+You type: next ⏎
+
+
+STEP 8: COMPLETION
+═══════════════════════════════════════════════════════════════════════════════
+
+Grid shows:                        Chat shows:
+┌──────────────────────┐          ┌────────────────────────────────┐
+│                      │          │ ✦ TUTORIAL COMPLETE            │
+│                      │          │                                │
+│                      │          │ You've learned:                │
+│                      │          │ L - Locations                  │
+│         ✦            │          │ E - Entities                   │
+│                      │          │ G - Goals                      │
+│                      │          │ O - Obstacles                  │
+│                      │          │ S - Shifts                     │
+│                      │          │ U - Solutions                  │
+└──────────────────────┘          │                                │
+                                  │ Now create your own story      │
+                                  │ Just type naturally...         │
+                                  └────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ COMMANDS REFERENCE                                                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────┬──────────────────────────────────────────────────────────────┐
+│ Command      │ Action                                                       │
+├──────────────┼──────────────────────────────────────────────────────────────┤
+│ next         │ Go to next tutorial step                                     │
+│ n            │ (shorthand for next)                                         │
+├──────────────┼──────────────────────────────────────────────────────────────┤
+│ back         │ Go to previous tutorial step                                 │
+│ b            │ (shorthand for back)                                         │
+├──────────────┼──────────────────────────────────────────────────────────────┤
+│ skip         │ Exit tutorial and start creating                             │
+│ exit         │ (alternative to skip)                                        │
+└──────────────┴──────────────────────────────────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ QUICK REFERENCE CARD                                                        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+LAUNCH:     open thousands-tutorial.html
+            (auto-redirects to thousand-medical.html?tutorial=start)
+
+NAVIGATE:   Type 'next' to advance
+            Type 'back' to go back
+            Type 'skip' to exit
+
+ELEMENTS:   L = Location    (where)
+            E = Entity      (who/what)
+            G = Goal        (desire)
+            O = Obstacle    (challenge)
+            S = Shift       (transformation)
+            U = Solution    (resolution)
+
+FLOW:       Welcome → L → E → G → O → S → U → Complete → Create!
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ TROUBLESHOOTING                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+PROBLEM: Tutorial doesn't start
+└─► SOLUTION: Check URL has ?tutorial=start
+              Open browser console (Cmd+Option+J)
+              Look for [TUTORIAL] logs
+
+PROBLEM: Grid not showing letters
+└─► SOLUTION: Check console for "Drawing pattern"
+              Verify renderGrid is called
+
+PROBLEM: Chat not showing messages  
+└─► SOLUTION: Check console for "Showing message"
+              Verify addMessageToChannel exists
+
+PROBLEM: Commands not working (typing 'next' does nothing)
+└─► SOLUTION: Make sure you press Enter after typing
+              Check console for "Intercept chat input"
+
+PROBLEM: Want to replay tutorial
+└─► SOLUTION: In console, run:
+              localStorage.removeItem('legos_tutorial_complete');
+              Then reload with ?tutorial=start
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ TECHNICAL DETAILS                                                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+Files:
+  - thousands-tutorial.html  → Launcher (redirects)
+  - tutorial-system.js       → Core tutorial logic
+  - thousand-medical.html    → Main application
+
+How it works:
+  1. URL parameter triggers tutorial mode
+  2. Script waits for app to initialize
+  3. Tutorial draws letters on grid using grid data structure
+  4. Chat messages provide instructions
+  5. Input listener captures 'next', 'back', 'skip' commands
+  6. Each step clears grid and draws new pattern
+  7. Completion saves state to localStorage
+
+Pure LEGOS:
+  - No overlays or modals
+  - No buttons (except send)
+  - Everything happens in the interface
+  - Tutorial IS the application
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ EXAMPLE SESSION                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+$ open thousands-tutorial.html
+
+  [Browser opens, redirects to thousand-medical.html?tutorial=start]
+  [Grid appears empty, chat shows welcome]
+
+Chat: LEGOS TUTORIAL
+      
+      Learn by doing
+      Watch the grid
+      
+      Type 'next' to continue
+      Type 'skip' to exit
+
+You:  next ⏎
+
+  [Grid draws L pattern]
+
+Chat: [1/8] LOCATION
+      
+      The grid is your narrative canvas
+      Each cell holds a story element
+      
+      → Type 'next' to continue
+
+You:  next ⏎
+
+  [Grid clears, draws E pattern]
+
+Chat: [2/8] ENTITY
+      
+      Entities are characters, objects, ideas
+      Each has unique perspective
+      
+      → Type 'next' to continue
+
+You:  next ⏎
+
+  [Continues through G, O, S, U...]
+
+You:  next ⏎
+
+  [Final step - completion ✦]
+
+Chat: ✦ TUTORIAL COMPLETE
+      
+      You've learned LEGOS
+      Now create your own story
+      Just type naturally...
+
+You:  A detective investigates a mysterious disappearance
+
+  [Tutorial ends, normal LEGOS experience begins]
+  [AI generates scene with detective, mystery, etc.]
+
+
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                           END OF MANUAL                                       ║
+║                     LEGOS Tutorial v2.0 - 2025                                ║
+╚═══════════════════════════════════════════════════════════════════════════════╝

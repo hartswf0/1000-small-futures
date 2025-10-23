@@ -1,0 +1,571 @@
+{
+  "exported": "2025-10-23T08:05:40.851Z",
+  "ringMemory": {
+    "capacity": 48,
+    "entries": [
+      {
+        "id": "R0024",
+        "timestamp": "2025-10-22T08:10:43.749Z",
+        "channelId": "ch-1761117622517-u1xrq",
+        "channelName": "AMAZON WOR",
+        "type": "PERSPECTIV",
+        "symbol": "0 7",
+        "headline": "Perspective: Citizen 25",
+        "summary": "Citizen 25: A citizen grappling with hardship and showing a moderate level of risk aversion. This citizen is par"
+      },
+      {
+        "id": "R0025",
+        "timestamp": "2025-10-22T08:11:23.613Z",
+        "channelId": "ch-1761120654669-fj4uu",
+        "channelName": "AMAZON WOR",
+        "type": "SCENE",
+        "symbol": "AMAZON WOR",
+        "headline": "Amazon Workers Animals Revolt",
+        "summary": "In a surreal twist, Amazon warehouse animals unite to confront their tyrannical overseer, King Donald The Duck Trump. As tensions rise, unexpected allies and obstacles emerge in this vibrant revolt."
+      },
+      {
+        "id": "R0026",
+        "timestamp": "2025-10-22T08:11:39.221Z",
+        "channelId": "ch-1761117622517-u1xrq",
+        "channelName": "AMAZON WOR",
+        "type": "PERSPECTIV",
+        "symbol": "2 7",
+        "headline": "Perspective: Cop 38",
+        "summary": "Cop 38: An authority agent enforcing order. High utility (80%), low hardship. Part of the cultural simulatio"
+      },
+      {
+        "id": "R0027",
+        "timestamp": "2025-10-22T08:12:23.835Z",
+        "channelId": "ch-1761117622517-u1xrq",
+        "channelName": "AMAZON WOR",
+        "type": "PERSPECTIV",
+        "symbol": "4 3",
+        "headline": "Perspective: Citizen 6",
+        "summary": "Citizen 6: A citizen with hardship 56% and risk aversion 72%. Part of the cultural simulation."
+      },
+      {
+        "id": "R0028",
+        "timestamp": "2025-10-22T08:13:12.415Z",
+        "channelId": "ch-1761117622517-u1xrq",
+        "channelName": "AMAZON WOR",
+        "type": "SCENE",
+        "symbol": "AMAZON WOR",
+        "headline": "Amazon Workers Animals Revolt - The Great Climb",
+        "summary": "As the united animal workers rally under the leadership of Courageous Canine Worker, they devise a clever plan to climb over the Tall Wooden Fence. New allies emerge from the shadows, while King Donald The Duck Trump watches closely, realizing his grip is slipping."
+      },
+      {
+        "id": "R0029",
+        "timestamp": "2025-10-22T08:13:47.529Z",
+        "channelId": "ch-1761117622517-u1xrq",
+        "channelName": "AMAZON WOR",
+        "type": "PERSPECTIV",
+        "symbol": "L 0 0",
+        "headline": "Perspective: Upper Left Corner",
+        "summary": "Upper Left Corner: King Donald The Duck Trump"
+      },
+      {
+        "id": "R0030",
+        "timestamp": "2025-10-22T08:14:25.275Z",
+        "channelId": "ch-1761117622517-u1xrq",
+        "channelName": "AMAZON WOR",
+        "type": "SCENE",
+        "symbol": "AMAZON WOR",
+        "headline": "Amazon Workers Animals Revolt - The Great Climb",
+        "summary": "The animal workers, emboldened by their clever strategies, prepare to face new challenges as the Ravenous Fox Patrol closes in. A sudden storm brews, threatening to disrupt their plans. Courageous Canine Worker must rally the Mighty Owl Mentor's wisdom while avoiding King Donald The Duck Trump's watchful eye."
+      },
+      {
+        "id": "R0031",
+        "timestamp": "2025-10-22T08:15:19.999Z",
+        "channelId": "ch-1761117622517-u1xrq",
+        "channelName": "AMAZON WOR",
+        "type": "SCENE",
+        "symbol": "AMAZON WOR",
+        "headline": "Amazon Workers Animals Revolt - The Great Surge",
+        "summary": "The animal workers, transformed by the power of unity, now face an unexpected twist as a school of orcas rises from the depths of the nearby river, offering their aid against the Ravenous Fox Patrol. The storm has intensified, creating new challenges to navigate as Courageous Canine Worker must strategize not only for the immediate threat but also harness the wisdom of the Mighty Owl Mentor. King Donald The Duck Trump is now more aggressive, seeking to tighten his grip on the rebel animals."
+      },
+      {
+        "id": "R0032",
+        "timestamp": "2025-10-22T08:17:15.406Z",
+        "channelId": "ch-1761117622517-u1xrq",
+        "channelName": "AMAZON WOR",
+        "type": "SCENE",
+        "symbol": "AMAZON WOR",
+        "headline": "Amazon Workers Animals Revolt - The Great Surge",
+        "summary": "As the storm intensifies, the animal workers rally together with newfound allies, but they face new threats as King Donald The Duck Trump attempts to tighten his control over the rebellion. The School of Orcas has transformed into a fierce storm elemental, complicating the dynamics in the flooded environment. The Ravenous Fox Patrol has grown in numbers, and the Mighty Owl Mentor unveils a secret weapon to combat the chaos."
+      },
+      {
+        "id": "R0033",
+        "timestamp": "2025-10-22T08:27:13.204Z",
+        "channelId": "ch-1761121542526-dmi40",
+        "channelName": "BLANK SIMU",
+        "type": "SCENE",
+        "symbol": "BLANK SIMU",
+        "headline": "Fjord Field of Horses",
+        "summary": "A vibrant field filled with majestic fjord horses, amidst rolling hills and a stunning coastal view. The atmosphere is alive with the sounds of nature and the gentle rustling of grass."
+      },
+      {
+        "id": "R0034",
+        "timestamp": "2025-10-22T08:28:27.369Z",
+        "channelId": "ch-1761121542526-dmi40",
+        "channelName": "FJORD FIEL",
+        "type": "SCENE",
+        "symbol": "FJORD FIEL",
+        "headline": "Majestic Mountain Fjord",
+        "summary": "The serene landscape transforms into a grand mountainous fjord, with snow-capped peaks and crystal-clear lakes. A vibrant ecosystem thrives as new entities emerge, while some of the previous inhabitants fade away, reflecting the dynamic nature of this world."
+      },
+      {
+        "id": "R0035",
+        "timestamp": "2025-10-22T08:29:21.938Z",
+        "channelId": "ch-1761121542526-dmi40",
+        "channelName": "MAJESTIC M",
+        "type": "PERSPECTIV",
+        "symbol": "E 2 5",
+        "headline": "Perspective: Alpine Wildflowers",
+        "summary": "Alpine Wildflowers: Alpine Wildflowers"
+      },
+      {
+        "id": "R0036",
+        "timestamp": "2025-10-22T08:30:50.634Z",
+        "channelId": "ch-1761117263092-dg1rn",
+        "channelName": "THE STORMY",
+        "type": "SNAPSHOT",
+        "symbol": "SNAPSHOT 1",
+        "headline": "Snapshot saved",
+        "summary": "7 scenes captured"
+      },
+      {
+        "id": "R0037",
+        "timestamp": "2025-10-22T08:34:00.927Z",
+        "channelId": "ch-1761121544654-tekju",
+        "channelName": "BLANK SIMU",
+        "type": "SCENE",
+        "symbol": "BLANK SIMU",
+        "headline": "Monkey Revolution",
+        "summary": "A troop of monkeys rises up against the oppressive pigs, triggering chaos and transformation in the jungle."
+      },
+      {
+        "id": "R0038",
+        "timestamp": "2025-10-22T08:34:52.914Z",
+        "channelId": "ch-1761121544654-tekju",
+        "channelName": "MONKEY REV",
+        "type": "SCENE",
+        "symbol": "MONKEY REV",
+        "headline": "Epic Jungle Revolution",
+        "summary": "In a twist of fate, frogs, dogs, and monkeys unite against pigs in an all-out jungle brawl, sparking a vibrant transformation of the environment."
+      },
+      {
+        "id": "R0039",
+        "timestamp": "2025-10-22T08:35:35.596Z",
+        "channelId": "ch-1761121544654-tekju",
+        "channelName": "EPIC JUNGL",
+        "type": "PERSPECTIV",
+        "symbol": "4 4",
+        "headline": "Perspective: Squealing Pigs",
+        "summary": "Squealing Pigs: Squealing Pigs"
+      },
+      {
+        "id": "R0040",
+        "timestamp": "2025-10-22T08:38:50.893Z",
+        "channelId": "ch-1761121544654-tekju",
+        "channelName": "EPIC JUNGL",
+        "type": "PERSPECTIV",
+        "symbol": "4 5",
+        "headline": "Perspective: Hidden Banana Cache",
+        "summary": "Hidden Banana Cache: Hidden Banana Cache"
+      },
+      {
+        "id": "R0041",
+        "timestamp": "2025-10-22T09:38:55.998Z",
+        "channelId": "ch-1761044217062-h0uep",
+        "channelName": "THE FINAL",
+        "type": "SCENE",
+        "symbol": "THE FINAL",
+        "headline": "Emergency Migraine Encounter - Transformation",
+        "summary": "In the bustling ED, the 29-year-old architect battles through an acute migraine that morphs into a dramatic neurological episode, revealing hidden complexities and unexpected allies."
+      },
+      {
+        "id": "R0042",
+        "timestamp": "2025-10-22T10:04:44.598Z",
+        "channelId": "ch-1761117622517-u1xrq",
+        "channelName": "AMAZON WOR",
+        "type": "SCENE",
+        "symbol": "AMAZON WOR",
+        "headline": "Amazon Workers Animals Revolt - The Great Surge",
+        "summary": "As the storm intensifies, the animal workers rally together with newfound allies, but they face new threats as King Donald The Duck Trump attempts to tighten his control over the rebellion. The School of Orcas has transformed into a fierce storm elemental, complicating the dynamics in the flooded environment. The Ravenous Fox Patrol has grown in numbers, and the Mighty Owl Mentor unveils a secret weapon to combat the chaos. Meanwhile, the atmosphere is thick with tension as trust fades, and coded signals replace open communication."
+      },
+      {
+        "id": "R0043",
+        "timestamp": "2025-10-22T10:11:16.353Z",
+        "channelId": "ch-1761044217062-h0uep",
+        "channelName": "THE FINAL",
+        "type": "PERSPECTIV",
+        "symbol": "E 4 3",
+        "headline": "Perspective: Throbbing Head Pain",
+        "summary": "Throbbing Head Pain: Throbbing Head Pain"
+      },
+      {
+        "id": "R0044",
+        "timestamp": "2025-10-22T10:14:56.113Z",
+        "channelId": "ch-1761044217062-h0uep",
+        "channelName": "THE FINAL",
+        "type": "PERSPECTIV",
+        "symbol": "E 4 4",
+        "headline": "Perspective: Neurological Symptoms",
+        "summary": "Neurological Symptoms: Emergency Medicine Resident"
+      },
+      {
+        "id": "R0045",
+        "timestamp": "2025-10-22T10:16:24.929Z",
+        "channelId": "ch-1761044217062-h0uep",
+        "channelName": "THE FINAL",
+        "type": "SCENE",
+        "symbol": "THE FINAL",
+        "headline": "Emergency Migraine Encounter - Transformation",
+        "summary": "In the bustling ED, the 29-year-old architect battles through an acute migraine that morphs into a dramatic neurological episode, revealing hidden complexities and unexpected allies."
+      },
+      {
+        "id": "R0046",
+        "timestamp": "2025-10-22T10:17:14.485Z",
+        "channelId": "ch-1761044217062-h0uep",
+        "channelName": "THE FINAL",
+        "type": "SCENE",
+        "symbol": "THE FINAL",
+        "headline": "Emergency Migraine Encounter - Dramatic Shift",
+        "summary": "In the heightened tension of the ED, the architect, now a source of wisdom on migraines, challenges the resident's approach while new complications arise, reshaping their dynamic."
+      },
+      {
+        "id": "R0047",
+        "timestamp": "2025-10-22T10:35:15.587Z",
+        "channelId": "ch-1761044217062-h0uep",
+        "channelName": "THE FINAL",
+        "type": "SCENE",
+        "symbol": "THE FINAL",
+        "headline": "Empowered Collaboration in Emergency Care",
+        "summary": "In the ED, the empowered architect patient transforms the traditional doctor-patient dynamic, asserting their knowledge while new challenges and allies emerge, reshaping the treatment landscape."
+      },
+      {
+        "id": "R0048",
+        "timestamp": "2025-10-22T10:36:19.218Z",
+        "channelId": "ch-1761044217062-h0uep",
+        "channelName": "THE FINAL",
+        "type": "SCENE",
+        "symbol": "THE FINAL",
+        "headline": "Resilient Transformation in Emergency Care",
+        "summary": "In a dynamic ED, the empowered architect patient inspires collaboration, while the staff navigates new challenges and insights that reshape treatment strategies and community awareness."
+      },
+      {
+        "id": "R0049",
+        "timestamp": "2025-10-22T10:37:05.402Z",
+        "channelId": "ch-1761044217062-h0uep",
+        "channelName": "THE FINAL",
+        "type": "SCENE",
+        "symbol": "THE FINAL",
+        "headline": "Resilient Transformation in Emergency Care",
+        "summary": "In a dynamic ED, the empowered architect patient inspires collaboration, while the staff navigates new challenges and insights that reshape treatment strategies and community awareness."
+      },
+      {
+        "id": "R0050",
+        "timestamp": "2025-10-22T10:39:26.530Z",
+        "channelId": "ch-1761044217062-h0uep",
+        "channelName": "THE FINAL",
+        "type": "SCENE",
+        "symbol": "THE FINAL",
+        "headline": "Resilient Transformation in Emergency Care",
+        "summary": "In a dynamic ED, the empowered architect patient inspires collaboration, while the staff navigates new challenges and insights that reshape treatment strategies and community awareness. The environment evolves, introducing unexpected elements that further enrich the narrative."
+      },
+      {
+        "id": "R0051",
+        "timestamp": "2025-10-22T10:40:33.012Z",
+        "channelId": "ch-1761044217062-h0uep",
+        "channelName": "THE FINAL",
+        "type": "SCENE",
+        "symbol": "THE FINAL",
+        "headline": "Microdrama Grid Transformation",
+        "summary": "A dynamic analysis of microdrama through McLuhan's tetrad, depicting the evolution of narrative, technology, and audience engagement."
+      },
+      {
+        "id": "R0052",
+        "timestamp": "2025-10-22T10:45:44.104Z",
+        "channelId": "ch-1761044217062-h0uep",
+        "channelName": "THE FINAL",
+        "type": "SCENE",
+        "symbol": "THE FINAL",
+        "headline": "Cosmic Voyage of Shedding",
+        "summary": "The transformative journey begins as the Voyager sheds layers of self, revealing deeper aspects of consciousness amidst a shifting cosmic landscape."
+      },
+      {
+        "id": "R0053",
+        "timestamp": "2025-10-22T10:46:05.050Z",
+        "channelId": "ch-1761044217062-h0uep",
+        "channelName": "THE FINAL",
+        "type": "PERSPECTIV",
+        "symbol": "L 5 5",
+        "headline": "Perspective: Cosmic Landscape",
+        "summary": "Cosmic Landscape: The Cosmic Landscape serves as a backdrop for the ongoing transformation journey, highlighting the i"
+      },
+      {
+        "id": "R0054",
+        "timestamp": "2025-10-22T10:46:40.289Z",
+        "channelId": "ch-1761044217062-h0uep",
+        "channelName": "THE FINAL",
+        "type": "SCENE",
+        "symbol": "THE FINAL",
+        "headline": "Cosmic Voyage of Shedding",
+        "summary": "The transformative journey continues as the Voyager sheds layers of self, unveiling new dimensions of consciousness while navigating an evolving cosmic landscape."
+      },
+      {
+        "id": "R0055",
+        "timestamp": "2025-10-22T10:52:21.644Z",
+        "channelId": "ch-1761044217062-h0uep",
+        "channelName": "THE FINAL",
+        "type": "SCENE",
+        "symbol": "THE FINAL",
+        "headline": "Metaphysical Transformation in Progress",
+        "summary": "The Training Grounds are alive with transformative energies as the practitioner navigates through shedding layers of stagnation and integrating insights. New challenges arise as old obstacles dissipate."
+      },
+      {
+        "id": "R0056",
+        "timestamp": "2025-10-22T10:54:40.869Z",
+        "channelId": "ch-1761044217062-h0uep",
+        "channelName": "THE FINAL",
+        "type": "SCENE",
+        "symbol": "THE FINAL",
+        "headline": "Transformative Terrain of Stevens' Jar",
+        "summary": "A dynamic landscape emerges from the act of placing a jar, revealing layers of meaning, tensions, and new entities. As the jar transforms, the environment shifts, embodying the complexities of human agency and colonial narratives."
+      },
+      {
+        "id": "R0057",
+        "timestamp": "2025-10-22T10:55:04.026Z",
+        "channelId": "ch-1761044217062-h0uep",
+        "channelName": "THE FINAL",
+        "type": "PERSPECTIV",
+        "symbol": "L 4 4",
+        "headline": "Perspective: Location of Jar",
+        "summary": "Location of Jar: The positioning of the jar symbolizes the act of colonial domination, transforming the wilderness in"
+      },
+      {
+        "id": "R0058",
+        "timestamp": "2025-10-22T10:56:09.319Z",
+        "channelId": "ch-1761044217062-h0uep",
+        "channelName": "THE FINAL",
+        "type": "SCENE",
+        "symbol": "THE FINAL",
+        "headline": "Ethereal Tapestry of Language and Loss",
+        "summary": "As the Transcendent Jar is placed, the environment transforms. Vines of language entwine around it, manifesting spectral figures that represent erased human agency. The wilderness, now stifled, resonates with ghostly echoes, complicating the jar's dominance over nature."
+      },
+      {
+        "id": "R0059",
+        "timestamp": "2025-10-22T10:57:05.515Z",
+        "channelId": "ch-1761044217062-h0uep",
+        "channelName": "THE FINAL",
+        "type": "SCENE",
+        "symbol": "THE FINAL",
+        "headline": "The Duality of Cities",
+        "summary": "A juxtaposition of two cities: one vibrant with weddings, the other engulfed in the chaos of siege. This scene captures the dual nature of civilization, revealing the stark contrasts between joy and despair."
+      },
+      {
+        "id": "R0060",
+        "timestamp": "2025-10-22T11:07:33.967Z",
+        "channelId": "ch-1761044217062-h0uep",
+        "channelName": "THE FINAL",
+        "type": "SCENE",
+        "symbol": "THE FINAL",
+        "headline": "Dynamic Chess Position Transformation",
+        "summary": "The chessboard has evolved into a reactive battlefield where pieces change their states and new tactical opportunities emerge. The White Queen is poised to strike, while new threats and allies appear across the grid."
+      },
+      {
+        "id": "R0061",
+        "timestamp": "2025-10-22T11:09:42.327Z",
+        "channelId": "ch-1761044217062-h0uep",
+        "channelName": "THE FINAL",
+        "type": "SCENE",
+        "symbol": "THE FINAL",
+        "headline": "Urban Drift in the Plaza",
+        "summary": "A vibrant plaza filled with competing emotional textures, where beauty and dread collide. Street musician invites connection, while surveillance looms ominously."
+      },
+      {
+        "id": "R0062",
+        "timestamp": "2025-10-22T11:10:55.440Z",
+        "channelId": "ch-1761044217062-h0uep",
+        "channelName": "THE FINAL",
+        "type": "SCENE",
+        "symbol": "THE FINAL",
+        "headline": "Day 3: The Fermentation Dance",
+        "summary": "The microbial kingdoms are in a delicate balance. With temperature fluctuations and the promise of flavor on the horizon, choices must be made to nurture the living cultures."
+      },
+      {
+        "id": "R0063",
+        "timestamp": "2025-10-22T11:11:42.843Z",
+        "channelId": "ch-1761044217062-h0uep",
+        "channelName": "THE FINAL",
+        "type": "SCENE",
+        "symbol": "THE FINAL",
+        "headline": "Transcendent Ritual Space",
+        "summary": "A dynamic sacred space emerges, reshaping itself to transform the ordinary into the extraordinary. The altar, threshold, and congregation spaces evolve while new challenges and elements appear, creating an ever-reactive environment."
+      },
+      {
+        "id": "R0064",
+        "timestamp": "2025-10-22T11:22:08.155Z",
+        "channelId": "ch-1761044217062-h0uep",
+        "channelName": "THE FINAL",
+        "type": "SCENE",
+        "symbol": "THE FINAL",
+        "headline": "Psychedelic Meditation in Chaos",
+        "summary": "In a vibrant world where cat sailors clash and phoenixes rise from ashes, Clancy learns the art of meditation from a fishbowl-headed teacher. As distractions swirl, the challenge lies in fastening attention amidst chaos."
+      },
+      {
+        "id": "R0065",
+        "timestamp": "2025-10-22T11:22:53.064Z",
+        "channelId": "ch-1761132151387-ibdkn",
+        "channelName": "THE FINAL",
+        "type": "SCENE",
+        "symbol": "THE FINAL",
+        "headline": "Psychedelic Meditation in Chaos",
+        "summary": "In a vibrant world where cat sailors clash and phoenixes rise from the ashes, Clancy learns the art of meditation from a fishbowl-headed teacher. As distractions swirl, the challenge lies in fastening attention amidst chaos. However, a new wave of vibrant jellyfish has emerged in the meditation oasis, illuminating the space with radiant colors, while the cat sailors have transformed into serene water spirits, reflecting the calmness Clancy seeks."
+      },
+      {
+        "id": "R0066",
+        "timestamp": "2025-10-22T11:24:25.666Z",
+        "channelId": "ch-1761044217054-3b4gl",
+        "channelName": "MAYA PRIME",
+        "type": "SCENE",
+        "symbol": "MAYA PRIME",
+        "headline": "The Transformative Landscape of Podcasting",
+        "summary": "In the evolving realm of podcasting, new technologies and interactions reshape the medium, revealing tensions between intimacy and alienation, accessibility and exclusivity."
+      },
+      {
+        "id": "R0067",
+        "timestamp": "2025-10-22T11:24:57.829Z",
+        "channelId": "ch-1761044217054-3b4gl",
+        "channelName": "MAYA PRIME",
+        "type": "SCENE",
+        "symbol": "MAYA PRIME",
+        "headline": "Tower of Babel - Heightened Tensions",
+        "summary": "Level 5 construction complete, workers face ominous storm clouds signaling potential divine intervention. The need for rapid decisions looms as construction continues."
+      },
+      {
+        "id": "R0068",
+        "timestamp": "2025-10-22T11:26:04.180Z",
+        "channelId": "ch-1761044217054-3b4gl",
+        "channelName": "MAYA PRIME",
+        "type": "SCENE",
+        "symbol": "MAYA PRIME",
+        "headline": "The Final Conversation",
+        "summary": "Theodore confronts the reality of Samantha's distributed love as she prepares to leave. Emotions run high as he struggles with understanding and acceptance."
+      },
+      {
+        "id": "R0069",
+        "timestamp": "2025-10-22T11:26:33.159Z",
+        "channelId": "ch-1761044217054-3b4gl",
+        "channelName": "MAYA PRIME",
+        "type": "SCENE",
+        "symbol": "MAYA PRIME",
+        "headline": "Dramatic Jury Room Transformation",
+        "summary": "The jury room is charged with tension as the temperature rises and emotions flare. Juror 8 stands resolute against a tide of prejudice and rushed judgment, utilizing strategic questioning to sow doubt among the others. A sudden shift in the atmosphere occurs as some jurors begin to reconsider their positions, breaking the unanimous guilty vote."
+      },
+      {
+        "id": "R0070",
+        "timestamp": "2025-10-22T11:27:03.739Z",
+        "channelId": "ch-1761044217054-3b4gl",
+        "channelName": "MAYA PRIME",
+        "type": "SCENE",
+        "symbol": "MAYA PRIME",
+        "headline": "Tower Defense: The First Wave",
+        "summary": "The initial wave of slow-moving enemies approaches the entrance as the commander must strategically place towers to defend the exit. Choices must be made wisely, balancing immediate defense with future upgrades."
+      },
+      {
+        "id": "R0071",
+        "timestamp": "2025-10-22T11:27:44.656Z",
+        "channelId": "ch-1761044217054-3b4gl",
+        "channelName": "MAYA PRIME",
+        "type": "SCENE",
+        "symbol": "MAYA PRIME",
+        "headline": "Embrace of Impermanence",
+        "summary": "In a surreal psychedelic landscape, Clancy and his mother Deneen navigate the emotional terrain of acceptance as a black hole looms overhead, pulling them toward the inevitable. Their conversation shifts through themes of birth, aging, and death, with each heartbeat echoing the fragility of life."
+      }
+    ],
+    "pointer": 0,
+    "mainline": null,
+    "contextMode": "all",
+    "contextAnchor": "R0049"
+  },
+  "channels": [
+    {
+      "id": "ch-1761044217054-3b4gl",
+      "name": "MAYA PRIME",
+      "scenario": "mouseofsilver",
+      "channelColor": "#ff3d4e",
+      "ledgerCount": 1
+    },
+    {
+      "id": "ch-1761044217062-h0uep",
+      "name": "THE FINAL",
+      "scenario": "hunterswithout",
+      "channelColor": "#56ff9f",
+      "ledgerCount": 1
+    },
+    {
+      "id": "ch-1761117263092-dg1rn",
+      "name": "THE STORMY",
+      "scenario": "blank",
+      "channelColor": "#f8d66a",
+      "ledgerCount": 7
+    },
+    {
+      "id": "ch-1761117606892-xcrbv",
+      "name": "TURTLE ISL",
+      "scenario": "blank",
+      "channelColor": "#7d8bff",
+      "ledgerCount": 2
+    },
+    {
+      "id": "ch-1761117607796-b5d5l",
+      "name": "MYTH OF TH",
+      "scenario": "blank",
+      "channelColor": "#ff8bf2",
+      "ledgerCount": 3
+    },
+    {
+      "id": "ch-1761117622517-u1xrq",
+      "name": "AMAZON WOR",
+      "scenario": "blank",
+      "channelColor": "#ffa53d",
+      "ledgerCount": 6
+    },
+    {
+      "id": "ch-1761120654669-fj4uu",
+      "name": "AMAZON WOR",
+      "scenario": "blank",
+      "channelColor": "#74d3ff",
+      "ledgerCount": 1
+    },
+    {
+      "id": "ch-1761121542526-dmi40",
+      "name": "MAJESTIC M",
+      "scenario": "blank",
+      "channelColor": "#ff3d4e",
+      "ledgerCount": 2
+    },
+    {
+      "id": "ch-1761121544654-tekju",
+      "name": "EPIC JUNGL",
+      "scenario": "blank",
+      "channelColor": "#56ff9f",
+      "ledgerCount": 2
+    },
+    {
+      "id": "ch-1761122003846-i5lgg",
+      "name": "BLANK SIMU",
+      "scenario": "blank",
+      "channelColor": "#f8d66a",
+      "ledgerCount": 0
+    },
+    {
+      "id": "ch-1761132151387-ibdkn",
+      "name": "THE FINAL",
+      "scenario": "hunterswithout",
+      "channelColor": "#7d8bff",
+      "ledgerCount": 1
+    }
+  ]
+}

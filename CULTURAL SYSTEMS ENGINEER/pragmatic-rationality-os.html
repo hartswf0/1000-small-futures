@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pragmatic Rationality OS — Civil Unrest</title>
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: "Courier New", monospace;
+      background: radial-gradient(circle at top, #120b1f 0%, #050309 70%);
+      color: #f5f6ff;
+      min-height: 100vh;
+      padding: 24px;
+      display: flex;
+      justify-content: center;
+    }
+    .app {
+      width: min(1200px, 100%);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border: 1px solid rgba(173, 151, 255, 0.25);
+      background: rgba(17, 9, 31, 0.8);
+      padding: 20px;
+      border-radius: 14px;
+      backdrop-filter: blur(10px);
+    }
+    header h1 {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #d3b3ff;
+    }
+    header p {
+      color: #bdb3ff;
+      line-height: 1.5;
+    }
+    .panels {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+    .panel {
+      border: 1px solid rgba(173, 151, 255, 0.2);
+      background: rgba(10, 6, 20, 0.75);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      min-height: 0;
+    }
+    .panel h2 {
+      font-size: 1rem;
+      letter-spacing: 0.1em;
+      color: #a08bff;
+    }
+    .grid-wrap {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(70, 55, 130, 0.6);
+      transition: box-shadow 0.4s ease, border-color 0.4s ease;
+    }
+    .grid-wrap.cook-active {
+      box-shadow: 0 0 25px rgba(220, 50, 47, 0.7);
+      border-color: rgba(220, 50, 47, 0.85);
+    }
+    .grid-wrap::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border: 4px solid transparent;
+      pointer-events: none;
+      transition: border-color 0.2s ease;
+    }
+    .grid-wrap.cook-active::after {
+      border-color: rgba(220, 50, 47, 0.7);
+      animation: rimPulse 0.6s ease-in-out infinite alternate;
+    }
+    @keyframes rimPulse {
+      from { border-color: rgba(220, 50, 47, 0.4); }
+      to { border-color: rgba(220, 50, 47, 0.8); }
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      touch-action: none;
+    }
+    .controls {
+      display: grid;
+      gap: 16px;
+    }
+    .control-row {
+      display: grid;
+      grid-template-columns: minmax(120px, 160px) 1fr 80px;
+      gap: 16px;
+      align-items: center;
+    }
+    .control-row label {
+      font-size: 0.95rem;
+      color: #c6bbff;
+    }
+    .control-row input[type="range"] {
+      width: 100%;
+      accent-color: #6f60ff;
+    }
+    .control-value {
+      text-align: right;
+      font-weight: 700;
+      color: #9ce6ff;
+    }
+    .control-row input[type="range"],
+    button {
+      min-height: 44px;
+    }
+    .button-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    button {
+      border: none;
+      background: linear-gradient(135deg, rgba(88, 70, 255, 0.9), rgba(40, 20, 120, 0.9));
+      color: #f7f8ff;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 12px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 16px rgba(110, 90, 255, 0.2);
+    }
+    button:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+    .cook-btn {
+      background: linear-gradient(135deg, rgba(220, 50, 47, 0.95), rgba(130, 15, 14, 0.9));
+    }
+    .secondary {
+      background: linear-gradient(135deg, rgba(70, 70, 80, 0.95), rgba(35, 30, 50, 0.9));
+    }
+    .metrics {
+      display: grid;
+      gap: 14px;
+    }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+    }
+    .metric-card {
+      padding: 12px;
+      border-radius: 10px;
+      background: rgba(16, 11, 30, 0.8);
+      border: 1px solid rgba(90, 80, 150, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .metric-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      color: #8670ff;
+    }
+    .metric-value {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #f4f4ff;
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 0.8rem;
+      color: #b3a6ff;
+    }
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .legend i {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    .sparkline-wrap {
+      background: rgba(12, 8, 24, 0.8);
+      border-radius: 12px;
+      border: 1px solid rgba(90, 80, 150, 0.4);
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+    .sparkline-wrap header {
+      background: none;
+      border: none;
+      padding: 0;
+    }
+    .sparkline-wrap header h3 {
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      color: #9cd2ff;
+    }
+    canvas#sparkline {
+      width: 100%;
+      height: 90px;
+    }
+    .status-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: #8e84d6;
+    }
+    .status-line strong {
+      color: #c4bbff;
+    }
+    @media (max-width: 1080px) {
+      .panels {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 640px) {
+      body {
+        padding: 16px 14px;
+      }
+      .control-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      .control-value {
+        text-align: left;
+      }
+      button {
+        flex: 1 1 100%;
+        text-align: center;
+      }
+      .button-bar {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Pragmatic Rationality OS — Civil Unrest</h1>
+      <p>
+        An adaptive unrest engine blending Epstein’s civil violence model with Obeyesekere’s pragmatic reasoning.
+        Citizens gauge hardship, legitimacy, and risk; rebels shed fear; cops chase pulse waves of dissent. Trigger
+        the Cook legitimacy shock to peel back state authority and watch the grid breathe.
+      </p>
+    </header>
+
+    <div class="panels">
+      <section class="panel">
+        <h2>City Grid · 27 × 27</h2>
+        <div class="grid-wrap" id="gridWrap">
+          <canvas id="city" width="972" height="972"></canvas>
+        </div>
+        <div class="legend">
+          <span><i style="background:#1b1b27;border:1px solid #2a2740;"></i> empty</span>
+          <span><i style="background:#268bd2;"></i> citizen</span>
+          <span><i style="background:#0b3b8f;"></i> cop</span>
+          <span><i style="background:#dc322f;"></i> rebel</span>
+        </div>
+      </section>
+
+      <aside class="panel">
+        <h2>Control Stack</h2>
+        <div class="controls">
+          <div class="control-row">
+            <label for="legitimacy">Legitimacy (L)</label>
+            <input type="range" id="legitimacy" min="0" max="100" value="55">
+            <div class="control-value" id="legitimacyValue">0.55</div>
+          </div>
+          <div class="control-row">
+            <label for="copEffectiveness">Cop Effectiveness (C)</label>
+            <input type="range" id="copEffectiveness" min="0" max="100" value="45">
+            <div class="control-value" id="copValue">0.45</div>
+          </div>
+          <div class="control-row">
+            <label for="fearDecay">Fear Decay (F)</label>
+            <input type="range" id="fearDecay" min="0" max="100" value="25">
+            <div class="control-value" id="fearValue">0.25</div>
+          </div>
+          <div class="control-row">
+            <label for="radius">Neighborhood Radius</label>
+            <input type="range" id="radius" min="1" max="3" step="1" value="2">
+            <div class="control-value" id="radiusValue">2</div>
+          </div>
+          <div class="control-row">
+            <label for="tickSpeed">Tick Speed (ms)</label>
+            <input type="range" id="tickSpeed" min="50" max="600" step="10" value="200">
+            <div class="control-value" id="tickValue">200</div>
+          </div>
+          <div class="button-bar">
+            <button class="secondary" id="resetBtn">Reset Simulation</button>
+            <button class="secondary" id="pauseBtn">Pause</button>
+            <button class="cook-btn" id="cookBtn">Cook Shock</button>
+          </div>
+        </div>
+
+        <div class="metrics">
+          <div class="metric-grid">
+            <div class="metric-card">
+              <div class="metric-label">Citizens</div>
+              <div class="metric-value" id="citizenCount">0</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Rebels</div>
+              <div class="metric-value" id="rebelCount">0</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Cops</div>
+              <div class="metric-value" id="copCount">0</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Rebellion Index</div>
+              <div class="metric-value" id="rebellionIndex">0.00</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Suppression Rate</div>
+              <div class="metric-value" id="suppressionRate">0.00</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Risk Gini</div>
+              <div class="metric-value" id="riskGini">0.00</div>
+            </div>
+          </div>
+          <div class="sparkline-wrap">
+            <header>
+              <h3>Rebel Share · 200 Tick Sparkline</h3>
+            </header>
+            <canvas id="sparkline" width="240" height="90"></canvas>
+            <div class="status-line">
+              <span>Tick: <strong id="tickDisplay">0</strong></span>
+              <span>Cook Shock: <strong id="cookState">idle</strong></span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const size = 27;
+      const initialRatios = {
+        citizen: 0.72,
+        cop: 0.06
+      };
+
+      const params = {
+        legitimacy: 0.55,
+        copEffectiveness: 0.45,
+        fearDecay: 0.25,
+        neighborhoodRadius: 2,
+        tickSpeed: 200
+      };
+
+      const grid = [];
+      const history = [];
+      const rebellionWindow = [];
+      const suppressionWindow = [];
+      let tick = 0;
+      let intervalId = null;
+      let arrestsThisTick = 0;
+      let cookActive = false;
+      let cookTicksRemaining = 0;
+      let cookDelta = 0;
+      let cookTriggeredThisTick = false;
+
+      const canvas = document.getElementById("city");
+      const ctx = canvas.getContext("2d");
+      const sparkCanvas = document.getElementById("sparkline");
+      const sparkCtx = sparkCanvas.getContext("2d");
+      const gridWrap = document.getElementById("gridWrap");
+
+      const outputs = {
+        citizenCount: document.getElementById("citizenCount"),
+        rebelCount: document.getElementById("rebelCount"),
+        copCount: document.getElementById("copCount"),
+        rebellionIndex: document.getElementById("rebellionIndex"),
+        suppressionRate: document.getElementById("suppressionRate"),
+        riskGini: document.getElementById("riskGini"),
+        tickDisplay: document.getElementById("tickDisplay"),
+        cookState: document.getElementById("cookState"),
+        legitimacyValue: document.getElementById("legitimacyValue"),
+        copValue: document.getElementById("copValue"),
+        fearValue: document.getElementById("fearValue"),
+        radiusValue: document.getElementById("radiusValue"),
+        tickValue: document.getElementById("tickValue")
+      };
+
+      const controls = {
+        legitimacy: document.getElementById("legitimacy"),
+        copEffectiveness: document.getElementById("copEffectiveness"),
+        fearDecay: document.getElementById("fearDecay"),
+        radius: document.getElementById("radius"),
+        tickSpeed: document.getElementById("tickSpeed"),
+        cookBtn: document.getElementById("cookBtn"),
+        resetBtn: document.getElementById("resetBtn"),
+        pauseBtn: document.getElementById("pauseBtn")
+      };
+
+      function createCell(type = "empty") {
+        return {
+          type,
+          hardship: type === "citizen" || type === "rebel" ? Math.random() : 0,
+          riskAversion: type === "citizen" || type === "rebel" ? Math.random() : 0,
+          fear: type === "rebel" ? 0.7 : 0,
+          perceivedRisk: 0,
+          lastRisk: 0
+        };
+      }
+
+      function initGrid() {
+        grid.length = 0;
+        for (let y = 0; y < size; y++) {
+          const row = [];
+          for (let x = 0; x < size; x++) {
+            row.push(createCell());
+          }
+          grid.push(row);
+        }
+      }
+
+      function seedPopulation() {
+        const total = size * size;
+        const citizenTarget = Math.round(total * initialRatios.citizen);
+        const copTarget = Math.round(total * initialRatios.cop);
+
+        const indices = Array.from({ length: total }, (_, idx) => idx);
+        shuffle(indices);
+
+        for (let i = 0; i < citizenTarget; i++) {
+          const idx = indices[i];
+          const y = Math.floor(idx / size);
+          const x = idx % size;
+          grid[y][x] = createCell("citizen");
+        }
+        for (let j = citizenTarget; j < citizenTarget + copTarget; j++) {
+          const idx = indices[j];
+          const y = Math.floor(idx / size);
+          const x = idx % size;
+          grid[y][x] = createCell("cop");
+        }
+      }
+
+      function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+      }
+
+      function effectiveLegitimacy() {
+        const base = params.legitimacy;
+        const mod = cookActive ? cookDelta : 0;
+        return clamp(base + mod, 0, 1);
+      }
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      function computeRisk(y, x) {
+        const radius = params.neighborhoodRadius;
+        let cops = 0;
+        let rebels = 0;
+        for (let dy = -radius; dy <= radius; dy++) {
+          for (let dx = -radius; dx <= radius; dx++) {
+            if (dx === 0 && dy === 0) continue;
+            const ny = y + dy;
+            const nx = x + dx;
+            if (ny < 0 || ny >= size || nx < 0 || nx >= size) continue;
+            const neighbor = grid[ny][nx];
+            if (neighbor.type === "cop") cops++;
+            if (neighbor.type === "rebel") rebels++;
+          }
+        }
+        const base = params.copEffectiveness * (cops / (rebels + 1));
+        return clamp(Math.max(0.05, base), 0, 1);
+      }
+
+      function tickSimulation() {
+        tick += 1;
+        cookTriggeredThisTick = false;
+        if (cookActive) {
+          cookTicksRemaining -= 1;
+          if (cookTicksRemaining <= 0) {
+            cookActive = false;
+            cookDelta = 0;
+            gridWrap.classList.remove("cook-active");
+          }
+        }
+
+        arrestsThisTick = 0;
+        const toRebel = [];
+        const toCitizen = [];
+        const riskSamples = [];
+
+        const legitimacy = effectiveLegitimacy();
+
+        // Evaluate citizens and rebels
+        for (let y = 0; y < size; y++) {
+          for (let x = 0; x < size; x++) {
+            const cell = grid[y][x];
+            if (cell.type === "citizen" || cell.type === "rebel") {
+              const risk = computeRisk(y, x);
+              cell.perceivedRisk = risk;
+              cell.lastRisk = risk;
+              riskSamples.push(risk);
+
+              const grievance = cell.hardship * (1 - legitimacy);
+              if (cell.type === "citizen") {
+                if (grievance > cell.riskAversion * risk) {
+                  toRebel.push([y, x]);
+                }
+              } else if (cell.type === "rebel") {
+                // Fear integrates risk pressure and decays at F
+                cell.fear = clamp(cell.fear + risk * 0.25 - params.fearDecay, 0, 1);
+                const stayPressure = grievance + (1 - cell.fear) * 0.4;
+                const crackdown = cell.riskAversion * (risk + cell.fear * 0.6);
+                if (stayPressure < crackdown) {
+                  toCitizen.push([y, x, true]);
+                }
+              }
+            }
+          }
+        }
+
+        // Apply citizen -> rebel transitions
+        for (const [y, x] of toRebel) {
+          const cell = grid[y][x];
+          cell.type = "rebel";
+          cell.fear = 0.8;
+        }
+
+        // Cop actions
+        for (let y = 0; y < size; y++) {
+          for (let x = 0; x < size; x++) {
+            const cell = grid[y][x];
+            if (cell.type === "cop") {
+              const neighbors = getNeighbors(y, x, 1);
+              neighbors.forEach(([ny, nx]) => {
+                const neighbor = grid[ny][nx];
+                if (neighbor.type === "rebel") {
+                  const arrestChance = clamp(params.copEffectiveness * 0.85, 0, 1);
+                  if (Math.random() < arrestChance) {
+                    toCitizen.push([ny, nx, false]);
+                    arrestsThisTick += 1;
+                  } else {
+                    neighbor.fear = clamp(neighbor.fear + 0.3, 0, 1);
+                  }
+                }
+              });
+            }
+          }
+        }
+
+        // Apply rebel -> citizen transitions
+        for (const [y, x, voluntary] of toCitizen) {
+          const cell = grid[y][x];
+          cell.type = "citizen";
+          cell.hardship = Math.random();
+          cell.riskAversion = Math.random();
+          cell.fear = voluntary ? clamp(cell.fear + 0.2, 0, 1) : 1;
+          cell.perceivedRisk = cell.lastRisk;
+        }
+
+        updateMetrics(riskSamples);
+        drawGrid();
+        drawSparkline();
+      }
+
+      function getNeighbors(y, x, radius) {
+        const result = [];
+        for (let dy = -radius; dy <= radius; dy++) {
+          for (let dx = -radius; dx <= radius; dx++) {
+            if (dx === 0 && dy === 0) continue;
+            const ny = y + dy;
+            const nx = x + dx;
+            if (ny < 0 || ny >= size || nx < 0 || nx >= size) continue;
+            result.push([ny, nx]);
+          }
+        }
+        return result;
+      }
+
+      function updateMetrics(riskSamples) {
+        let citizens = 0;
+        let rebels = 0;
+        let cops = 0;
+        for (let y = 0; y < size; y++) {
+          for (let x = 0; x < size; x++) {
+            const cell = grid[y][x];
+            if (cell.type === "citizen") citizens++;
+            if (cell.type === "rebel") rebels++;
+            if (cell.type === "cop") cops++;
+          }
+        }
+        const total = size * size;
+        const rebelPct = (rebels / total) * 100;
+
+        updateRolling(rebellionWindow, rebelPct, 30);
+        updateRolling(suppressionWindow, arrestsThisTick, 30);
+        updateHistory(rebelPct);
+
+        outputs.citizenCount.textContent = `${citizens} (${Math.round((citizens / total) * 100)}%)`;
+        outputs.rebelCount.textContent = `${rebels} (${Math.round(rebelPct)}%)`;
+        outputs.copCount.textContent = `${cops} (${Math.round((cops / total) * 100)}%)`;
+        outputs.rebellionIndex.textContent = avg(rebellionWindow).toFixed(2);
+        outputs.suppressionRate.textContent = avg(suppressionWindow).toFixed(2);
+        outputs.riskGini.textContent = riskSamples.length ? gini(riskSamples).toFixed(2) : "0.00";
+        outputs.tickDisplay.textContent = tick;
+        outputs.cookState.textContent = cookActive ? `shock (${cookTicksRemaining} ticks)` : "idle";
+      }
+
+      function updateHistory(rebelPct) {
+        history.push({ pct: rebelPct, cook: cookTriggeredThisTick });
+        if (history.length > 200) history.shift();
+      }
+
+      function updateRolling(arr, value, maxLength) {
+        arr.push(value);
+        if (arr.length > maxLength) arr.shift();
+      }
+
+      function avg(arr) {
+        if (!arr.length) return 0;
+        return arr.reduce((sum, value) => sum + value, 0) / arr.length;
+      }
+
+      function gini(values) {
+        const sorted = [...values].sort((a, b) => a - b);
+        const n = sorted.length;
+        if (n === 0) return 0;
+        let cumulative = 0;
+        let weightedSum = 0;
+        for (let i = 0; i < n; i++) {
+          cumulative += sorted[i];
+          weightedSum += cumulative;
+        }
+        const mean = cumulative / n;
+        if (mean === 0) return 0;
+        return (n + 1 - 2 * (weightedSum / cumulative)) / n;
+      }
+
+      function drawGrid() {
+        resizeCanvas();
+        const dpr = window.devicePixelRatio || 1;
+        const width = canvas.width / dpr;
+        const cellSize = width / size;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const timestamp = performance.now();
+
+        for (let y = 0; y < size; y++) {
+          for (let x = 0; x < size; x++) {
+            const cell = grid[y][x];
+            const px = x * cellSize;
+            const py = y * cellSize;
+
+            let fill;
+            switch (cell.type) {
+              case "citizen":
+                fill = "#268bd2";
+                break;
+              case "cop":
+                fill = "#0b3b8f";
+                break;
+              case "rebel": {
+                const pulse = 0.75 + 0.25 * Math.sin(timestamp / 300 + (x + y));
+                const intensity = Math.round(50 + pulse * 205);
+                fill = `rgba(220, 50, 47, ${0.6 + pulse * 0.4})`;
+                ctx.fillStyle = fill;
+                ctx.fillRect(px * dpr, py * dpr, cellSize * dpr, cellSize * dpr);
+                ctx.strokeStyle = `rgba(${intensity}, 40, 44, 0.9)`;
+                ctx.strokeRect(px * dpr + 0.5, py * dpr + 0.5, cellSize * dpr - 1, cellSize * dpr - 1);
+                continue;
+              }
+              default:
+                fill = "#1b1b27";
+            }
+
+            ctx.fillStyle = fill;
+            ctx.fillRect(px * dpr, py * dpr, cellSize * dpr, cellSize * dpr);
+            ctx.strokeStyle = "rgba(30, 25, 50, 0.5)";
+            ctx.strokeRect(px * dpr + 0.5, py * dpr + 0.5, cellSize * dpr - 1, cellSize * dpr - 1);
+          }
+        }
+      }
+
+      function resizeCanvas() {
+        const dpr = window.devicePixelRatio || 1;
+        const rect = gridWrap.getBoundingClientRect();
+        const sizePx = Math.min(rect.width, 972);
+        const computedCell = sizePx / size;
+        const snappedCell = Math.floor(computedCell);
+        const pixelSize = snappedCell * size;
+        canvas.style.height = `${pixelSize}px`;
+        canvas.style.width = `${pixelSize}px`;
+        canvas.width = pixelSize * dpr;
+        canvas.height = pixelSize * dpr;
+      }
+
+      function drawSparkline() {
+        const dpr = window.devicePixelRatio || 1;
+        sparkCanvas.width = sparkCanvas.clientWidth * dpr;
+        sparkCanvas.height = sparkCanvas.clientHeight * dpr;
+        const width = sparkCanvas.width;
+        const height = sparkCanvas.height;
+        sparkCtx.clearRect(0, 0, width, height);
+
+        if (history.length < 2) return;
+
+        sparkCtx.lineWidth = 2 * dpr;
+        sparkCtx.strokeStyle = "#268bd2";
+        sparkCtx.beginPath();
+        const maxIndex = history.length - 1;
+        history.forEach((point, idx) => {
+          const x = (idx / maxIndex) * width;
+          const y = height - (point.pct / 100) * height;
+          if (idx === 0) sparkCtx.moveTo(x, y);
+          else sparkCtx.lineTo(x, y);
+        });
+        sparkCtx.stroke();
+
+        history.forEach((point, idx) => {
+          if (point.cook) {
+            const x = (idx / maxIndex) * width;
+            sparkCtx.fillStyle = "rgba(220, 50, 47, 0.6)";
+            sparkCtx.fillRect(x - dpr, 0, 2 * dpr, height);
+          }
+        });
+      }
+
+      function handleCanvasClick(event) {
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        const cellSize = rect.width / size;
+        const gridX = Math.floor(x / cellSize);
+        const gridY = Math.floor(y / cellSize);
+        if (gridX < 0 || gridX >= size || gridY < 0 || gridY >= size) return;
+
+        const cell = grid[gridY][gridX];
+        switch (cell.type) {
+          case "empty":
+            cell.type = "citizen";
+            cell.hardship = Math.random();
+            cell.riskAversion = Math.random();
+            break;
+          case "citizen":
+            cell.type = "cop";
+            cell.hardship = 0;
+            cell.riskAversion = 0;
+            cell.fear = 0;
+            break;
+          case "cop":
+            cell.type = "rebel";
+            cell.hardship = Math.random() * 0.8 + 0.2;
+            cell.riskAversion = Math.random() * 0.6;
+            cell.fear = 0.9;
+            break;
+          case "rebel":
+            cell.type = "empty";
+            cell.hardship = 0;
+            cell.riskAversion = 0;
+            cell.fear = 0;
+            break;
+        }
+        drawGrid();
+        updateMetrics(collectRisks());
+        drawSparkline();
+      }
+
+      function collectRisks() {
+        const risks = [];
+        for (let y = 0; y < size; y++) {
+          for (let x = 0; x < size; x++) {
+            const cell = grid[y][x];
+            if (cell.type === "citizen" || cell.type === "rebel") {
+              risks.push(cell.perceivedRisk || 0.05);
+            }
+          }
+        }
+        return risks;
+      }
+
+      function triggerCookShock() {
+        if (cookActive) return;
+        cookActive = true;
+        cookTicksRemaining = 8 + Math.floor(Math.random() * 8); // 8–15
+        cookDelta = -(0.12 + Math.random() * 0.15);
+        cookTriggeredThisTick = true;
+        gridWrap.classList.add("cook-active");
+      }
+
+      function resetSimulation() {
+        tick = 0;
+        history.length = 0;
+        rebellionWindow.length = 0;
+        suppressionWindow.length = 0;
+        cookActive = false;
+        cookTicksRemaining = 0;
+        cookDelta = 0;
+        gridWrap.classList.remove("cook-active");
+        initGrid();
+        seedPopulation();
+        drawGrid();
+        updateMetrics(collectRisks());
+        drawSparkline();
+      }
+
+      function togglePause() {
+        if (intervalId) {
+          clearInterval(intervalId);
+          intervalId = null;
+          controls.pauseBtn.textContent = "Resume";
+        } else {
+          startLoop();
+          controls.pauseBtn.textContent = "Pause";
+        }
+      }
+
+      function startLoop() {
+        if (intervalId) clearInterval(intervalId);
+        intervalId = setInterval(tickSimulation, params.tickSpeed);
+      }
+
+      function bindControls() {
+        controls.legitimacy.addEventListener("input", event => {
+          params.legitimacy = parseInt(event.target.value, 10) / 100;
+          outputs.legitimacyValue.textContent = params.legitimacy.toFixed(2);
+        });
+        controls.copEffectiveness.addEventListener("input", event => {
+          params.copEffectiveness = parseInt(event.target.value, 10) / 100;
+          outputs.copValue.textContent = params.copEffectiveness.toFixed(2);
+        });
+        controls.fearDecay.addEventListener("input", event => {
+          params.fearDecay = parseInt(event.target.value, 10) / 100;
+          outputs.fearValue.textContent = params.fearDecay.toFixed(2);
+        });
+        controls.radius.addEventListener("input", event => {
+          params.neighborhoodRadius = parseInt(event.target.value, 10);
+          outputs.radiusValue.textContent = params.neighborhoodRadius;
+        });
+        controls.tickSpeed.addEventListener("input", event => {
+          params.tickSpeed = parseInt(event.target.value, 10);
+          outputs.tickValue.textContent = params.tickSpeed;
+          startLoop();
+        });
+        controls.cookBtn.addEventListener("click", triggerCookShock);
+        controls.resetBtn.addEventListener("click", resetSimulation);
+        controls.pauseBtn.addEventListener("click", togglePause);
+      }
+
+      function bindInteraction() {
+        canvas.addEventListener("click", handleCanvasClick);
+        canvas.addEventListener("touchstart", event => {
+          const touch = event.changedTouches[0];
+          handleCanvasClick({ clientX: touch.clientX, clientY: touch.clientY });
+        }, { passive: true });
+        window.addEventListener("resize", () => {
+          drawGrid();
+          drawSparkline();
+        });
+      }
+
+      function bootstrap() {
+        outputs.legitimacyValue.textContent = params.legitimacy.toFixed(2);
+        outputs.copValue.textContent = params.copEffectiveness.toFixed(2);
+        outputs.fearValue.textContent = params.fearDecay.toFixed(2);
+        outputs.radiusValue.textContent = params.neighborhoodRadius;
+        outputs.tickValue.textContent = params.tickSpeed;
+        initGrid();
+        seedPopulation();
+        drawGrid();
+        updateMetrics(collectRisks());
+        drawSparkline();
+        startLoop();
+        bindControls();
+        bindInteraction();
+      }
+
+      bootstrap();
+    })();
+  </script>
+</body>
+</html>

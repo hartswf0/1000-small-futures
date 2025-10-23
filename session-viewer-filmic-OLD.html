@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LEGOS Session Viewer - Filmic Timeline</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #03180c;
+      --panel: #052010;
+      --panel-dark: #03140d;
+      --border: #0c3a23;
+      --border-light: #1b6e3e;
+      --text: #aef3c1;
+      --text-muted: #5ea275;
+      --accent: #56ff9f;
+      --accent-soft: rgba(86, 255, 159, 0.12);
+      --accent-glow: rgba(86, 255, 159, 0.32);
+      --danger: #ff5c7c;
+      --shadow: rgba(0, 0, 0, 0.45);
+      --playhead: #ff3d4e;
+    }
+
+    body {
+      font-family: 'Courier New', monospace;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    body.theme-thousand {
+      --bg: #050507;
+      --panel: rgba(28, 12, 18, 0.92);
+      --panel-dark: rgba(18, 8, 12, 0.92);
+      --border: #2f121a;
+      --border-light: #812934;
+      --text: #f6f2ef;
+      --text-muted: #d3cdc9;
+      --accent: #ff3d4e;
+      --accent-soft: rgba(255, 61, 78, 0.18);
+      --accent-glow: rgba(255, 61, 78, 0.35);
+    }
+
+    .header {
+      background: var(--panel-dark);
+      border-bottom: 2px solid var(--accent);
+      padding: 20px;
+      text-align: center;
+      position: relative;
+      z-index: 100;
+    }
+
+    .header h1 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .header-meta {
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+    }
+
+    .corner-btn {
+      position: fixed;
+      width: 48px;
+      height: 48px;
+      background: var(--panel);
+      border: 2px solid var(--border);
+      border-radius: 50%;
+      color: var(--text-muted);
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      z-index: 1000;
+    }
+
+    .corner-btn:hover {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+      transform: scale(1.1);
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+
+    .corner-btn.top-left { top: 16px; left: 16px; }
+    .corner-btn.top-right { top: 16px; right: 16px; }
+    .corner-btn.bottom-left { bottom: 16px; left: 16px; }
+    .corner-btn.bottom-right { bottom: 16px; right: 16px; }
+
+    .corner-menu {
+      position: fixed;
+      background: var(--panel);
+      border: 2px solid var(--accent);
+      border-radius: 8px;
+      padding: 8px;
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      z-index: 999;
+      box-shadow: 0 8px 24px var(--shadow);
+      min-width: 180px;
+    }
+
+    .corner-menu.visible { display: flex; }
+
+    .corner-menu button {
+      padding: 10px 16px;
+      background: var(--panel-dark);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .corner-menu button:hover {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+
+    .main-content {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .timeline-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--panel-dark);
+    }
+
+    .divider {
+      width: 4px;
+      background: var(--border);
+      cursor: col-resize;
+      position: relative;
+      transition: background 0.2s;
+    }
+
+    .divider:hover,
+    .divider.dragging {
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    .divider::before {
+      content: '⋮';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: var(--text-muted);
+      font-size: 16px;
+      pointer-events: none;
+    }
+
+    .detail-panel {
+      width: 400px;
+      background: var(--panel);
+      border-left: 2px solid var(--border);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .timeline-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--panel);
+    }
+
+    .timeline-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .view-mode {
+      display: flex;
+      gap: 4px;
+    }
+
+    .view-btn {
+      padding: 4px 8px;
+      background: var(--panel-dark);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 9px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-family: inherit;
+    }
+
+    .view-btn:hover,
+    .view-btn.active {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+
+    .timeline-tracks {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 12px;
+    }
+
+    .track {
+      margin-bottom: 20px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .track-header {
+      padding: 10px 12px;
+      background: var(--panel-dark);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+
+    .track-color {
+      width: 4px;
+      height: 24px;
+      border-radius: 2px;
+    }
+
+    .track-name {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .track-meta {
+      margin-left: auto;
+      font-size: 9px;
+      color: var(--text-muted);
+      display: flex;
+      gap: 8px;
+    }
+
+    .track-timeline {
+      padding: 12px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      align-items: center;
+      min-height: 80px;
+    }
+
+    .shot {
+      min-width: 120px;
+      max-width: 200px;
+      background: var(--panel-dark);
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      padding: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .shot::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 3px;
+      background: currentColor;
+    }
+
+    .shot.type-scene { color: var(--accent); }
+    .shot.type-perspective { color: #7d8bff; }
+    .shot.type-snapshot { color: #ffa53d; }
+
+    .shot:hover {
+      border-color: currentColor;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .shot.selected {
+      border-color: currentColor;
+      background: var(--accent-soft);
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+
+    .shot-number {
+      font-size: 8px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .shot-title {
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      line-height: 1.3;
+      color: var(--text);
+    }
+
+    .shot-type {
+      font-size: 8px;
+      padding: 2px 6px;
+      border-radius: 2px;
+      border: 1px solid currentColor;
+      display: inline-block;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .shot-timestamp {
+      font-size: 9px;
+      color: var(--text-muted);
+    }
+
+    .playhead {
+      position: absolute;
+      width: 2px;
+      background: var(--playhead);
+      top: 0;
+      bottom: 0;
+      z-index: 10;
+      pointer-events: none;
+      box-shadow: 0 0 8px var(--playhead);
+    }
+
+    .playhead::before {
+      content: '▼';
+      position: absolute;
+      top: -16px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--playhead);
+      font-size: 12px;
+    }
+
+    .detail-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel-dark);
+    }
+
+    .detail-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .detail-meta {
+      font-size: 10px;
+      color: var(--text-muted);
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .detail-body {
+      padding: 16px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .detail-section {
+      margin-bottom: 20px;
+    }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+
+    .section-content {
+      font-size: 11px;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--panel-dark);
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+
+    .grid-preview {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 2px;
+      margin-top: 8px;
+      background: var(--border);
+      padding: 2px;
+      border-radius: 4px;
+    }
+
+    .grid-cell-preview {
+      aspect-ratio: 1;
+      background: var(--panel-dark);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .grid-cell-preview.occupied {
+      background: var(--panel);
+      color: var(--accent);
+    }
+
+    .footer {
+      background: var(--panel-dark);
+      border-top: 2px solid var(--accent);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      color: var(--text-muted);
+      z-index: 100;
+    }
+
+    .footer-left {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .footer-stat {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .footer-number {
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .timecode {
+      font-family: 'Courier New', monospace;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+    }
+
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      padding: 40px;
+    }
+
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .empty-text {
+      margin-bottom: 20px;
+      font-size: 12px;
+    }
+
+    .load-btn {
+      padding: 12px 24px;
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: all 0.2s;
+    }
+
+    .load-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px var(--accent-glow);
+    }
+
+    @media (max-width: 900px) {
+      .detail-panel {
+        display: none;
+      }
+      .divider {
+        display: none;
+      }
+      .corner-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>◉ LEGOS SESSION VIEWER • FILMIC TIMELINE</h1>
+    <div class="header-meta" id="headerMeta">No session loaded</div>
+  </div>
+
+  <button class="corner-btn top-left" id="cornerLoad" title="Load Session">◎</button>
+  <button class="corner-btn top-right" id="cornerHelp" title="Help">?</button>
+  <button class="corner-btn bottom-left" id="cornerView" title="View Mode">▦</button>
+  <button class="corner-btn bottom-right" id="cornerTheme" title="Toggle Theme">◐</button>
+
+  <div class="corner-menu" id="loadMenu" style="top: 72px; left: 16px;">
+    <button data-action="load-file">LOAD JSON FILE</button>
+    <button data-action="load-sample-ring">SAMPLE: RING MEMORY</button>
+    <button data-action="load-sample-multi">SAMPLE: MULTI-CHANNEL</button>
+  </div>
+
+  <div class="corner-menu" id="helpMenu" style="top: 72px; right: 16px;">
+    <button data-action="about">ABOUT FILMIC VIEWER</button>
+    <button data-action="shortcuts">KEYBOARD SHORTCUTS</button>
+  </div>
+
+  <div class="main-content">
+    <div class="timeline-panel">
+      <div class="timeline-header">
+        <div class="timeline-title">◉ Timeline</div>
+        <div class="view-mode">
+          <button class="view-btn active" data-view="tracks">Tracks</button>
+          <button class="view-btn" data-view="storyboard">Storyboard</button>
+          <button class="view-btn" data-view="script">Script</button>
+        </div>
+      </div>
+      
+      <div class="timeline-tracks" id="timelineTracks">
+        <div class="empty-state">
+          <div class="empty-icon">◎</div>
+          <div class="empty-text">No session loaded</div>
+          <button class="load-btn" onclick="document.getElementById('fileInput').click()">LOAD JSON FILE</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider" id="divider"></div>
+
+    <div class="detail-panel" id="detailPanel">
+      <div class="detail-header">
+        <div class="detail-title">Shot Details</div>
+        <div class="detail-meta">Select a shot to view details</div>
+      </div>
+      <div class="detail-body" id="detailBody">
+        <div style="padding: 40px; text-align: center; color: var(--text-muted); font-size: 11px;">
+          Click any shot on the timeline to see details
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-left">
+      <div class="footer-stat">
+        <span class="footer-number" id="trackCount">0</span>
+        <span>Tracks</span>
+      </div>
+      <div class="footer-stat">
+        <span class="footer-number" id="shotCount">0</span>
+        <span>Shots</span>
+      </div>
+      <div class="footer-stat">
+        <span class="timecode" id="timecode">00:00:00:00</span>
+      </div>
+    </div>
+    <div>LEGOS FILMIC TIMELINE · TETRAD SYSTEMS</div>
+  </div>
+
+  <input type="file" id="fileInput" accept=".json" hidden>
+
+  <script src="session-viewer-filmic.js"></script>
+</body>
+</html>

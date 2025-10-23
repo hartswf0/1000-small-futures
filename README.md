@@ -1,21 +1,79 @@
-# 1000-small-futures
+◎ 1000 Small Futures
 
-> **Tagline:** *An AI turtle thinks out loud. The room answers.*
+> **Tagline:** *Tools for thinking about media, narrative, belief, and culture*
 
-A live, infinite-duration simulation at domestic scale. A single agent—**Thousand**, an interpretable AI “turtle”—navigates a cluttered apartment world, exposing **belief**, **motive**, and **prediction error** via on-screen telemetry. No script, no fixed ending—just **learning as cinema**.
+**LEGOS Framework** (Legible Emergent Generative Ontological Systems) — A collection of 14 computational engines for tetrad analysis, ring memory, temporal reasoning, and belief formation. Built as **anti-tools**: single-file HTML artifacts that expose their operations, invite modification, and resist extraction.
+
+**Status**: Operational, evolving | **Latest**: [OLOG #001](OLOG_2025_10_23.md) (2025.10.23)
 
 ---
 
 ## Overview
 
-**1000-small-futures** is a room-scale, real-time simulation of a turtle-agent named *Thousand*. Each tick, Thousand *perceives* nearby objects, *infers relevance*, updates a *belief map*, selects a *motive* given competing *drives*, *acts* with minimal movement, then measures *prediction error* to revise beliefs—or mint a new sub-goal. Periodic environmental “answers” (light/heat cycles, clutter shifts, a human visitor) perturb the routine. Telemetry panels reveal what the agent believes, intends, and learns, transforming behavior into an **auditably intelligible story**.
+**1000 Small Futures** is a research project exploring computational tools that resist their own instrumentalization. We build **thinking instruments**—not apps, not products, but **media for analysis** that expose rather than conceal their operations.
 
-* **Design thesis:** If cultural AIs are to share our spaces, their **reasons** should be inspectable. This project prototypes **legible autonomy**.
-* **Theory:** Inspired by Katherine Hayles’ **technogenesis** (humans + technics co-evolving): the turtle adapts to the room; the room *adapts the turtle back*—a domestic mind–media assemblage.
+### Core Components
+
+1. **Ring Memory System** (`thousand-ring.html`) — Circular buffer with graceful degradation, temporal indexing, "chat across time" queries
+2. **Tetrad Analyzer** (`thousand-tetrad.html`) — McLuhan's Four Laws engine with 57 scenarios across 12 categories
+3. **Belief Formation Simulator** (`thousand-lives.html`) — Agent-based model applying Bret Victor's "Media for Thinking the Unthinkable"
+4. **Session Viewer** (`session-viewer-filmic.html`) — Spatio-temporal control surface for navigating LEGOS sessions
+5. **Cartridge Browser** (`CARTRIDGE_BROWSER.html`) — Scenario navigation with retro game aesthetic
+
+### Design Principles
+
+* **Tools should expose their operations** — No black boxes, clear code, visible telemetry
+* **Interfaces should invite modification** — Single-file HTML, forkable, hackable, remixable
+* **Computation should know its limits** — Memory-aware, graceful degradation, adaptive capacity
+* **Documentation should be theory** — Every document makes claims, asks questions, generates insight
 
 ---
 
-## Core Principles (grounded in exhibition and production design)
+## Quick Start
+
+```bash
+# Clone the repository
+git clone https://github.com/[username]/1000-small-futures.git
+cd 1000-small-futures
+
+# Open the project manifest
+open index.html
+
+# Or open any engine directly
+open thousand-ring.html      # Ring memory system
+open thousand-tetrad.html    # Tetrad analyzer
+open thousand-lives.html     # Belief simulator
+```
+
+**No build step required.** All engines are single-file HTML with embedded CSS and JavaScript.
+
+---
+
+## Documentation
+
+* **[OLOG #001](OLOG_2025_10_23.md)** — Synthetic anthropology field note (State of the Union)
+* **[Scenario Library](SCENARIO_LIBRARY_DOCS.md)** — Complete documentation of 57 scenarios
+* **[Data Architecture](DATA_ARCHITECTURE.md)** — System architecture and design decisions
+* **[Ring Buffer Summary](THOUSAND_RING_SUMMARY.md)** — Ring memory system documentation
+* **[Viewer Redesign](VIEWER_REDESIGN.md)** — Session viewer redesign notes
+
+---
+
+## Theoretical Substrate
+
+### McLuhan's Four Laws (Applied to This Project)
+
+**ENHANCES**: Thinking about media effects, recursive analysis, temporal reasoning, multi-channel narrative tracking
+
+**OBSOLESCES**: Linear documentation, passive log viewing, single-perspective analysis, static knowledge bases
+
+**RETRIEVES**: Oral tradition's circularity (ring buffer), film editing's tactile control (timeline scrubber), game cartridge's modularity (scenario system), field notes' observational stance (OLOG)
+
+**REVERSES INTO**: Tools that resist toolification, software that exposes its seams, interfaces that invite modification, documentation that's also theory
+
+---
+
+## Original Inspiration (Thousand Lives Simulation)
 
 ### 1) World / Environment Structure
 
@@ -161,8 +219,48 @@ Perceive → InferRelevance → UpdateBeliefs → SelectMotive → PlanMinimalAc
 
 ---
 
+## Project Status
+
+**Active Engines**: 14  
+**Documentation**: 9 files  
+**Latest Update**: 2025.10.23.05:36 UTC-04:00  
+**Status**: Operational, evolving
+
+### Recent Changes
+
+* **2025.10.23** — Ring buffer infinite recursion bug fixed, session viewer redesign in progress
+* **2025.10.22** — Tetrad analyzer with 57 scenarios operational
+* **2025.10.21** — Ring memory system integrated with temporal indexing
+
+See [OLOG #001](OLOG_2025_10_23.md) for complete field notes.
+
+---
+
+## Contributing
+
+This is a research project, not a product. Contributions should:
+
+1. **Expose operations** (no black boxes)
+2. **Invite modification** (clear, hackable code)
+3. **Generate theory** (documentation as ontology)
+4. **Resist extraction** (local-first, no tracking)
+
+Fork freely. Remix wildly. Question everything.
+
+---
+
 ## License
 
-* Code: MIT (suggested)
-* Docs: CC BY-NC-SA 4.0 (suggested)
-* Replace with your preferred licenses as needed.
+* Code: MIT
+* Documentation: CC BY-NC-SA 4.0
+* OLOG format: Public domain
+
+---
+
+## Contact
+
+This is a living project. The code is the theory. The interface is the argument. The system is the claim.
+
+**Next OLOG**: TBD (when significant changes occur)
+
+◎ ⋈ ▶ ⋔

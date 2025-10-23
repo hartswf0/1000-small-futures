@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>LEGOS Tutorial</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='80'>✦</text></svg>">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #03180c;
+      --panel: #052010;
+      --panel-dark: #03140d;
+      --border: #0c3a23;
+      --border-light: #1b6e3e;
+      --text: #aef3c1;
+      --text-muted: #5ea275;
+      --accent: #56ff9f;
+      --accent-soft: rgba(86, 255, 159, 0.12);
+      --accent-glow: rgba(86, 255, 159, 0.32);
+    }
+
+    body {
+      font-family: 'Courier New', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .header {
+      background: var(--panel-dark);
+      border-bottom: 2px solid var(--accent);
+      padding: 20px;
+      text-align: center;
+      position: relative;
+      z-index: 100;
+    }
+
+    .header h1 {
+      font-size: 18px;
+      letter-spacing: 0.3em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .header .subtitle {
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .corner-btn {
+      position: fixed;
+      width: 48px;
+      height: 48px;
+      background: var(--panel);
+      border: 2px solid var(--border);
+      border-radius: 50%;
+      color: var(--text-muted);
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      z-index: 1000;
+    }
+
+    .corner-btn:hover {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+      transform: scale(1.1);
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+
+    .corner-btn.top-left { top: 16px; left: 16px; }
+    .corner-btn.top-right { top: 16px; right: 16px; }
+    .corner-btn.bottom-left { bottom: 16px; left: 16px; }
+    .corner-btn.bottom-right { bottom: 16px; right: 16px; }
+
+    .main-content {
+      flex: 1;
+      display: flex;
+      gap: 20px;
+      padding: 20px;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    @media (max-width: 900px) {
+      .main-content {
+        flex-direction: column;
+      }
+      .corner-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+      }
+    }
+
+    .grid-section {
+      flex: 1;
+      background: var(--panel);
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      min-height: 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      grid-template-rows: repeat(9, 1fr);
+      gap: 3px;
+      width: min(400px, 90vw);
+      aspect-ratio: 1;
+    }
+
+    .grid-cell {
+      background: var(--panel-dark);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-muted);
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+
+    .grid-cell.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: 0 0 12px var(--accent-glow);
+      transform: scale(1.1);
+    }
+
+    .chat-section {
+      flex: 1;
+      background: var(--panel);
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      min-width: 0;
+      max-height: 100%;
+    }
+
+    .message {
+      background: var(--panel-dark);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 4px;
+      padding: 16px;
+      animation: messageSlide 0.4s ease-out;
+    }
+
+    @keyframes messageSlide {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .message-role {
+      font-size: 8px;
+      letter-spacing: 0.2em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .message-text {
+      font-size: 12px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .controls {
+      background: var(--panel-dark);
+      border-top: 2px solid var(--accent);
+      padding: 16px 20px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .progress {
+      flex: 1;
+      max-width: 400px;
+      text-align: center;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      color: var(--text-muted);
+    }
+
+    .progress-bar {
+      height: 4px;
+      background: var(--panel-dark);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      transition: width 0.5s ease;
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    .btn {
+      padding: 12px 24px;
+      background: var(--panel-dark);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+
+    .input-group {
+      display: flex;
+      gap: 8px;
+      padding: 12px;
+      background: var(--panel-dark);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+
+    input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 12px;
+      outline: none;
+    }
+
+    input::placeholder {
+      color: var(--text-muted);
+      opacity: 0.5;
+    }
+
+    .completion-screen {
+      display: none;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .completion-screen.active {
+      display: block;
+    }
+
+    .completion-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+      filter: drop-shadow(0 0 20px var(--accent));
+    }
+
+    .completion-title {
+      font-size: 24px;
+      letter-spacing: 0.3em;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    .completion-text {
+      font-size: 12px;
+      line-height: 1.8;
+      color: var(--text);
+      max-width: 500px;
+      margin: 0 auto 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>✦ LEGOS TUTORIAL</h1>
+    <div class="subtitle">Interactive Learning System</div>
+  </div>
+
+  <button class="corner-btn top-left" id="cornerReset" title="Reset Tutorial">↺</button>
+  <button class="corner-btn top-right" id="cornerHelp" title="Help">?</button>
+  <button class="corner-btn bottom-left" id="cornerBack" title="Previous Step">←</button>
+  <button class="corner-btn bottom-right" id="cornerNext" title="Next Step">→</button>
+
+  <div class="main-content" id="mainContent">
+      <div class="grid-section">
+        <div class="grid" id="grid"></div>
+      </div>
+
+      <div class="chat-section" id="chatSection"></div>
+    </div>
+
+    <div class="completion-screen" id="completionScreen">
+      <div class="completion-icon">✦</div>
+      <div class="completion-title">TUTORIAL COMPLETE</div>
+      <div class="completion-text">
+        You've learned LEGOS:<br><br>
+        L - Location<br>
+        E - Entity<br>
+        G - Goal<br>
+        O - Obstacle<br>
+        S - Shift<br>
+        U - Solution<br><br>
+        Ready to create stories!
+      </div>
+      <button class="btn btn-primary" onclick="window.location.href='thousand-medical.html'">
+        LAUNCH LEGOS
+      </button>
+    </div>
+
+  <div class="controls">
+    <div class="progress">
+      <div id="progressText">Step 0/8</div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tutorial state
+    let currentStep = 0;
+    const totalSteps = 8;
+
+    // Tutorial steps data
+    const steps = [
+      {
+        letter: 'L',
+        name: 'LOCATION',
+        pattern: [[1,0],[1,1],[1,2],[1,3],[1,4],[1,5],[2,5],[3,5],[4,5]],
+        message: `STEP 1: LOCATION
+
+The grid is your narrative canvas.
+Each cell can hold a story element.
+
+The "L" pattern represents LOCATIONS -
+where your story takes place.
+
+→ Click NEXT to continue`
+      },
+      {
+        letter: 'E',
+        name: 'ENTITY',
+        pattern: [[0,0],[1,0],[2,0],[3,0],[0,1],[0,2],[1,2],[2,2],[0,3],[0,4],[1,4],[2,4],[3,4]],
+        message: `STEP 2: ENTITY
+
+Entities are characters, objects, and ideas.
+Each has a unique perspective.
+
+The "E" shows how entities populate your grid,
+bringing life to locations.
+
+→ Click NEXT to continue`
+      },
+      {
+        letter: 'G',
+        name: 'GOAL',
+        pattern: [[1,0],[2,0],[3,0],[4,0],[0,1],[0,2],[0,3],[2,3],[3,3],[4,4],[3,4],[2,4],[1,4]],
+        message: `STEP 3: GOAL
+
+Goals drive narratives forward.
+They create tension and purpose.
+
+What do your entities want?
+Goals give direction to the story.
+
+→ Click NEXT to continue`
+      },
+      {
+        letter: 'O',
+        name: 'OBSTACLE',
+        pattern: [[1,0],[2,0],[3,0],[0,1],[4,1],[0,2],[4,2],[0,3],[4,3],[0,4],[4,4],[1,5],[2,5],[3,5]],
+        message: `STEP 4: OBSTACLE
+
+Obstacles create conflict.
+They test characters and create drama.
+
+Without obstacles, there's no story.
+They make goals meaningful.
+
+→ Click NEXT to continue`
+      },
+      {
+        letter: 'S',
+        name: 'SHIFT',
+        pattern: [[4,0],[5,0],[6,0],[7,0],[4,1],[4,2],[5,2],[6,2],[7,3],[7,4],[4,4],[5,4],[6,4]],
+        message: `STEP 5: SHIFT
+
+Shifts transform the story.
+Reversals, revelations, discoveries.
+
+These are the moments that change everything -
+plot twists and turning points.
+
+→ Click NEXT to continue`
+      },
+      {
+        letter: 'U',
+        name: 'SOLUTION',
+        pattern: [[5,0],[7,0],[5,1],[7,1],[5,2],[7,2],[5,3],[7,3],[5,4],[7,4],[6,5],[7,5]],
+        message: `STEP 6: SOLUTION
+
+Solutions resolve conflicts.
+They complete narrative arcs.
+
+How does your story end?
+Solutions bring closure.
+
+→ Click NEXT to continue`
+      },
+      {
+        letter: 'ALL',
+        name: 'LEGOS COMPLETE',
+        pattern: [
+          [0,0],[0,1],[0,2],[0,3],[0,4],[1,4], // L
+          [2,0],[3,0],[4,0],[2,1],[2,2],[3,2],[2,3],[2,4],[3,4],[4,4], // E
+          [5,0],[6,0],[7,0],[5,1],[5,2],[6,2],[7,3],[6,4],[5,4], // G
+          [0,5],[1,5],[2,5],[0,6],[2,6],[0,7],[2,7],[0,8],[1,8],[2,8], // O
+          [3,5],[4,5],[5,5],[3,6],[4,6],[5,6],[6,7],[6,8],[3,8],[4,8],[5,8], // S
+          [7,5],[8,5],[7,6],[8,6],[7,7],[8,7],[7,8] // U
+        ],
+        message: `STEP 7: LEGOS TOGETHER
+
+You've learned all six elements:
+
+L - Location  (where)
+E - Entity    (who/what)  
+G - Goal      (desire)
+O - Obstacle  (challenge)
+S - Shift     (transformation)
+U - Solution  (resolution)
+
+These are the building blocks of any story.
+
+→ Click NEXT to finish`
+      },
+      {
+        letter: '✦',
+        name: 'COMPLETE',
+        pattern: [[4,4]],
+        message: `TUTORIAL COMPLETE
+
+You now know LEGOS!
+
+Ready to create your own stories.
+Launch the full application to begin.
+
+✦`
+      }
+    ];
+
+    // Initialize grid
+    function initGrid() {
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+      for (let i = 0; i < 81; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'grid-cell';
+        cell.dataset.index = i;
+        grid.appendChild(cell);
+      }
+    }
+
+    // Clear grid
+    function clearGrid() {
+      document.querySelectorAll('.grid-cell').forEach(cell => {
+        cell.classList.remove('active');
+        cell.textContent = '';
+      });
+    }
+
+    // Draw pattern on grid
+    function drawPattern(pattern, letter) {
+      clearGrid();
+      pattern.forEach(([x, y]) => {
+        const index = y * 9 + x;
+        const cell = document.querySelector(`.grid-cell[data-index="${index}"]`);
+        if (cell) {
+          cell.classList.add('active');
+          if (letter && letter !== 'ALL') {
+            cell.textContent = letter;
+          }
+        }
+      });
+    }
+
+    // Add message to chat
+    function addMessage(text, role = 'system') {
+      const chatSection = document.getElementById('chatSection');
+      const message = document.createElement('div');
+      message.className = 'message';
+      
+      const roleDiv = document.createElement('div');
+      roleDiv.className = 'message-role';
+      roleDiv.textContent = role;
+      
+      const textDiv = document.createElement('div');
+      textDiv.className = 'message-text';
+      textDiv.textContent = text;
+      
+      message.appendChild(roleDiv);
+      message.appendChild(textDiv);
+      chatSection.appendChild(message);
+      
+      // Scroll to bottom
+      chatSection.scrollTop = chatSection.scrollHeight;
+    }
+
+    // Show step
+    function showStep(index) {
+      if (index < 0 || index >= steps.length) return;
+      
+      currentStep = index;
+      const step = steps[index];
+      
+      // Draw pattern
+      drawPattern(step.pattern, step.letter);
+      
+      // Add message
+      addMessage(step.message);
+      
+      // Update progress
+      updateProgress();
+      
+      // Check if complete
+      if (index === totalSteps) {
+        setTimeout(() => {
+          document.getElementById('mainContent').style.display = 'none';
+          document.getElementById('completionScreen').classList.add('active');
+        }, 1000);
+      }
+    }
+
+    // Corner button navigation
+    document.getElementById('cornerNext').addEventListener('click', () => {
+      if (currentStep < totalSteps) {
+        showStep(currentStep + 1);
+      }
+    });
+
+    document.getElementById('cornerBack').addEventListener('click', () => {
+      if (currentStep > 0) {
+        showStep(currentStep - 1);
+      }
+    });
+
+    document.getElementById('cornerReset').addEventListener('click', () => {
+      if (confirm('Reset tutorial? This will start over from the beginning.')) {
+        document.getElementById('chatSection').innerHTML = '';
+        currentStep = 0;
+        initGrid();
+        addMessage(`Welcome to LEGOS Tutorial
+
+Learn the six narrative elements:
+L E G O S U
+
+Each element will appear on the grid.
+
+→ Click → (bottom-right) to begin`);
+        updateProgress();
+      }
+    });
+
+    document.getElementById('cornerHelp').addEventListener('click', () => {
+      addMessage(`HELP
+
+Corner Buttons:
+↺ (top-left) - Reset tutorial
+? (top-right) - This help message
+← (bottom-left) - Previous step
+→ (bottom-right) - Next step
+
+Keyboard:
+← / → Arrow keys also work
+
+LEGOS Elements:
+L - Location (where)
+E - Entity (who/what)
+G - Goal (desire)
+O - Obstacle (challenge)
+S - Shift (transformation)
+U - Solution (resolution)`, 'help');
+    });
+
+    // Update progress to disable/enable corner buttons
+    function updateProgress() {
+      const percent = (currentStep / totalSteps) * 100;
+      document.getElementById('progressText').textContent = `Step ${currentStep}/${totalSteps}`;
+      document.getElementById('progressFill').style.width = `${percent}%`;
+      
+      // Update corner button states
+      const backBtn = document.getElementById('cornerBack');
+      const nextBtn = document.getElementById('cornerNext');
+      
+      if (currentStep === 0) {
+        backBtn.style.opacity = '0.3';
+        backBtn.style.cursor = 'not-allowed';
+      } else {
+        backBtn.style.opacity = '1';
+        backBtn.style.cursor = 'pointer';
+      }
+      
+      if (currentStep >= totalSteps) {
+        nextBtn.style.opacity = '0.3';
+        nextBtn.style.cursor = 'not-allowed';
+      } else {
+        nextBtn.style.opacity = '1';
+        nextBtn.style.cursor = 'pointer';
+      }
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' && currentStep < totalSteps) {
+        showStep(currentStep + 1);
+      } else if (e.key === 'ArrowLeft' && currentStep > 0) {
+        showStep(currentStep - 1);
+      }
+    });
+
+    // Initialize
+    initGrid();
+    addMessage(`Welcome to LEGOS Tutorial
+
+Learn the six narrative elements:
+L E G O S U
+
+Each element will appear on the grid.
+
+→ Click → (bottom-right) to begin`);
+    updateProgress();
+  </script>
+</body>
+</html>

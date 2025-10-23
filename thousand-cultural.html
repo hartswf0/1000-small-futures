@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cultural Dynamics Engine</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Courier New', monospace;
+      background: #0a0514;
+      color: #e8d8ff;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .container { max-width: 1600px; margin: 0 auto; }
+    h1 { color: #b488ff; border-bottom: 2px solid #3a1a50; padding-bottom: 10px; margin-bottom: 20px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin: 20px 0; }
+    .layer-card {
+      background: rgba(58, 26, 80, 0.3);
+      border: 2px solid #3a1a50;
+      border-radius: 8px;
+      padding: 20px;
+    }
+    .layer1 { border-color: #4a90e2; }
+    .layer2 { border-color: #e24a90; }
+    .layer3 { border-color: #90e24a; }
+    .layer-title {
+      font-weight: bold;
+      font-size: 1.1em;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+    .layer1 .layer-title { color: #4a90e2; }
+    .layer2 .layer-title { color: #e24a90; }
+    .layer3 .layer-title { color: #90e24a; }
+    .prob-bar {
+      width: 100%;
+      height: 24px;
+      background: rgba(20, 10, 28, 0.6);
+      border: 1px solid #3a1a50;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 5px 0;
+    }
+    .prob-fill {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85em;
+      font-weight: bold;
+      transition: width 0.5s ease;
+    }
+    .layer1 .prob-fill { background: linear-gradient(90deg, #2a5aa2, #4a90e2); }
+    .layer2 .prob-fill { background: linear-gradient(90deg, #a22a5a, #e24a90); }
+    .layer3 .prob-fill { background: linear-gradient(90deg, #5aa22a, #90e24a); }
+    .controls {
+      background: rgba(28, 12, 18, 0.5);
+      border: 1px solid #3a1a50;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    button {
+      background: #b488ff;
+      color: #0a0514;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: bold;
+      margin: 5px;
+    }
+    button:hover { background: #d4b0ff; }
+    button.crisis { background: #ff6a8a; color: white; }
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin: 10px 0;
+    }
+    input[type="range"] {
+      flex: 1;
+      height: 6px;
+      background: rgba(58, 26, 80, 0.5);
+      border-radius: 3px;
+    }
+    .slider-value {
+      min-width: 60px;
+      text-align: right;
+      color: #b488ff;
+      font-weight: bold;
+    }
+    .event-log {
+      background: rgba(20, 10, 28, 0.6);
+      border: 1px solid #3a1a50;
+      border-radius: 8px;
+      padding: 20px;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    .event {
+      margin: 10px 0;
+      padding: 12px;
+      background: rgba(58, 26, 80, 0.3);
+      border-left: 3px solid #6a3a90;
+      border-radius: 3px;
+    }
+    .event.crisis {
+      border-left-color: #ff6a8a;
+      background: rgba(255, 106, 138, 0.1);
+    }
+    @media (max-width: 1024px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>◈ CULTURAL DYNAMICS ENGINE</h1>
+    <p style="color: #b8a8d0; margin-bottom: 20px;">
+      Three-Layer Bayesian Simulation: 
+      <span style="color: #4a90e2;">PRAGMATIC</span> · 
+      <span style="color: #e24a90;">STRUCTURAL</span> · 
+      <span style="color: #90e24a;">REFLEXIVE</span>
+    </p>
+
+    <div class="controls">
+      <h3>Scenario</h3>
+      <select id="scenario" onchange="loadScenario()">
+        <option value="cook">Captain Cook in Hawaii (1779)</option>
+        <option value="cargo">Cargo Cult Formation</option>
+        <option value="jesuit">Jesuit-Huron Contact</option>
+        <option value="pollution">Pollution Crisis</option>
+      </select>
+      <button onclick="reset()">Reset</button>
+    </div>
+
+    <div id="scenario-info" style="background: rgba(138, 255, 170, 0.1); border-left: 4px solid #8affaa; padding: 15px; margin: 20px 0; border-radius: 4px;"></div>
+
+    <div class="controls">
+      <h3>Interpretive Framework (Layer Weights)</h3>
+      <div class="slider-container">
+        <label style="width: 150px;">PRAGMATIC</label>
+        <input type="range" id="w1" min="0" max="100" value="33" oninput="updateWeights()">
+        <span class="slider-value" id="v1">33%</span>
+      </div>
+      <div class="slider-container">
+        <label style="width: 150px;">STRUCTURAL</label>
+        <input type="range" id="w2" min="0" max="100" value="33" oninput="updateWeights()">
+        <span class="slider-value" id="v2">33%</span>
+      </div>
+      <div class="slider-container">
+        <label style="width: 150px;">REFLEXIVE</label>
+        <input type="range" id="w3" min="0" max="100" value="34" oninput="updateWeights()">
+        <span class="slider-value" id="v3">34%</span>
+      </div>
+      <button onclick="preset('obey')">Obeyesekere (70/20/10)</button>
+      <button onclick="preset('sah')">Sahlins (10/70/20)</button>
+      <button onclick="preset('gee')">Geertz (20/20/60)</button>
+    </div>
+
+    <div class="grid">
+      <div class="layer-card layer1">
+        <div class="layer-title">Layer 1: Pragmatic</div>
+        <p style="font-size: 0.85em; color: #b8a8d0; margin-bottom: 15px;">
+          Action generates meaning. Utility maximization.
+        </p>
+        <div id="pragmatic-metrics"></div>
+      </div>
+
+      <div class="layer-card layer2">
+        <div class="layer-title">Layer 2: Structural</div>
+        <p style="font-size: 0.85em; color: #b8a8d0; margin-bottom: 15px;">
+          Meaning precedes action. Symbolic coherence.
+        </p>
+        <div id="structural-metrics"></div>
+      </div>
+
+      <div class="layer-card layer3">
+        <div class="layer-title">Layer 3: Reflexive</div>
+        <p style="font-size: 0.85em; color: #b8a8d0; margin-bottom: 15px;">
+          Observation modifies execution. Recursive interpretation.
+        </p>
+        <div id="reflexive-metrics"></div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <h3>Events</h3>
+      <div id="event-buttons"></div>
+    </div>
+
+    <h3 style="margin-top: 30px;">Event Timeline</h3>
+    <div class="event-log" id="log"></div>
+  </div>
+
+  <script>
+    const state = {
+      scenario: 'cook',
+      turn: 0,
+      weights: { p: 0.33, s: 0.33, r: 0.34 },
+      layers: {
+        p: { util1: 0.6, util2: 0.7, belief1: 0.85, belief2: 0.75 },
+        s: { coherence: 0.7, balance: 0.7, tension: 0.3 },
+        r: { gap: 0.6, recognition: 0.4, meta: 0.65 }
+      }
+    };
+
+    const scenarios = {
+      cook: {
+        name: 'Captain Cook in Hawaii (1779)',
+        desc: 'European explorers encounter Hawaiian society during Makahiki season.',
+        events: [
+          { id: 'arrival', name: 'Arrival (Makahiki)', handler: e_arrival },
+          { id: 'stay', name: 'Extended Stay', handler: e_stay },
+          { id: 'depart', name: 'Departure', handler: e_depart },
+          { id: 'return', name: 'RETURN (Crisis)', handler: e_return, crisis: true }
+        ]
+      },
+      cargo: {
+        name: 'Cargo Cult Formation',
+        desc: 'Melanesians observe correlation between military rituals and cargo arrival.',
+        events: [
+          { id: 'observe', name: 'Observe Planes', handler: e_generic },
+          { id: 'correlate', name: 'Notice Correlation', handler: e_generic },
+          { id: 'withdraw', name: 'Military Withdraws', handler: e_generic },
+          { id: 'ritual', name: 'Ritual Innovation', handler: e_generic }
+        ]
+      },
+      jesuit: {
+        name: 'Jesuit-Huron Contact (1630s)',
+        desc: 'Missionary encounter during smallpox epidemic.',
+        events: [
+          { id: 'arrive', name: 'Jesuits Arrive', handler: e_generic },
+          { id: 'epidemic', name: 'Epidemic Begins', handler: e_generic },
+          { id: 'baptism', name: 'Baptisms', handler: e_generic },
+          { id: 'accusation', name: 'Sorcery Accusations', handler: e_generic }
+        ]
+      },
+      pollution: {
+        name: 'Pollution Crisis',
+        desc: 'Taboo violation creates cosmological disorder.',
+        events: [
+          { id: 'violation', name: 'Taboo Violated', handler: e_generic },
+          { id: 'spread', name: 'Pollution Spreads', handler: e_generic },
+          { id: 'debate', name: 'Frame Conflict', handler: e_generic },
+          { id: 'resolve', name: 'Resolution Attempt', handler: e_generic }
+        ]
+      }
+    };
+
+    function loadScenario() {
+      state.scenario = document.getElementById('scenario').value;
+      reset();
+    }
+
+    function reset() {
+      state.turn = 0;
+      state.layers = {
+        p: { util1: 0.6, util2: 0.7, belief1: 0.85, belief2: 0.75 },
+        s: { coherence: 0.7, balance: 0.7, tension: 0.3 },
+        r: { gap: 0.6, recognition: 0.4, meta: 0.65 }
+      };
+      document.getElementById('log').innerHTML = '';
+      render();
+      log('Simulation Reset', scenarios[state.scenario].name + ' loaded.');
+    }
+
+    function preset(type) {
+      const presets = {
+        obey: [70, 20, 10],
+        sah: [10, 70, 20],
+        gee: [20, 20, 60]
+      };
+      const [p,s,r] = presets[type];
+      document.getElementById('w1').value = p;
+      document.getElementById('w2').value = s;
+      document.getElementById('w3').value = r;
+      updateWeights();
+      log('Preset Applied', type.toUpperCase() + ` framework (${p}/${s}/${r})`);
+    }
+
+    function updateWeights() {
+      const p = parseInt(document.getElementById('w1').value);
+      const s = parseInt(document.getElementById('w2').value);
+      const r = parseInt(document.getElementById('w3').value);
+      const t = p + s + r;
+      state.weights = { p: p/t, s: s/t, r: r/t };
+      document.getElementById('v1').textContent = Math.round(state.weights.p * 100) + '%';
+      document.getElementById('v2').textContent = Math.round(state.weights.s * 100) + '%';
+      document.getElementById('v3').textContent = Math.round(state.weights.r * 100) + '%';
+      state.layers.r.meta = 0.5 + (Math.min(state.weights.p, state.weights.s, state.weights.r) / 0.33) * 0.3;
+      render();
+    }
+
+    function e_arrival() {
+      state.layers.p = { util1: 0.75, util2: 0.80, belief1: 0.85, belief2: 0.80 };
+      state.layers.s = { coherence: 0.90, balance: 0.85, tension: 0.15 };
+      state.layers.r = { gap: 0.50, recognition: 0.60, meta: 0.75 };
+      log('Arrival During Makahiki', 'Ships arrive during sacred season. Perfect symbolic fit.', false);
+    }
+
+    function e_stay() {
+      state.layers.p = { util1: 0.70, util2: 0.60, belief1: 0.70, belief2: 0.65 };
+      state.layers.s = { coherence: 0.70, balance: 0.65, tension: 0.45 };
+      state.layers.r = { gap: 0.65, recognition: 0.50, meta: 0.60 };
+      log('Extended Stay', 'Resources strain. Symbolic cycle should end. Tension builds.', false);
+    }
+
+    function e_depart() {
+      state.layers.p = { util1: 0.85, util2: 0.90, belief1: 0.95, belief2: 0.90 };
+      state.layers.s = { coherence: 0.95, balance: 0.95, tension: 0.05 };
+      state.layers.r = { gap: 0.40, recognition: 0.70, meta: 0.85 };
+      log('Departure', 'Cosmological cycle completes perfectly. Both groups satisfied.', false);
+    }
+
+    function e_return() {
+      state.layers.p = { util1: 0.40, util2: 0.25, belief1: 0.15, belief2: 0.30 };
+      state.layers.s = { coherence: 0.15, balance: 0.10, tension: 0.95 };
+      state.layers.r = { gap: 0.90, recognition: 0.10, meta: 0.20 };
+      log('RETURN IN WRONG SEASON', 'SYMBOLIC CRISIS: Cook no longer Lono. Interpretive collapse. Violence emerges from tri-layer misalignment.', true);
+    }
+
+    function e_generic() {
+      state.layers.p.util1 = Math.max(0, Math.min(1, state.layers.p.util1 + (Math.random()-0.5)*0.2));
+      state.layers.s.coherence = Math.max(0, Math.min(1, state.layers.s.coherence + (Math.random()-0.5)*0.2));
+      state.layers.r.gap = Math.max(0, Math.min(1, state.layers.r.gap + (Math.random()-0.5)*0.2));
+      log('Event', 'Scenario progresses...');
+    }
+
+    function log(title, desc, crisis = false) {
+      state.turn++;
+      const div = document.createElement('div');
+      div.className = 'event' + (crisis ? ' crisis' : '');
+      div.innerHTML = `
+        <div style="font-size: 0.85em; color: #b8a8d0;">Turn ${state.turn}</div>
+        <div style="font-weight: bold; color: ${crisis ? '#ff6a8a' : '#b488ff'}; margin: 5px 0;">${title}</div>
+        <div>${desc}</div>
+      `;
+      document.getElementById('log').prepend(div);
+    }
+
+    function render() {
+      const sc = scenarios[state.scenario];
+      document.getElementById('scenario-info').innerHTML = `
+        <strong style="color: #8affaa;">${sc.name}</strong><br>${sc.desc}
+      `;
+
+      document.getElementById('event-buttons').innerHTML = sc.events.map(e => 
+        `<button onclick="event_${e.id}()" ${e.crisis ? 'class="crisis"' : ''}>${e.name}</button>`
+      ).join('');
+
+      for(let ev of sc.events) {
+        window['event_' + ev.id] = ev.handler;
+      }
+
+      const p = state.layers.p, s = state.layers.s, r = state.layers.r;
+
+      document.getElementById('pragmatic-metrics').innerHTML = `
+        <div style="margin: 10px 0;">
+          <div style="font-size: 0.9em; color: #b8a8d0;">Actor 1 Utility</div>
+          <div class="prob-bar"><div class="prob-fill" style="width: ${p.util1*100}%">${(p.util1*100).toFixed(0)}%</div></div>
+        </div>
+        <div style="margin: 10px 0;">
+          <div style="font-size: 0.9em; color: #b8a8d0;">Actor 2 Utility</div>
+          <div class="prob-bar"><div class="prob-fill" style="width: ${p.util2*100}%">${(p.util2*100).toFixed(0)}%</div></div>
+        </div>
+        <div style="margin: 10px 0;">
+          <div style="font-size: 0.9em; color: #b8a8d0;">Key Belief (A1)</div>
+          <div class="prob-bar"><div class="prob-fill" style="width: ${p.belief1*100}%">${(p.belief1*100).toFixed(0)}%</div></div>
+        </div>
+      `;
+
+      document.getElementById('structural-metrics').innerHTML = `
+        <div style="margin: 10px 0;">
+          <div style="font-size: 0.9em; color: #b8a8d0;">Symbolic Coherence</div>
+          <div class="prob-bar"><div class="prob-fill" style="width: ${s.coherence*100}%">${(s.coherence*100).toFixed(0)}%</div></div>
+        </div>
+        <div style="margin: 10px 0;">
+          <div style="font-size: 0.9em; color: #b8a8d0;">Cosmological Balance</div>
+          <div class="prob-bar"><div class="prob-fill" style="width: ${s.balance*100}%">${(s.balance*100).toFixed(0)}%</div></div>
+        </div>
+        <div style="margin: 10px 0;">
+          <div style="font-size: 0.9em; color: #b8a8d0;">Ritual Tension</div>
+          <div class="prob-bar"><div class="prob-fill" style="width: ${s.tension*100}%">${(s.tension*100).toFixed(0)}%</div></div>
+        </div>
+      `;
+
+      document.getElementById('reflexive-metrics').innerHTML = `
+        <div style="margin: 10px 0;">
+          <div style="font-size: 0.9em; color: #b8a8d0;">Interpretive Gap</div>
+          <div class="prob-bar"><div class="prob-fill" style="width: ${r.gap*100}%">${(r.gap*100).toFixed(0)}%</div></div>
+        </div>
+        <div style="margin: 10px 0;">
+          <div style="font-size: 0.9em; color: #b8a8d0;">Mutual Recognition</div>
+          <div class="prob-bar"><div class="prob-fill" style="width: ${r.recognition*100}%">${(r.recognition*100).toFixed(0)}%</div></div>
+        </div>
+        <div style="margin: 10px 0;">
+          <div style="font-size: 0.9em; color: #b8a8d0;">Meta-Coherence</div>
+          <div class="prob-bar"><div class="prob-fill" style="width: ${r.meta*100}%">${(r.meta*100).toFixed(0)}%</div></div>
+        </div>
+      `;
+    }
+
+    loadScenario();
+  </script>
+</body>
+</html>
