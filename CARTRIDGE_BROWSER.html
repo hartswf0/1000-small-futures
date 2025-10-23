@@ -211,6 +211,33 @@
     .modal-id { font-size: 9px; color: var(--text-muted); text-align: center; margin-bottom: 16px; }
     .modal-desc { font-size: 12px; line-height: 1.6; color: var(--text); margin-bottom: 20px; }
     
+    .load-btn {
+      width: 100%;
+      padding: 12px 24px;
+      background: var(--accent);
+      border: 2px solid var(--accent);
+      color: var(--bg);
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+    
+    .load-btn:hover {
+      background: transparent;
+      color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px var(--accent-glow);
+    }
+    
+    .load-btn:active {
+      transform: translateY(0);
+    }
+    
     @media (max-width: 600px) {
       .corner-btn { width: 48px; height: 48px; font-size: 18px; }
       .top-bar { padding: 12px 60px; }
@@ -334,7 +361,7 @@
       
       document.getElementById('visibleCount').textContent = filtered.length;
       document.getElementById('cartridgeGrid').innerHTML = filtered.map(c => `
-        <div class="cartridge" onclick="showModal('${c.id}')">
+        <div class="cartridge" onclick="showModal('${c.id}')" ondblclick="loadScenario('${c.id}'); event.stopPropagation();" title="Click for details, double-click to load">
           <div class="cartridge-icon">${c.icon}</div>
           <div class="cartridge-id">${c.id.toUpperCase()}</div>
           <div class="cartridge-name">${c.name}</div>
@@ -352,8 +379,14 @@
         <div class="modal-title">${c.name}</div>
         <div class="modal-id">${c.id.toUpperCase()}</div>
         <div class="modal-desc">${c.desc}</div>
+        <button class="load-btn" onclick="loadScenario('${c.id}')">LOAD SCENARIO</button>
       `;
       document.getElementById('modalOverlay').classList.add('visible');
+    }
+    
+    function loadScenario(id) {
+      console.log('[CARTRIDGE] Loading scenario:', id);
+      window.location.href = 'thousand-tetrad.html?scenario=' + id;
     }
     
     document.getElementById('modalClose').onclick = () => {
@@ -393,7 +426,7 @@
     };
     
     document.getElementById('btnInfo').onclick = () => {
-      alert('CARTRIDGE BROWSER\\n\\n57 scenarios for McLuhan tetrad analysis\\n12 categories\\n\\nClick any cartridge to view details\\nUse filters or search to narrow results\\n\\n◎ ⋈ ▶ ⋔');
+      alert('CARTRIDGE BROWSER\\n\\n57 scenarios for McLuhan tetrad analysis\\n12 categories\\n\\nCLICK cartridge → View details\\nDOUBLE-CLICK cartridge → Load scenario\\nModal LOAD button → Load scenario\\n\\nUse filters or search to narrow results\\n\\n◎ ⋈ ▶ ⋔');
     };
     
     render();
