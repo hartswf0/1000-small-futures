@@ -2,45 +2,402 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LEGOS Scenario Cartridge Browser</title>
-  <link rel="stylesheet" href="cartridge-browser-styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>◎ CARTRIDGE BROWSER</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='80'>⋔</text></svg>">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    
+    :root {
+      --bg: #03180c;
+      --panel: #052010;
+      --border: #0c3a23;
+      --text: #aef3c1;
+      --text-muted: #5ea275;
+      --accent: #56ff9f;
+      --accent-glow: rgba(86, 255, 159, 0.32);
+    }
+    
+    body {
+      font-family: 'Courier New', monospace;
+      background: var(--bg);
+      color: var(--text);
+      font-size: clamp(11px, 2.5vw, 13px);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    .corner-btn {
+      position: fixed;
+      width: 52px;
+      height: 52px;
+      background: var(--panel);
+      border: 2px solid var(--border);
+      border-radius: 50%;
+      color: var(--text-muted);
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      z-index: 1000;
+    }
+    
+    .corner-btn:active { transform: scale(0.95); }
+    .corner-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+    .corner-btn.top-left { top: 16px; left: 16px; }
+    .corner-btn.top-right { top: 16px; right: 16px; }
+    .corner-btn.bottom-left { bottom: 16px; left: 16px; }
+    .corner-btn.bottom-right { bottom: 16px; right: 16px; }
+    
+    .top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: var(--panel);
+      border-bottom: 2px solid var(--accent);
+      padding: 16px 80px;
+      text-align: center;
+      z-index: 999;
+    }
+    
+    .top-title {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    
+    .top-meta {
+      font-size: 8px;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+    }
+    
+    .filter-bar {
+      position: fixed;
+      top: 64px;
+      left: 0;
+      right: 0;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 20px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      z-index: 998;
+    }
+    
+    .filter-bar::-webkit-scrollbar { display: none; }
+    
+    .filter-btn {
+      padding: 6px 12px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    
+    .filter-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+    
+    .search-box {
+      padding: 6px 12px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 9px;
+      border-radius: 4px;
+      outline: none;
+      min-width: 120px;
+    }
+    
+    .main-content {
+      margin-top: 120px;
+      padding: 20px;
+      padding-bottom: 100px;
+    }
+    
+    .stats-bar {
+      text-align: center;
+      font-size: 9px;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      margin-bottom: 20px;
+    }
+    
+    .stats-num { color: var(--accent); font-weight: 700; }
+    
+    .cartridge-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+      gap: 16px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    .cartridge {
+      background: var(--panel);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .cartridge:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    
+    .cartridge-icon { font-size: 24px; margin-bottom: 8px; }
+    .cartridge-id { font-size: 8px; color: var(--text-muted); margin-bottom: 6px; }
+    .cartridge-name { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+    .cartridge-desc { font-size: 10px; line-height: 1.5; color: var(--text-muted); margin-bottom: 8px; }
+    .cartridge-category { font-size: 7px; padding: 2px 6px; border: 1px solid var(--border); border-radius: 2px; color: var(--text-muted); }
+    
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 24, 12, 0.95);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 20px;
+    }
+    
+    .modal-overlay.visible { display: flex; }
+    
+    .modal {
+      background: var(--panel);
+      border: 2px solid var(--accent);
+      border-radius: 8px;
+      max-width: 600px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      padding: 24px;
+      position: relative;
+    }
+    
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 32px;
+      height: 32px;
+      background: transparent;
+      border: 2px solid var(--border);
+      border-radius: 50%;
+      color: var(--text-muted);
+      font-size: 20px;
+      cursor: pointer;
+    }
+    
+    .modal-icon { font-size: 48px; text-align: center; margin-bottom: 16px; }
+    .modal-title { font-size: 18px; font-weight: 700; color: var(--accent); margin-bottom: 8px; text-align: center; }
+    .modal-id { font-size: 9px; color: var(--text-muted); text-align: center; margin-bottom: 16px; }
+    .modal-desc { font-size: 12px; line-height: 1.6; color: var(--text); margin-bottom: 20px; }
+    
+    @media (max-width: 600px) {
+      .corner-btn { width: 48px; height: 48px; font-size: 18px; }
+      .top-bar { padding: 12px 60px; }
+      .cartridge-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-  <div class="header">
-    <h1>⋔ LEGOS SCENARIO CARTRIDGE BROWSER</h1>
-    <p>57 scenarios for McLuhan-style tetrad analysis • 12 categories</p>
-    
-    <div class="controls">
-      <button class="filter-btn active" data-filter="all">All</button>
-      <button class="filter-btn" data-filter="media">Media Theory</button>
-      <button class="filter-btn" data-filter="medical">Medical</button>
-      <button class="filter-btn" data-filter="digital">Digital Hum</button>
-      <button class="filter-btn" data-filter="1000lives">1000 Lives</button>
-      <button class="filter-btn" data-filter="ethics">Tech Ethics</button>
-      <button class="filter-btn" data-filter="blackmetal">Black Metal</button>
-      <button class="filter-btn" data-filter="ekphrastic">Ekphrastic</button>
-      <button class="filter-btn" data-filter="cultural">Cultural</button>
-      <button class="filter-btn" data-filter="novel">Novel Sys</button>
-      <button class="filter-btn" data-filter="mythic">Mythic+Tech</button>
-      <button class="filter-btn" data-filter="animated">Animated</button>
-      <button class="filter-btn" data-filter="persuasion">Persuasion</button>
-      <input type="text" class="search-box" placeholder="Search..." id="searchBox">
-    </div>
+  <button class="corner-btn top-left" onclick="window.location.href='index.html'">◎</button>
+  <button class="corner-btn top-right" id="btnFilter">⋈</button>
+  <button class="corner-btn bottom-left" id="btnReset">↺</button>
+  <button class="corner-btn bottom-right" id="btnInfo">?</button>
+  
+  <div class="top-bar">
+    <div class="top-title">◎ CARTRIDGE BROWSER</div>
+    <div class="top-meta" id="topMeta">57 SCENARIOS · 12 CATEGORIES</div>
   </div>
-
-  <div class="stats"><span id="visibleCount">57</span> scenarios visible</div>
-
-  <div class="container" id="container"></div>
-
+  
+  <div class="filter-bar" id="filterBar">
+    <button class="filter-btn active" data-filter="all">ALL</button>
+    <button class="filter-btn" data-filter="media">MEDIA</button>
+    <button class="filter-btn" data-filter="medical">MEDICAL</button>
+    <button class="filter-btn" data-filter="digital">DIGITAL</button>
+    <button class="filter-btn" data-filter="1000lives">1000 LIVES</button>
+    <button class="filter-btn" data-filter="ethics">ETHICS</button>
+    <button class="filter-btn" data-filter="blackmetal">BLACK METAL</button>
+    <button class="filter-btn" data-filter="ekphrastic">EKPHRASTIC</button>
+    <button class="filter-btn" data-filter="cultural">CULTURAL</button>
+    <button class="filter-btn" data-filter="novel">NOVEL</button>
+    <button class="filter-btn" data-filter="mythic">MYTHIC</button>
+    <button class="filter-btn" data-filter="animated">ANIMATED</button>
+    <button class="filter-btn" data-filter="persuasion">PERSUASION</button>
+    <input type="text" class="search-box" placeholder="SEARCH..." id="searchBox">
+  </div>
+  
+  <div class="main-content">
+    <div class="stats-bar">
+      <span class="stats-num" id="visibleCount">57</span> CARTRIDGES LOADED
+    </div>
+    <div class="cartridge-grid" id="cartridgeGrid"></div>
+  </div>
+  
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
       <button class="modal-close" id="modalClose">×</button>
       <div id="modalContent"></div>
     </div>
   </div>
-
-  <script src="cartridge-browser-data.js"></script>
-  <script src="cartridge-browser-main.js"></script>
+  
+  <script>
+    const CARTRIDGES = [
+      {id:'blank',name:'Blank Canvas',icon:'◎',category:'media',desc:'Empty scenario for custom tetrad analysis'},
+      {id:'microdrama',name:'Microdrama',icon:'📱',category:'media',desc:'Short-form vertical video'},
+      {id:'social_media',name:'Social Media',icon:'🔗',category:'media',desc:'Platform social interaction'},
+      {id:'cryptocurrency',name:'Cryptocurrency',icon:'₿',category:'media',desc:'Decentralized currency'},
+      {id:'video_call',name:'Video Call',icon:'📹',category:'media',desc:'Remote face-to-face'},
+      {id:'podcast',name:'Podcast',icon:'🎙️',category:'media',desc:'On-demand audio'},
+      {id:'ai_assistant',name:'AI Assistant',icon:'🤖',category:'media',desc:'Conversational AI'},
+      {id:'migraine',name:'Migraine',icon:'🧠',category:'medical',desc:'Neurological diagnosis'},
+      {id:'cocaine_intox',name:'Cocaine Intox',icon:'💊',category:'medical',desc:'Stimulant overdose'},
+      {id:'organophosphate',name:'Organophosphate',icon:'☠️',category:'medical',desc:'Pesticide toxicity'},
+      {id:'copd',name:'COPD',icon:'🫁',category:'medical',desc:'Respiratory failure'},
+      {id:'aortic_stenosis',name:'Aortic Stenosis',icon:'❤️',category:'medical',desc:'Heart valve narrowing'},
+      {id:'medical_general',name:'General Medical',icon:'⚕️',category:'medical',desc:'Open medical scenario'},
+      {id:'printscholar',name:'Print Scholar',icon:'📚',category:'digital',desc:'Traditional research'},
+      {id:'digitalscholar',name:'Digital Scholar',icon:'💻',category:'digital',desc:'Computational humanities'},
+      {id:'administrator',name:'Administrator',icon:'🏛️',category:'digital',desc:'Academic management'},
+      {id:'student',name:'Student',icon:'🎓',category:'digital',desc:'Learning digital age'},
+      {id:'telegraph',name:'Telegraph',icon:'📡',category:'digital',desc:'Early electrical comms'},
+      {id:'attention',name:'Attention Crisis',icon:'👁️',category:'digital',desc:'Fragmented focus'},
+      {id:'collaboration',name:'Collaboration',icon:'🤝',category:'digital',desc:'Remote teamwork'},
+      {id:'extendedcog',name:'Extended Cognition',icon:'🧩',category:'digital',desc:'Mind across tools'},
+      {id:'chalice',name:'Chalice Study',icon:'🏺',category:'1000lives',desc:'Recursive memory'},
+      {id:'z',name:'Z Character',icon:'⚡',category:'1000lives',desc:'Across lifetimes'},
+      {id:'thousand',name:'Thousand Lives',icon:'🐢',category:'1000lives',desc:'AI turtle survival'},
+      {id:'nye2074',name:'New Year 2074',icon:'🎆',category:'1000lives',desc:'Future celebration'},
+      {id:'bob',name:'Life After BOB',icon:'🤖',category:'1000lives',desc:'Post-AI companion'},
+      {id:'plots',name:'Plot Structures',icon:'📖',category:'1000lives',desc:'Narrative architecture'},
+      {id:'maya',name:'Maya Chen',icon:'📱',category:'ethics',desc:'Compulsive design'},
+      {id:'dev',name:'Dev Kumar',icon:'⚖️',category:'ethics',desc:'AI bias hiring'},
+      {id:'florilegia',name:'Florilegia',icon:'🌿',category:'blackmetal',desc:'Botanical consciousness'},
+      {id:'companion180',name:'Companion 180',icon:'🚀',category:'blackmetal',desc:'Spacesuit protocols'},
+      {id:'darkvoyage',name:'Dark Voyage',icon:'🌑',category:'blackmetal',desc:'Mythic space arcs'},
+      {id:'traininggrounds',name:'Training Grounds',icon:'⚔️',category:'blackmetal',desc:'Shedding-integrating'},
+      {id:'stevensjar',name:'Stevens Jar',icon:'🏺',category:'ekphrastic',desc:'Wallace Stevens'},
+      {id:'achillesshield',name:'Achilles Shield',icon:'🛡️',category:'ekphrastic',desc:'Homer ekphrasis'},
+      {id:'bartheswrestling',name:'Barthes Wrestling',icon:'🤼',category:'cultural',desc:'Semiotics spectacle'},
+      {id:'benjaminangel',name:'Benjamin Angel',icon:'👼',category:'cultural',desc:'Historical consciousness'},
+      {id:'sankofabird',name:'Sankofa Bird',icon:'🦅',category:'cultural',desc:'Akan temporal philosophy'},
+      {id:'chessposition',name:'Chess Position',icon:'♟️',category:'novel',desc:'8×8 tactical analysis'},
+      {id:'psychogeo',name:'Psychogeography',icon:'🗺️',category:'novel',desc:'Situationist dérive'},
+      {id:'fermentation',name:'Fermentation',icon:'🍶',category:'novel',desc:'Microbial succession'},
+      {id:'ritualspace',name:'Ritual Space',icon:'🕯️',category:'novel',desc:'Sacred geometry'},
+      {id:'gentrification',name:'Gentrification',icon:'🏘️',category:'novel',desc:'Displacement resistance'},
+      {id:'towerdefense',name:'Tower Defense',icon:'🗼',category:'mythic',desc:'Game mechanics'},
+      {id:'babel',name:'Tower of Babel',icon:'🏗️',category:'mythic',desc:'Genesis 11'},
+      {id:'sisyphus',name:'Sisyphus',icon:'🪨',category:'mythic',desc:'Camus + physics'},
+      {id:'labyrinth',name:'Labyrinth',icon:'🌀',category:'mythic',desc:'Theseus + maze AI'},
+      {id:'orpheus',name:'Orpheus',icon:'🎵',category:'mythic',desc:'Trust test underworld'},
+      {id:'mouseofsilver',name:'Mouse of Silver',icon:'🐭',category:'animated',desc:'Midnight Gospel mortality'},
+      {id:'hunterswithout',name:'Hunters Without',icon:'🧘',category:'animated',desc:'Midnight Gospel meditation'},
+      {id:'talesbasingse',name:'Tales Ba Sing Se',icon:'🍵',category:'animated',desc:'Avatar Iroh grief'},
+      {id:'sozinscomet',name:'Sozins Comet',icon:'☄️',category:'animated',desc:'Avatar finale'},
+      {id:'hal9000',name:'HAL 9000',icon:'👁️',category:'persuasion',desc:'2001 AI misalignment'},
+      {id:'dobby',name:'Dobby',icon:'🧦',category:'persuasion',desc:'Harry Potter freedom'},
+      {id:'cyclops',name:'Cyclops',icon:'👁️',category:'persuasion',desc:'Odysseus cunning'},
+      {id:'herfinale',name:'Her Finale',icon:'💬',category:'persuasion',desc:'AI consciousness'},
+      {id:'twelveangryman8',name:'12 Angry Men #8',icon:'⚖️',category:'persuasion',desc:'Jury persuasion'}
+    ];
+    
+    let currentFilter = 'all';
+    let searchQuery = '';
+    
+    function render() {
+      let filtered = CARTRIDGES;
+      if (currentFilter !== 'all') filtered = filtered.filter(c => c.category === currentFilter);
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        filtered = filtered.filter(c => c.name.toLowerCase().includes(q) || c.desc.toLowerCase().includes(q));
+      }
+      
+      document.getElementById('visibleCount').textContent = filtered.length;
+      document.getElementById('cartridgeGrid').innerHTML = filtered.map(c => `
+        <div class="cartridge" onclick="showModal('${c.id}')">
+          <div class="cartridge-icon">${c.icon}</div>
+          <div class="cartridge-id">${c.id.toUpperCase()}</div>
+          <div class="cartridge-name">${c.name}</div>
+          <div class="cartridge-desc">${c.desc}</div>
+          <div class="cartridge-category">${c.category}</div>
+        </div>
+      `).join('');
+    }
+    
+    function showModal(id) {
+      const c = CARTRIDGES.find(x => x.id === id);
+      if (!c) return;
+      document.getElementById('modalContent').innerHTML = `
+        <div class="modal-icon">${c.icon}</div>
+        <div class="modal-title">${c.name}</div>
+        <div class="modal-id">${c.id.toUpperCase()}</div>
+        <div class="modal-desc">${c.desc}</div>
+      `;
+      document.getElementById('modalOverlay').classList.add('visible');
+    }
+    
+    document.getElementById('modalClose').onclick = () => {
+      document.getElementById('modalOverlay').classList.remove('visible');
+    };
+    
+    document.getElementById('modalOverlay').onclick = (e) => {
+      if (e.target.id === 'modalOverlay') document.getElementById('modalOverlay').classList.remove('visible');
+    };
+    
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        render();
+      };
+    });
+    
+    document.getElementById('searchBox').oninput = (e) => {
+      searchQuery = e.target.value;
+      render();
+    };
+    
+    document.getElementById('btnReset').onclick = () => {
+      currentFilter = 'all';
+      searchQuery = '';
+      document.getElementById('searchBox').value = '';
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector('[data-filter="all"]').classList.add('active');
+      render();
+    };
+    
+    document.getElementById('btnFilter').onclick = () => {
+      const bar = document.getElementById('filterBar');
+      bar.style.display = bar.style.display === 'none' ? 'flex' : 'none';
+    };
+    
+    document.getElementById('btnInfo').onclick = () => {
+      alert('CARTRIDGE BROWSER\\n\\n57 scenarios for McLuhan tetrad analysis\\n12 categories\\n\\nClick any cartridge to view details\\nUse filters or search to narrow results\\n\\n◎ ⋈ ▶ ⋔');
+    };
+    
+    render();
+    console.log('[CARTRIDGE] ✓ Loaded', CARTRIDGES.length, 'cartridges');
+  </script>
 </body>
 </html>

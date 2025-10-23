@@ -74,6 +74,13 @@
       align-items: center;
       justify-content: center;
       line-height: 1;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    header::after:hover {
+      color: var(--accent);
+      border-color: var(--accent);
     }
 
     h1 {
@@ -169,6 +176,47 @@
       font-weight: 400;
       margin-left: 44px;
     }
+    
+    .manifest-label {
+      display: inline-block;
+      font-size: 0.65rem;
+      padding: 2px 6px;
+      margin-left: 44px;
+      margin-top: 8px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--text-dim);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    
+    .manifest-label.experimental {
+      border-color: var(--red-dim);
+      color: var(--red-dim);
+    }
+    
+    .manifest-label.deprecated {
+      border-color: var(--text-dim);
+      color: var(--text-dim);
+      opacity: 0.5;
+    }
+    
+    .manifest-label.unstyled {
+      border-color: var(--text-dim);
+      color: var(--text-dim);
+    }
+    
+    .section-header {
+      grid-column: 1 / -1;
+      background: var(--bg);
+      padding: 20px 24px 12px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      color: var(--red);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
 
     footer {
       grid-column: 1 / -1;
@@ -216,101 +264,133 @@
   </style>
 </head>
 <body>
-  <header>
+  <header onclick="if(event.target.tagName === 'HEADER' && event.clientX > window.innerWidth - 80) window.open('https://github.com/hartswf0/1000-small-futures', '_blank')">
     <h1>1000 SMALL FUTURES</h1>
   </header>
 
   <main>
     <nav class="manifest">
-      <a href="thousand-multi.html" class="manifest-item">
-        <div class="manifest-number">◉ 00001</div>
-        <div class="manifest-title">MULTI-CHANNEL ENGINE</div>
-        <div class="manifest-desc">Advanced LEGOS system with multi-channel orchestration, ring memory, tetrad interventions, and parallel narrative streams. The most complete implementation.</div>
-      </a>
-
-      <a href="thousand-lives-godlevel.html" class="manifest-item">
-        <div class="manifest-number">○ 00002</div>
-        <div class="manifest-title">GOD-LEVEL INTERFACE</div>
-        <div class="manifest-desc">Interactive medium for exploring belief formation, cultural transmission, and resonance across lifetimes with adjustable parameters and multi-perspective views.</div>
-      </a>
-
-      <a href="thousand-lives-sim.html" class="manifest-item">
-        <div class="manifest-number">◎ 00003</div>
-        <div class="manifest-title">LIVES SIMULATION</div>
-        <div class="manifest-desc">Original simulation exploring emergent behavior patterns and cultural evolution through iterative lifetimes.</div>
-      </a>
-
-      <a href="1000-small-futures-simulation.html" class="manifest-item">
-        <div class="manifest-number">○ 00004</div>
-        <div class="manifest-title">FUTURES SIMULATION</div>
-        <div class="manifest-desc">Multi-agent simulation exploring divergent trajectories and possibility spaces across parallel timelines.</div>
-      </a>
-
-      <a href="ouside-rad-futures.html" class="manifest-item">
-        <div class="manifest-number">◎ 00005</div>
-        <div class="manifest-title">RADICAL FUTURES</div>
-        <div class="manifest-desc">Exploration of alternative trajectories and radical possibilities outside conventional futures thinking.</div>
-      </a>
-
-      <a href="ouside-rad.html" class="manifest-item">
-        <div class="manifest-number">○ 00006</div>
-        <div class="manifest-title">RADICAL INTERFACE</div>
-        <div class="manifest-desc">Interactive interface for navigating unconventional possibility spaces and radical alternatives.</div>
-      </a>
-
+      <div class="section-header">◉ CORE ENGINES</div>
+      
       <a href="thousand-tetrad.html" class="manifest-item">
-        <div class="manifest-number">◉ 00007</div>
+        <div class="manifest-number">◉ 00001</div>
         <div class="manifest-title">TETRAD ANALYSIS ENGINE</div>
         <div class="manifest-desc">McLuhan's Four Laws applied to 57 scenarios across 12 categories. Medical training, tech ethics, mythology, persuasion, and cultural theory with recursive exploration.</div>
       </a>
 
-      <a href="CARTRIDGE_BROWSER.html" class="manifest-item">
-        <div class="manifest-number">○ 00008</div>
-        <div class="manifest-title">SCENARIO CARTRIDGE BROWSER</div>
-        <div class="manifest-desc">Visual interface for exploring all 57 tetrad scenarios. Filter by category, search by keyword, view detailed modal breakdowns.</div>
+      <a href="thousand-ring.html" class="manifest-item">
+        <div class="manifest-number">◉ 00002</div>
+        <div class="manifest-title">LEGOS RING MEMORY • INTEGRATED</div>
+        <div class="manifest-desc">Single-file tetrad analyzer with embedded Ring Buffer and Temporal Index. Memory-aware circular buffer, graceful degradation, "chat across time" queries. Auto-adapts to device (96→12 entries).</div>
       </a>
 
-      <a href="thousands-technogenesis.html" class="manifest-item">
+      <a href="thousand-multi.html" class="manifest-item">
+        <div class="manifest-number">◉ 00003</div>
+        <div class="manifest-title">MULTI-CHANNEL ENGINE</div>
+        <div class="manifest-desc">Advanced LEGOS system with multi-channel orchestration, ring memory, tetrad interventions, and parallel narrative streams. The most complete implementation.</div>
+      </a>
+
+      <a href="CARTRIDGE_BROWSER.html" class="manifest-item">
+        <div class="manifest-number">○ 00004</div>
+        <div class="manifest-title">SCENARIO CARTRIDGE BROWSER</div>
+        <div class="manifest-desc">Visual interface for exploring all 57 tetrad scenarios. Filter by category, search by keyword, view detailed modal breakdowns.</div>
+        <div class="manifest-label unstyled">UNSTYLED</div>
+      </a>
+
+      <a href="session-viewer-filmic.html" class="manifest-item">
+        <div class="manifest-number">◎ 00005</div>
+        <div class="manifest-title">SESSION VIEWER • FILMIC TIMELINE</div>
+        <div class="manifest-desc">Spatio-temporal control surface for navigating LEGOS sessions. Drag-and-drop JSON files, visual grid display, timeline scrubber with touch controls.</div>
+      </a>
+
+      <div class="section-header">◎ EXPERIMENTAL / SINGLE-SHOT PROMPTS</div>
+
+      <a href="thousand-lives-godlevel.html" class="manifest-item">
+        <div class="manifest-number">○ 00006</div>
+        <div class="manifest-title">GOD-LEVEL INTERFACE</div>
+        <div class="manifest-desc">Interactive medium for exploring belief formation, cultural transmission, and resonance across lifetimes with adjustable parameters and multi-perspective views.</div>
+        <div class="manifest-label experimental">SINGLE-SHOT PROMPT</div>
+      </a>
+
+      <a href="thousand-lives-sim.html" class="manifest-item">
+        <div class="manifest-number">◎ 00007</div>
+        <div class="manifest-title">LIVES SIMULATION</div>
+        <div class="manifest-desc">Original simulation exploring emergent behavior patterns and cultural evolution through iterative lifetimes.</div>
+        <div class="manifest-label experimental">SINGLE-SHOT PROMPT</div>
+      </a>
+
+      <a href="1000-small-futures-simulation.html" class="manifest-item">
+        <div class="manifest-number">○ 00008</div>
+        <div class="manifest-title">FUTURES SIMULATION</div>
+        <div class="manifest-desc">Multi-agent simulation exploring divergent trajectories and possibility spaces across parallel timelines.</div>
+        <div class="manifest-label experimental">SINGLE-SHOT PROMPT</div>
+      </a>
+
+      <a href="ouside-rad-futures.html" class="manifest-item">
         <div class="manifest-number">◎ 00009</div>
+        <div class="manifest-title">RADICAL FUTURES</div>
+        <div class="manifest-desc">Exploration of alternative trajectories and radical possibilities outside conventional futures thinking.</div>
+        <div class="manifest-label experimental">SINGLE-SHOT PROMPT</div>
+      </a>
+
+      <a href="ouside-rad.html" class="manifest-item">
+        <div class="manifest-number">○ 00010</div>
+        <div class="manifest-title">RADICAL INTERFACE</div>
+        <div class="manifest-desc">Interactive interface for navigating unconventional possibility spaces and radical alternatives.</div>
+        <div class="manifest-label deprecated">OLD/DEPRECATED</div>
+      </a>
+
+      <div class="section-header">○ SCENARIO LIBRARIES</div>
+
+      <a href="thousands-technogenesis.html" class="manifest-item">
+        <div class="manifest-number">◎ 00011</div>
         <div class="manifest-title">TECHNOGENESIS SCENARIOS</div>
         <div class="manifest-desc">Digital humanities narratives exploring print/digital divide, attention crisis, extended cognition, and academic transformation through LEGOS framework.</div>
       </a>
 
       <a href="thousand-lle.html" class="manifest-item">
-        <div class="manifest-number">○ 00010</div>
+        <div class="manifest-number">○ 00012</div>
         <div class="manifest-title">LIVED LEARNING EXPERIENCES</div>
         <div class="manifest-desc">Tech ethics scenarios (Maya Chen compulsive design, Dev Kumar AI bias) exploring power dynamics and moral courage under corporate constraint.</div>
       </a>
 
       <a href="thousands-tutorial.html" class="manifest-item">
-        <div class="manifest-number">◎ 00011</div>
+        <div class="manifest-number">◎ 00013</div>
         <div class="manifest-title">LEGOS TUTORIAL ENGINE</div>
         <div class="manifest-desc">Interactive tutorial for mastering Location-Entity-Goal-Obstacle-Shift-Solution framework with guided examples and progressive complexity.</div>
       </a>
 
-      <a href="SCENARIO_LIBRARY.md" class="manifest-item">
-        <div class="manifest-number">○ 00012</div>
+      <div class="section-header">📖 DOCUMENTATION & HELP</div>
+
+      <a href="OLOG_2025_10_23.md" class="manifest-item">
+        <div class="manifest-number">◉ 00014</div>
+        <div class="manifest-title">OLOG #001 • STATE OF THE UNION</div>
+        <div class="manifest-desc">Synthetic anthropology field note documenting project state, ring buffer fix, theoretical substrate, philosophical commitments, and ontological claims.</div>
+      </a>
+
+      <a href="README.md" class="manifest-item">
+        <div class="manifest-number">○ 00015</div>
+        <div class="manifest-title">PROJECT README</div>
+        <div class="manifest-desc">Complete project overview, quick start guide, core components, design principles, theoretical substrate, and contributing guidelines.</div>
+      </a>
+
+      <a href="SCENARIO_LIBRARY_DOCS.md" class="manifest-item">
+        <div class="manifest-number">◎ 00016</div>
         <div class="manifest-title">SCENARIO LIBRARY DOCS</div>
         <div class="manifest-desc">Complete documentation: 57 scenarios, 12 categories, recursive patterns, implementation notes, usage patterns for tetrad analysis.</div>
       </a>
 
-      <a href="session-viewer-filmic.html" class="manifest-item">
-        <div class="manifest-number">◎ 00013</div>
-        <div class="manifest-title">SESSION VIEWER • FILMIC TIMELINE</div>
-        <div class="manifest-desc">Cinematic timeline interface with film editor aesthetics. Channels as tracks, scenes as shots, draggable dividers, geometric encoding through filmic apparatus. Four corner buttons, visual narrative sequencing.</div>
-      </a>
-
-      <a href="thousand-ring.html" class="manifest-item">
-        <div class="manifest-number">◉ 00014</div>
-        <div class="manifest-title">LEGOS RING MEMORY • INTEGRATED</div>
-        <div class="manifest-desc">Single-file tetrad analyzer with embedded Ring Buffer and Temporal Index. Memory-aware circular buffer, graceful degradation, "chat across time" queries. Auto-adapts to device (96→12 entries). No external dependencies.</div>
+      <a href="https://github.com/hartswf0/1000-small-futures" class="manifest-item" target="_blank">
+        <div class="manifest-number">○ 00017</div>
+        <div class="manifest-title">GITHUB REPOSITORY</div>
+        <div class="manifest-desc">Source code, issues, pull requests, and project history. Fork freely, remix wildly, question everything.</div>
       </a>
     </nav>
   </main>
 
   <footer>
     <div class="footer-text">
-      14 ENGINES LOADED · RING MEMORY INTEGRATED · TEMPORAL INTELLIGENCE ACTIVE · <a href="OLOG_2025_10_23.md" style="color: var(--accent); text-decoration: none;">OLOG #001</a>
+      17 ENTRIES · 5 CORE ENGINES · 5 EXPERIMENTAL · 3 SCENARIOS · 4 DOCS · <a href="https://github.com/hartswf0/1000-small-futures" target="_blank" style="color: var(--accent); text-decoration: none;">GITHUB</a>
     </div>
   </footer>
 </body>
