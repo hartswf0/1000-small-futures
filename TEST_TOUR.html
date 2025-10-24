@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Test Tour</title>
+</head>
+<body>
+<h1>Testing GUIDED_TOUR.js</h1>
+<button onclick="testTour()">Start Tour</button>
+<button onclick="clearFlag()">Clear Flag</button>
+<script src="GUIDED_TOUR.js"></script>
+<script>
+function testTour() {
+  console.log('GuidedTour object:', GuidedTour);
+  console.log('Tour done flag:', localStorage.getItem('tour.done'));
+  if (GuidedTour) {
+    GuidedTour.show(0);
+  } else {
+    alert('GuidedTour not loaded!');
+  }
+}
+function clearFlag() {
+  localStorage.removeItem('tour.done');
+  alert('Flag cleared. Reload page to see tour.');
+}
+</script>
+</body>
+</html>

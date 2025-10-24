@@ -1217,7 +1217,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 12;
+      z-index: 25;
       box-shadow: 0 8px 24px var(--shadow);
       transition: transform 0.2s var(--transition), box-shadow 0.2s var(--transition);
     }
@@ -1258,7 +1258,7 @@
       display: none;
       flex-direction: column;
       min-width: 160px;
-      z-index: 14;
+      z-index: 26;
     }
 
     .corner-menu.visible {
@@ -1332,19 +1332,24 @@
     
     .global-scenario-select {
       background: var(--panel);
-      border: 1px solid var(--border);
-      color: var(--text-muted);
+      border: 2px solid var(--border);
+      color: var(--text);
       font-size: 10px;
       font-weight: 700;
-      letter-spacing: 0.15em;
-      padding: 10px 12px;
-      border-radius: 5px;
+      letter-spacing: 0.05em;
+      padding: 12px 14px;
+      border-radius: 6px;
       cursor: pointer;
       transition: all 0.2s var(--transition);
       font-family: 'Courier New', monospace;
       text-transform: uppercase;
       flex: 1;
-      max-width: 130px;
+      min-width: 0;
+      max-width: min(240px, calc(100vw - 140px));
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     
     .global-scenario-select:hover,
@@ -1352,21 +1357,29 @@
       border-color: var(--accent);
       background: var(--panel);
       outline: none;
+      box-shadow: 0 0 20px var(--accent-glow);
     }
     
     .global-scenario-select optgroup {
       font-weight: 700;
-      font-size: 9px;
-      background: var(--panel-dark);
+      font-size: 10px;
+      background: var(--bg);
       color: var(--accent);
-      padding: 4px;
+      padding: 8px;
+      border-bottom: 1px solid var(--border);
     }
     
     .global-scenario-select option {
-      padding: 6px 8px;
+      padding: 10px 12px;
       background: var(--panel);
       color: var(--text);
       font-size: 10px;
+      line-height: 1.6;
+      border-bottom: 1px solid var(--border);
+    }
+    .global-scenario-select option:hover {
+      background: var(--panel-dark);
+      color: var(--accent);
     }
     
     .footer-tetrad-btn {
@@ -1968,6 +1981,17 @@
     </div>
   </div>
 
+  <div class="overlay" id="cartridgeOverlay">
+    <div class="overlay-card" style="max-width:min(600px,calc(100vw - 32px));max-height:85vh;overflow-y:auto;">
+      <button class="close-overlay" data-close="cartridgeOverlay">×</button>
+      <div class="overlay-title" id="cartridgeTitle">SCENARIO INFO</div>
+      <div id="cartridgeContent" style="padding:16px 0;font-size:10px;line-height:1.6;color:var(--text);"></div>
+      <div class="overlay-actions">
+        <button class="secondary-btn" data-close="cartridgeOverlay">CLOSE</button>
+      </div>
+    </div>
+  </div>
+
   <input type="file" id="importInput" accept="application/json" hidden>
 
   <button class="corner-btn top-left" id="cornerKey" title="API Key">◎</button>
@@ -1976,6 +2000,8 @@
   <button class="corner-btn bottom-right" id="cornerAdd" title="Add Channel">＋</button>
 
   <div class="corner-menu" id="infoMenu" style="top: calc(72px + env(safe-area-inset-top)); right: calc(16px + env(safe-area-inset-right));">
+    <button data-action="tour" style="color: var(--accent); font-weight: 700;">▶ START TOUR</button>
+    <button data-action="hints" style="color: var(--accent); font-weight: 700;">💡 SHOW HINTS</button>
     <button data-action="help">HELP OVERVIEW</button>
     <button data-action="theme">TOGGLE THEME</button>
     <button data-action="fullscreen">FULLSCREEN MODE</button>
@@ -4972,6 +4998,10 @@
         const value = keyInput.value.trim();
         if (!value.startsWith('sk-') || value.length < 20) {
           keyStatus.textContent = 'Invalid key format.';
+          // Notify parent window (tutorial) of error
+          if(window.parent!==window){
+            window.parent.postMessage({type:'apiKeyError'},'*');
+          }
           return;
         }
         appState.apiKey = value;
@@ -4979,6 +5009,10 @@
         keyStatus.textContent = 'Key stored.';
         keyOverlay.classList.remove('active');
         showHelpBanner('API key saved. Channels will auto-compose scenes.');
+        // Notify parent window (tutorial) of success
+        if(window.parent!==window){
+          window.parent.postMessage({type:'apiKeySaved'},'*');
+        }
       });
       themeButtonRef = null;
 
@@ -5012,7 +5046,24 @@
       infoMenu.querySelectorAll('button').forEach(btn => {
         btn.addEventListener('click', (event) => {
           const action = event.currentTarget.getAttribute('data-action');
-          if (action === 'help') {
+          if (action === 'tour') {
+            // Start guided tour
+            if (window.GuidedTour) {
+              localStorage.removeItem('tour.done'); // Allow restart
+              GuidedTour.show(0);
+              infoMenu.classList.remove('visible');
+            } else {
+              alert('Guided tour not loaded. Make sure GUIDED_TOUR.js is included.');
+            }
+          } else if (action === 'hints') {
+            // Show contextual hints
+            if (window.ContextualTour) {
+              ContextualTour.showHints();
+              infoMenu.classList.remove('visible');
+            } else {
+              alert('Contextual tour not loaded. Make sure CONTEXTUAL_TOUR.js is included.');
+            }
+          } else if (action === 'help') {
             showHelpBanner('HYPERCLAY: Write what happens next • ADD entities/objects • REMOVE elements • Transform states • Introduce complications • Resolve obstacles • The world is malleable | Tap messages to fork • Use snapshots to time-travel');
           } else if (action === 'theme') {
             const idx = themes.findIndex(t => t.id === appState.theme);
@@ -5105,13 +5156,17 @@
           if (scenarios[id]) {
             const option = document.createElement('option');
             option.value = id;
-            const displayName = scenarios[id].name.length > 18 ? scenarios[id].name.substring(0, 17) + '\u2026' : scenarios[id].name;
-            option.textContent = displayName.toUpperCase();
+            // Full name, no truncation
+            option.textContent = scenarios[id].name.toUpperCase() + ' ◉';
+            option.dataset.scenarioId = id;
             optgroup.appendChild(option);
           }
         });
         globalScenarioSelect.appendChild(optgroup);
       });
+      
+      // Set blank as default
+      globalScenarioSelect.value = 'blank';
 
       // Update scenario for active channel
       globalScenarioSelect.addEventListener('change', () => {
@@ -5123,6 +5178,49 @@
           }
         }
       });
+      
+      // Double-click to show cartridge info
+      globalScenarioSelect.addEventListener('dblclick', () => {
+        const scenarioId = globalScenarioSelect.value;
+        if (scenarioId && scenarios[scenarioId]) {
+          showCartridgeInfo(scenarioId);
+        }
+      });
+      
+      // Function to show cartridge info in overlay
+      function showCartridgeInfo(scenarioId) {
+        const scenario = scenarios[scenarioId];
+        if (!scenario) return;
+        
+        const overlay = document.getElementById('cartridgeOverlay');
+        const title = document.getElementById('cartridgeTitle');
+        const content = document.getElementById('cartridgeContent');
+        
+        title.textContent = scenario.name.toUpperCase();
+        
+        let html = `
+          <div style="margin-bottom:16px;">
+            <div style="color:var(--accent);font-weight:700;margin-bottom:8px;">ROLE</div>
+            <div>${scenario.role}</div>
+          </div>
+          <div style="margin-bottom:16px;">
+            <div style="color:var(--accent);font-weight:700;margin-bottom:8px;">CONTEXT</div>
+            <div>${scenario.context}</div>
+          </div>
+        `;
+        
+        if (scenario.recursivePatterns) {
+          html += `
+            <div style="margin-bottom:16px;">
+              <div style="color:var(--accent);font-weight:700;margin-bottom:8px;">RECURSIVE PATTERNS</div>
+              <div>${scenario.recursivePatterns.join('<br>')}</div>
+            </div>
+          `;
+        }
+        
+        content.innerHTML = html;
+        overlay.classList.add('active');
+      }
       
       // Tetrad button - opens perspective selector (tetrad auto-generates)
       globalTetradBtn.addEventListener('click', () => {
@@ -6915,16 +7013,89 @@
           
           // Add hover tooltip with full name
           if (cell.label) {
-            div.title = `${cell.label} (${cell.type})\nClick for perspective`;
+            div.title = `${cell.label} (${cell.type})\nClick for perspective\nShift+Click to highlight`;
           } else if (cell.type) {
-            div.title = `${cell.type}\nClick for details`;
+            div.title = `${cell.type}\nClick for details\nShift+Click to highlight`;
           }
         }
           div.dataset.x = x;
           div.dataset.y = y;
-          div.addEventListener('click', () => {
+          div.addEventListener('click', (e) => {
             focusChannel(channel.id);
-            openCellOverlay(channel, x, y);
+            
+            // Shift+Click for multi-highlight (persistent white)
+            if (e.shiftKey) {
+              e.stopPropagation();
+              
+              // Toggle highlight on this cell
+              const isHighlighted = div.classList.contains('user-highlighted');
+              if (isHighlighted) {
+                // Remove highlight
+                div.classList.remove('user-highlighted');
+                div.style.boxShadow = '';
+                div.style.outline = '';
+                div.style.transform = '';
+                div.style.zIndex = '';
+                const badge = div.querySelector('.highlight-index-badge');
+                if (badge) badge.remove();
+              } else {
+                // Add highlight
+                div.classList.add('user-highlighted');
+                
+                // Count current highlights to get index
+                const highlighted = grid.querySelectorAll('.grid-cell.user-highlighted');
+                const idx = highlighted.length - 1;
+                
+                // White persistent highlight
+                div.style.boxShadow = '0 0 0 4px white, 0 0 40px rgba(255,255,255,0.8), 0 0 60px rgba(255,255,255,0.5)';
+                div.style.outline = '2px solid white';
+                div.style.transform = 'scale(1.15)';
+                div.style.zIndex = '100';
+                
+                // Add index badge if multiple
+                if (highlighted.length > 1) {
+                  // Add badges to all highlighted cells
+                  highlighted.forEach((cell, i) => {
+                    const existingBadge = cell.querySelector('.highlight-index-badge');
+                    if (existingBadge) existingBadge.remove();
+                    
+                    const badge = document.createElement('div');
+                    badge.className = 'highlight-index-badge';
+                    badge.textContent = i + 1;
+                    badge.style.cssText = `
+                      position: absolute;
+                      top: 2px;
+                      right: 2px;
+                      width: 16px;
+                      height: 16px;
+                      background: white;
+                      color: black;
+                      border-radius: 50%;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-size: 9px;
+                      font-weight: 900;
+                      font-family: 'Courier New', monospace;
+                      z-index: 101;
+                      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+                    `;
+                    cell.appendChild(badge);
+                  });
+                }
+                
+                // Pulse animation
+                setTimeout(() => {
+                  div.style.transform = 'scale(1.2)';
+                  setTimeout(() => {
+                    div.style.transform = 'scale(1.15)';
+                  }, 150);
+                }, 50);
+              }
+            } else {
+              // Normal click - open overlay
+              openCellOverlay(channel, x, y);
+            }
           });
           grid.appendChild(div);
         });
@@ -7192,6 +7363,14 @@
           });
         } else {
           body.textContent = msgText;
+          
+          // Add entity chips after assistant messages
+          if (msg.role === 'assistant' && channel.grid) {
+            const entityChips = createEntityChips(channel);
+            if (entityChips) {
+              body.appendChild(entityChips);
+            }
+          }
         }
         
         item.appendChild(body);
@@ -7245,11 +7424,20 @@
 
         if (msg.role === 'assistant') {
           item.addEventListener('click', (event) => {
+            // Ignore clicks on entity chips (they have their own handlers)
+            if (event.target.closest('.entity-chip-row')) return;
             if (event.target.closest('.message-actions')) return;
-            toggleMessageActions(channel, msg, item);
+            
+            // Toggle collapse (like user messages)
+            item.classList.toggle('collapsed');
             document.querySelectorAll(`[data-channel-id="${channel.id}"] .message`).forEach(el => el.classList.remove('active'));
-            item.classList.add('active');
-            activateMessageDot(channel, msg.id);
+            if (!item.classList.contains('collapsed')) {
+              item.classList.add('active');
+              activateMessageDot(channel, msg.id);
+            } else if (channel.messages.length) {
+              const latest = channel.messages[channel.messages.length - 1];
+              if (latest) activateMessageDot(channel, latest.id);
+            }
           });
           if (msg.id === lastAssistantId && channel.tetrad && Object.keys(channel.tetrad).length) {
             const chips = createTetradChips(channel);
@@ -7274,6 +7462,417 @@
       list.scrollTo({ top: list.scrollHeight, behavior: 'smooth' });
       if (channel.messages.length) {
         activateMessageDot(channel, channel.messages[channel.messages.length - 1].id);
+      }
+    }
+
+    function createEntityChips(channel) {
+      if (!channel.grid) return null;
+      
+      // Collect all entities from grid with their positions
+      const entities = [];
+      channel.grid.forEach((row, y) => {
+        row.forEach((cell, x) => {
+          if (cell && cell.label) {
+            const palette = blockPalette.find(p => p.type === cell.type);
+            const cellLogs = channel.cells[`${x},${y}`] || [];
+            const lastActionIndex = cellLogs.length > 0 ? cellLogs[cellLogs.length - 1].sceneIndex : -1;
+            const currentSceneIndex = channel.ledger.length;
+            const recency = currentSceneIndex - lastActionIndex;
+            
+            entities.push({
+              symbol: cell.symbol,
+              type: cell.type,
+              name: cell.label,
+              position: `[${x},${y}]`,
+              x: x,
+              y: y,
+              description: cell.entity?.description || '',
+              color: palette?.color || 'var(--text)',
+              recency: recency,
+              lastAction: lastActionIndex
+            });
+          }
+        });
+      });
+      
+      if (entities.length === 0) return null;
+      
+      // Sort by LEGOS order, then by recency
+      const legosOrder = { 'Location': 0, 'Entity': 1, 'Goal': 2, 'Obstacle': 3, 'Shift': 4, 'Solution': 5 };
+      entities.sort((a, b) => {
+        const orderDiff = (legosOrder[a.type] || 99) - (legosOrder[b.type] || 99);
+        if (orderDiff !== 0) return orderDiff;
+        return a.recency - b.recency; // Within same type, sort by recency
+      });
+      
+      const wrapper = document.createElement('div');
+      wrapper.style.cssText = `
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid var(--border);
+      `;
+      
+      const container = document.createElement('div');
+      container.className = 'entity-list-container';
+      container.style.cssText = `
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        max-height: 200px;
+        overflow-y: auto;
+      `;
+      
+      // Multi-send button (appears when multiple selected)
+      const multiSendBtn = document.createElement('button');
+      multiSendBtn.className = 'entity-multi-send-btn';
+      multiSendBtn.style.cssText = `
+        display: none;
+        margin-top: 8px;
+        padding: 8px 12px;
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+        border: 2px solid #ff6b6b;
+        border-radius: 6px;
+        color: white;
+        font-family: 'Courier New', monospace;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+      `;
+      multiSendBtn.textContent = '→ SEND ALL TO CHAT';
+      
+      multiSendBtn.addEventListener('mouseenter', () => {
+        multiSendBtn.style.transform = 'scale(1.05)';
+        multiSendBtn.style.boxShadow = '0 6px 20px rgba(255, 107, 107, 0.5)';
+      });
+      
+      multiSendBtn.addEventListener('mouseleave', () => {
+        multiSendBtn.style.transform = 'scale(1)';
+        multiSendBtn.style.boxShadow = '0 4px 12px rgba(255, 107, 107, 0.3)';
+      });
+      
+      multiSendBtn.addEventListener('click', () => {
+        const selected = container.querySelectorAll('.entity-chip-row.selected');
+        if (selected.length === 0) return;
+        
+        const input = channel.dom?.input;
+        if (!input) return;
+        
+        const texts = Array.from(selected).map(row => {
+          const x = row.dataset.entityX;
+          const y = row.dataset.entityY;
+          const entity = entities.find(e => e.x == x && e.y == y);
+          return `${entity.symbol} ${entity.name.toUpperCase()} ${entity.position}: ${entity.description}`;
+        });
+        
+        input.value = texts.join('\n');
+        input.focus();
+        
+        // Flash button
+        multiSendBtn.style.background = 'linear-gradient(135deg, #ee5a6f 0%, #ff6b6b 100%)';
+        setTimeout(() => {
+          multiSendBtn.style.background = 'linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%)';
+        }, 200);
+      });
+      
+      entities.forEach((entity, idx) => {
+        const row = document.createElement('div');
+        row.className = 'entity-chip-row';
+        row.dataset.entityX = entity.x;
+        row.dataset.entityY = entity.y;
+        row.style.cssText = `
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 10px;
+          background: var(--bg);
+          border-left: 3px solid ${entity.color};
+          transition: all 0.2s;
+          cursor: pointer;
+          font-family: 'Courier New', monospace;
+          font-size: 10px;
+          min-height: 32px;
+        `;
+        
+        // Color intensity based on recency
+        const opacity = entity.recency <= 1 ? 1 : entity.recency <= 3 ? 0.7 : 0.4;
+        row.style.opacity = opacity;
+        
+        // Symbol with square border
+        const symbolBox = document.createElement('span');
+        symbolBox.style.cssText = `
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 20px;
+          height: 20px;
+          border: 2px solid ${entity.color};
+          border-radius: 3px;
+          background: var(--bg);
+          flex-shrink: 0;
+        `;
+        
+        const symbol = document.createElement('span');
+        symbol.textContent = entity.symbol;
+        symbol.style.cssText = `
+          color: ${entity.color};
+          font-size: 10px;
+          font-weight: 900;
+        `;
+        
+        symbolBox.appendChild(symbol);
+        
+        // Name
+        const name = document.createElement('span');
+        name.textContent = entity.name.toUpperCase();
+        name.style.cssText = `
+          color: var(--text);
+          font-weight: 700;
+          letter-spacing: 0.05em;
+          flex: 1;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        `;
+        
+        // Position
+        const pos = document.createElement('span');
+        pos.textContent = entity.position;
+        pos.style.cssText = `
+          color: var(--text-muted);
+          font-size: 8px;
+          flex-shrink: 0;
+        `;
+        
+        // Individual send button (red, same style as big button)
+        const sendBtn = document.createElement('button');
+        sendBtn.className = 'entity-row-send-btn';
+        sendBtn.style.cssText = `
+          padding: 4px 8px;
+          background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+          border: 2px solid #ff6b6b;
+          border-radius: 4px;
+          color: white;
+          font-family: 'Courier New', monospace;
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 0.05em;
+          cursor: pointer;
+          transition: all 0.2s;
+          flex-shrink: 0;
+          box-shadow: 0 2px 6px rgba(255, 107, 107, 0.3);
+        `;
+        sendBtn.textContent = '→';
+        sendBtn.title = 'Send to chat';
+        
+        sendBtn.addEventListener('mouseenter', () => {
+          sendBtn.style.transform = 'scale(1.1)';
+          sendBtn.style.boxShadow = '0 4px 12px rgba(255, 107, 107, 0.5)';
+        });
+        
+        sendBtn.addEventListener('mouseleave', () => {
+          sendBtn.style.transform = 'scale(1)';
+          sendBtn.style.boxShadow = '0 2px 6px rgba(255, 107, 107, 0.3)';
+        });
+        
+        sendBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const input = channel.dom?.input;
+          if (!input) return;
+          
+          // Add to existing text (don't replace)
+          const currentText = input.value.trim();
+          const text = `${entity.symbol} ${entity.name.toUpperCase()} ${entity.position}: ${entity.description}`;
+          
+          if (currentText) {
+            input.value = currentText + '\n' + text;
+          } else {
+            input.value = text;
+          }
+          input.focus();
+          
+          // Flash button (but keep selection)
+          sendBtn.style.background = 'linear-gradient(135deg, #ee5a6f 0%, #ff6b6b 100%)';
+          sendBtn.style.transform = 'scale(1.15)';
+          setTimeout(() => {
+            sendBtn.style.background = 'linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%)';
+            sendBtn.style.transform = 'scale(1)';
+          }, 200);
+        });
+        
+        row.appendChild(symbolBox);
+        row.appendChild(name);
+        row.appendChild(pos);
+        row.appendChild(sendBtn);
+        
+        row.title = `${entity.type}: ${entity.name}\n${entity.description}\nClick to toggle selection (multi-select)`;
+        
+        // Click row to toggle selection (NO SHIFT REQUIRED - mobile-friendly)
+        row.addEventListener('click', (e) => {
+          e.stopPropagation();
+          
+          // Get ALL entity chip rows in this channel (across all messages)
+          const channelColumn = channel.dom?.column;
+          const allEntityRows = channelColumn?.querySelectorAll('.entity-chip-row') || [];
+          
+          // Just toggle this row (no deselecting others)
+          const isSelected = row.classList.contains('selected');
+          if (isSelected) {
+            row.classList.remove('selected');
+            row.style.background = 'var(--bg)';
+            row.style.borderLeftWidth = '3px';
+          } else {
+            row.classList.add('selected');
+            row.style.background = 'var(--panel)';
+            row.style.borderLeftWidth = '5px';
+          }
+          
+          // Update grid highlights for ALL selected entities in channel
+          const allSelected = Array.from(allEntityRows).filter(r => r.classList.contains('selected'));
+          const selectedEntities = allSelected.map(r => ({
+            x: parseInt(r.dataset.entityX),
+            y: parseInt(r.dataset.entityY)
+          }));
+          highlightGridCells(channel, selectedEntities);
+          
+          // Show/hide multi-send button (only in this container)
+          const selectedInContainer = container.querySelectorAll('.entity-chip-row.selected');
+          if (selectedInContainer.length > 1) {
+            multiSendBtn.style.display = 'block';
+            multiSendBtn.textContent = `→ SEND ${selectedInContainer.length} TO CHAT`;
+          } else {
+            multiSendBtn.style.display = 'none';
+          }
+        });
+        
+        row.addEventListener('mouseenter', () => {
+          row.style.opacity = '1';
+          row.style.background = 'var(--panel-dark)';
+        });
+        
+        row.addEventListener('mouseleave', () => {
+          if (row.style.borderLeftWidth !== '5px') {
+            row.style.opacity = opacity;
+            row.style.background = 'var(--bg)';
+          }
+        });
+        
+        container.appendChild(row);
+      });
+      
+      wrapper.appendChild(container);
+      wrapper.appendChild(multiSendBtn);
+      return wrapper;
+    }
+    
+    function highlightGridCells(channel, entities) {
+      const grid = channel.dom?.gridEl;
+      if (!grid) return;
+      
+      // Remove previous highlights and index badges
+      grid.querySelectorAll('.grid-cell').forEach(cell => {
+        cell.style.boxShadow = '';
+        cell.style.transform = '';
+        cell.style.outline = '';
+        cell.style.zIndex = '';
+        const badge = cell.querySelector('.highlight-index-badge');
+        if (badge) badge.remove();
+      });
+      
+      if (entities.length === 0) return;
+      
+      // Highlight all selected entities with WHITE (so they persist)
+      entities.forEach((entity, idx) => {
+        const targetCell = grid.querySelector(`[data-x="${entity.x}"][data-y="${entity.y}"]`);
+        if (targetCell) {
+          // White highlighting (persistent, visible)
+          setTimeout(() => {
+            targetCell.style.boxShadow = '0 0 0 4px white, 0 0 40px rgba(255,255,255,0.8), 0 0 60px rgba(255,255,255,0.5)';
+            targetCell.style.outline = '2px solid white';
+            targetCell.style.transform = 'scale(1.15)';
+            targetCell.style.zIndex = '100';
+            
+            // Add index badge (chat order)
+            if (entities.length > 1) {
+              const badge = document.createElement('div');
+              badge.className = 'highlight-index-badge';
+              badge.textContent = idx + 1;
+              badge.style.cssText = `
+                position: absolute;
+                top: 2px;
+                right: 2px;
+                width: 16px;
+                height: 16px;
+                background: white;
+                color: black;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 9px;
+                font-weight: 900;
+                font-family: 'Courier New', monospace;
+                z-index: 101;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+              `;
+              targetCell.appendChild(badge);
+            }
+            
+            // Stronger pulse
+            setTimeout(() => {
+              targetCell.style.transform = 'scale(1.2)';
+              setTimeout(() => {
+                targetCell.style.transform = 'scale(1.15)';
+              }, 150);
+            }, 100);
+          }, idx * 80); // Stagger by 80ms
+        }
+      });
+      
+      // Scroll to first selected
+      if (entities.length > 0) {
+        const firstCell = grid.querySelector(`[data-x="${entities[0].x}"][data-y="${entities[0].y}"]`);
+        if (firstCell) {
+          firstCell.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    }
+    
+    function highlightGridCell(channel, x, y) {
+      const grid = channel.dom?.gridEl;
+      if (!grid) return;
+      
+      // Remove previous highlights
+      grid.querySelectorAll('.grid-cell').forEach(cell => {
+        cell.style.boxShadow = '';
+        cell.style.transform = '';
+        cell.style.outline = '';
+        cell.style.zIndex = '';
+      });
+      
+      // Find and highlight target cell
+      const targetCell = grid.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+      if (targetCell) {
+        // Much more noticeable highlight
+        targetCell.style.boxShadow = '0 0 0 4px var(--accent), 0 0 40px var(--accent), 0 0 80px var(--accent-glow)';
+        targetCell.style.outline = '2px solid var(--accent)';
+        targetCell.style.transform = 'scale(1.15)';
+        targetCell.style.zIndex = '100';
+        targetCell.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Pulse animation
+        let pulseCount = 0;
+        const pulseInterval = setInterval(() => {
+          if (pulseCount >= 3) {
+            clearInterval(pulseInterval);
+            return;
+          }
+          targetCell.style.transform = pulseCount % 2 === 0 ? 'scale(1.2)' : 'scale(1.15)';
+          pulseCount++;
+        }, 200);
       }
     }
 
@@ -8874,10 +9473,16 @@
         }, idx * 15);
       });
       
-      // Display changes in terminal log overlay
+      // Display changes in terminal log overlay AND chat
       if (changes.length) {
         console.log('[SCENE UPDATE]', changes.join(' | '));
         showSceneLog(changes);
+        
+        // Log removals to chat for visibility
+        const removals = changes.filter(c => c.startsWith('❌'));
+        if (removals.length > 0) {
+          addMessageToChannel(channel, 'system', `📊 GRID TELEMETRY:\n${removals.join('\n')}`, { autoCollapse: false });
+        }
       }
       
       setTimeout(() => {
@@ -8906,9 +9511,10 @@
           }
         });
         
-        // Show new elements in log
+        // Show new elements in log AND chat
         if (newElements.length) {
           showSceneLog(newElements);
+          addMessageToChannel(channel, 'system', `📊 GRID TELEMETRY:\n${newElements.join('\n')}`, { autoCollapse: false });
         }
         
         channel.observer = {
@@ -10648,5 +11254,11 @@ Focus entirely on the perspective of ${entityName || 'the selected entity'}. Pro
   
   <!-- Tutorial System - Draws LEGOS on grid -->
   <script src="tutorial-system.js"></script>
+  
+  <!-- Guided Tour - Fake cursor demo with minimal overlay -->
+  <script src="GUIDED_TOUR.js"></script>
+  
+  <!-- Contextual Tour - Event-driven tooltips when features appear -->
+  <script src="CONTEXTUAL_TOUR.js"></script>
 </body>
 </html>

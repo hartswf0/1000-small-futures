@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
+<title>◎ TETRAD TUTORIAL – Guided Launcher</title>
+<style>
+  /* ===== Visual system (CRT green) ===== */
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  :root{
+    --bg:#03180c;--panel:#052010;--panel-dark:#03140d;--border:#0c3a23;
+    --text:#aef3c1;--text-muted:#5ea275;--accent:#56ff9f;--accent-glow:rgba(86,255,159,.32);
+    --safe-bottom:env(safe-area-inset-bottom,0px);
+  }
+  body{font-family:"Courier New",monospace;background:var(--bg);color:var(--text);overflow:hidden}
+
+  /* ===== Fullscreen app ===== */
+  #mainFrame{width:100vw;height:100vh;border:none;display:block;background:#000}
+
+  /* ===== Tutorial overlay (spotlight + instructions) ===== */
+  .tutorial-overlay{position:fixed;inset:0;z-index:9998;display:none}
+  .tutorial-overlay.active{display:block}
+  .spotlight-bg{position:absolute;inset:0;background:rgba(3,24,12,.88)}
+  .spotlight-hole{position:absolute;border-radius:10px;border:3px solid var(--accent);
+    box-shadow:0 0 0 9999px rgba(3,24,12,.88),0 0 24px var(--accent-glow);
+    animation:pulse 2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.15)}}
+
+  .instruction-card{position:fixed;max-width:340px;background:var(--panel);border:2px solid var(--accent);
+    border-radius:10px;padding:18px;z-index:9999;box-shadow:0 8px 40px rgba(0,0,0,.85)}
+  .instruction-step{font-size:10px;color:var(--text-muted);letter-spacing:.15em;margin-bottom:6px}
+  .instruction-title{font-size:15px;font-weight:700;color:var(--accent);margin-bottom:10px;letter-spacing:.04em}
+  .instruction-text{font-size:11px;line-height:1.6;margin-bottom:12px}
+  .instruction-actions{display:flex;gap:8px}
+  .instruction-btn{flex:1;padding:12px;background:var(--accent);border:2px solid var(--accent);color:var(--bg);
+    font:700 10px inherit;letter-spacing:.12em;border-radius:6px;cursor:pointer}
+  .instruction-btn.secondary{background:transparent;color:var(--accent)}
+
+  /* ===== Collection picker (training wheels) ===== */
+  .collection-picker{position:fixed;inset:0;background:var(--bg);z-index:10000;display:flex;
+    flex-direction:column;align-items:center;justify-content:center;padding:20px}
+  .collection-picker.hidden{display:none}
+  .picker-title{font-size:16px;font-weight:700;color:var(--accent);letter-spacing:.2em;margin-bottom:28px}
+  .collection-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;max-width:640px;width:100%}
+  .collection-card{background:var(--panel);border:2px solid var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:.2s}
+  .collection-card:hover{border-color:var(--accent);box-shadow:0 6px 22px var(--accent-glow)}
+  .collection-icon{font-size:28px;margin-bottom:10px}
+  .collection-name{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.06em}
+
+  /* ===== Ghost cursor to model actions ===== */
+  #ghostCursor{position:fixed;z-index:10001;width:16px;height:16px;border:2px solid var(--accent);
+    border-radius:50%;box-shadow:0 0 10px var(--accent-glow);pointer-events:none;opacity:0;transition:opacity .15s}
+  #ghostCursor.on{opacity:1}
+
+  /* ===== Toast ===== */
+  .toast{position:fixed;left:50%;bottom:calc(16px + var(--safe-bottom));transform:translateX(-50%);
+    background:var(--panel);border:2px solid var(--accent);border-radius:8px;padding:10px 14px;font-size:11px;
+    z-index:10002;opacity:0;transition:opacity .2s}
+  .toast.show{opacity:1}
+
+  /* ===== Simple progress bar ===== */
+  .progress{position:fixed;top:0;left:0;height:3px;background:var(--accent);width:0%;z-index:10002;box-shadow:0 0 8px var(--accent-glow)}
+</style>
+</head>
+<body class="theme-thousand">
+  <!-- FULL IFRAME (no chrome) -->
+  <iframe id="mainFrame" src="thousand-tetrad.html"></iframe>
+
+  <!-- PROGRESS BAR -->
+  <div class="progress" id="progress"></div>
+
+  <!-- OVERLAY: spotlight + instruction card -->
+  <div class="tutorial-overlay" id="tutorialOverlay" aria-hidden="true">
+    <div class="spotlight-bg" id="spotlightBG"></div>
+    <div class="spotlight-hole" id="spotlightHole" aria-hidden="true"></div>
+    <div class="instruction-card" id="instructionCard" role="dialog" aria-modal="true">
+      <div class="instruction-step" id="instructionStep">STEP 1/5</div>
+      <div class="instruction-title" id="instructionTitle">Welcome</div>
+      <div class="instruction-text" id="instructionText">Let's get started…</div>
+      <div class="instruction-actions">
+        <button class="instruction-btn secondary" id="skipBtn">SKIP</button>
+        <button class="instruction-btn" id="nextBtn">GOT IT</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLLECTION PICKER (initial screen / training wheels) -->
+  <div class="collection-picker" id="collectionPicker">
+    <div class="picker-title">◎ CHOOSE TUTORIAL</div>
+    <div class="collection-grid">
+      <div class="collection-card" data-tutorial="quickstart"><div class="collection-icon">⚡</div><div class="collection-name">QUICKSTART</div></div>
+      <div class="collection-card" data-tutorial="studio"><div class="collection-icon">⋔</div><div class="collection-name">TETRAD STUDIO</div></div>
+      <div class="collection-card" data-tutorial="advanced"><div class="collection-icon">◎</div><div class="collection-name">ADVANCED</div></div>
+      <div class="collection-card" data-tutorial="skip"><div class="collection-icon">→</div><div class="collection-name">SKIP</div></div>
+    </div>
+  </div>
+
+  <!-- Ghost cursor -->
+  <div id="ghostCursor"></div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+  // ===== Utilities =====
+  const $= (s,el=document)=>el.querySelector(s);
+  const $$=(s,el=document)=>Array.from(el.querySelectorAll(s));
+  const frame = $('#mainFrame');
+  const overlay = $('#tutorialOverlay');
+  const hole = $('#spotlightHole');
+  const card = $('#instructionCard');
+  const stepEl = $('#instructionStep');
+  const titleEl = $('#instructionTitle');
+  const textEl = $('#instructionText');
+  const progress = $('#progress');
+  const ghost = $('#ghostCursor');
+  const toast = (msg)=>{ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1500); };
+
+  const KEY_NAME='legos.multichannel.key';
+  let currentTutorial=null, currentStep=0, steps=[];
+
+  // ===== Selector map (robust fallbacks; keep synced with real app) =====
+  const SEL = {
+    scenario: ['#globalScenarioSelect'],
+    tetrad: {
+      enhance: ['[data-tetrad="enhance"]','.tetrad-chip[data-fork="enhance"]'],
+      retrieve:['[data-tetrad="retrieve"]','.tetrad-chip[data-fork="retrieve"]'],
+      reverse: ['[data-tetrad="reverse"]','.tetrad-chip[data-fork="reverse"]'],
+      obsolesce:['[data-tetrad="obsolesce"]','.tetrad-chip[data-fork="obsolesce"]']
+    },
+    addChannel: ['#cornerAdd','#addChannelBtn'],
+    perspective: ['#open-perspective','.perspective-btn'],
+    gridCell: ['.grid-cell','.grid .cell','.board .cell'],
+    snapshot: ['#snapshotCreateBtn','[data-action="snapshot-create"]','#snapshotBtn'],
+    exportBtn: ['#cornerExchange','#exportBtn'],
+    apiKeyBtn: ['#cornerKey','#apiKeyBtn'],
+    tetradMenuBtn: ['#tetradMenuBtn','.tetrad-menu-button']
+  };
+
+  // ===== Tutorials (apply learning theory: 5–7 core actions, progressive disclosure) =====
+  const TUTORIALS = {
+    quickstart: [
+      { key:'apiKey',    target: SEL.apiKeyBtn,     title:'Store API Key',    text:'Click here to open the key overlay. Paste your key (starts with "sk-"). We auto-save.', pos:'bottom', essential:true },
+      { key:'scenario',  target: SEL.scenario,      title:'Pick Scenario',     text:'Choose a friendly scene to avoid a blank start. We recommend “Hello / Blank Canvas”.', pos:'bottom' },
+      { key:'seed',      target: SEL.addChannel,    title:'Create First Chat', text:'Click Add Channel to seed the grid so you are not starting from empty.', pos:'bottom' },
+      { key:'tetradBtn', target: SEL.tetradMenuBtn, title:'Open Tetrad',       text:'This button opens Tetrad chips beside the selector.', pos:'bottom' },
+      { key:'enhance',   target: SEL.tetrad.enhance,title:'Apply “Enhance”',   text:'Tap Enhance to see the in-grid transformation.', pos:'top' },
+      { key:'snapshot',  target: SEL.snapshot,      title:'Snapshot State',    text:'Save your progress so you can safely explore and revert.', pos:'bottom' },
+      { key:'export',    target: SEL.exportBtn,     title:'Export Session',    text:'Export JSON to share or archive. You’re ready to explore!', pos:'bottom' }
+    ],
+    studio: [
+      { key:'add',       target: SEL.addChannel,    title:'Add Channel',       text:'Compose parallel narratives by adding channels.', pos:'bottom' },
+      { key:'persp',     target: SEL.perspective,   title:'Set Perspective',   text:'Assign roles and viewpoints via the Perspective overlay.', pos:'bottom' },
+      { key:'place',     target: SEL.gridCell,      title:'Place on Grid',     text:'Click a grid cell to open the placement menu.', pos:'top' },
+      { key:'tetradAny', target: [].concat(SEL.tetrad.enhance,SEL.tetrad.retrieve,SEL.tetrad.reverse,SEL.tetrad.obsolesce), title:'Tetrad Intervention', text:'Try any chip to analyze/transform a message.', pos:'top' },
+      { key:'snap',      target: SEL.snapshot,      title:'Snapshot',          text:'Checkpoint your state before branching.', pos:'bottom' }
+    ],
+    advanced: [
+      { key:'persp',     target: SEL.perspective,   title:'Perspective Deep',  text:'Explore roles, goals, and shifts.', pos:'center' },
+      { key:'grid',      target: SEL.gridCell,      title:'Grid Diagnostics',  text:'Observe occupancy and ripple effects.', pos:'top' },
+      { key:'export',    target: SEL.exportBtn,     title:'Import/Export',     text:'Round-trip sessions for testing.', pos:'bottom' }
+    ]
+  };
+
+  // ===== Helpers for iframe DOM =====
+  function doc(){ try{ return frame.contentDocument || frame.contentWindow.document; }catch(e){ return null; } }
+  function qAny(list){ const d=doc(); if(!d || !list) return null; for(let i=0;i<list.length;i++){ const el=d.querySelector(list[i]); if(el) return el; } return null; }
+  function clickAny(list){ const el=qAny(list); if(!el) return false; el.click(); return true; }
+  function waitFor(list,ms=4000){ const start=Date.now(); return new Promise(res=>{ (function loop(){ const el=qAny(list); if(el) return res(el); if(Date.now()-start>ms) return res(null); requestAnimationFrame(loop); })(); }); }
+  function setScenarioValue(id){ const d=doc(); if(!d) return false; const sel=d.querySelector('#globalScenarioSelect'); if(!sel) return false; sel.value=id; sel.dispatchEvent(new Event('change',{bubbles:true})); return true; }
+
+  // ===== Spotlight + card positioning =====
+  function placeSpotlightFor(el, pref='bottom'){
+    const ifr = frame.getBoundingClientRect();
+    const r   = el.getBoundingClientRect();
+    const top = ifr.top + r.top, left = ifr.left + r.left;
+    hole.style.top = top+"px"; hole.style.left=left+"px"; hole.style.width=r.width+"px"; hole.style.height=r.height+"px";
+    // card placement
+    const pad=16, cardW=340; let cTop, cLeft, trans='none';
+    if(pref==='top')   { cTop = top - 8 - card.offsetHeight; cLeft = Math.max(pad, Math.min(window.innerWidth-cardW-pad, left)); }
+    else if(pref==='center'){ cTop = window.innerHeight/2; cLeft = window.innerWidth/2; trans='translate(-50%,-50%)'; }
+    else /* bottom */ { cTop = top + r.height + 8; cLeft = Math.max(pad, Math.min(window.innerWidth-cardW-pad, left)); }
+    card.style.top=cTop+"px"; card.style.left=cLeft+"px"; card.style.transform=trans;
+  }
+
+  // ===== Ghost cursor (models the action) =====
+  function moveCursorTo(el, thenClick=false){
+    const ifr = frame.getBoundingClientRect();
+    const r = el.getBoundingClientRect();
+    const cx = ifr.left + r.left + r.width/2;
+    const cy = ifr.top  + r.top  + r.height/2;
+    ghost.classList.add('on');
+    ghost.animate([
+      { transform:`translate(${ghost.offsetLeft}px, ${ghost.offsetTop}px)` },
+      { transform:`translate(${cx}px, ${cy}px)` }
+    ], { duration: 450, easing: 'ease-in-out' }).onfinish = ()=>{
+      ghost.style.transform = `translate(${cx}px, ${cy}px)`;
+      if(thenClick){ el.click(); el.dispatchEvent(new MouseEvent('mousedown',{bubbles:true})); el.dispatchEvent(new MouseEvent('mouseup',{bubbles:true})); }
+    };
+  }
+
+  // ===== API key: paste anywhere to capture, plus resume AudioContext =====
+  window.addEventListener('paste', (e)=>{
+    const text = (e.clipboardData||{}).getData && e.clipboardData.getData('text') || '';
+    if(/^sk-[A-Za-z0-9]{10,}/.test(text)){ try{ localStorage.setItem(KEY_NAME, text.trim()); toast('API key saved ✓'); }catch(_){ } }
+  });
+  window.addEventListener('click', ()=>{ try{ if(window.Tone && Tone.context && Tone.context.state!=='running'){ Tone.start(); } }catch(_){ } }, { once:true });
+
+  // ===== Step engine =====
+  function setProgress(i,total){ const pct = Math.round((i/Math.max(1,total))*100); progress.style.width = pct+"%"; }
+  async function showStep(){
+    const ts = steps; if(!ts || currentStep>=ts.length){ return complete(); }
+    const step = ts[currentStep];
+    stepEl.textContent = `STEP ${currentStep+1}/${ts.length}`;
+    titleEl.textContent = step.title; textEl.textContent = step.text;
+    setProgress(currentStep, ts.length);
+    overlay.classList.add('active');
+
+    // Ensure scene isn’t blank for novices
+    if(step.key==='scenario'){ const ok = setScenarioValue('hello') || setScenarioValue('blank'); if(ok) toast('Scenario prepared'); }
+
+    const target = await waitFor(step.target, 5000);
+    if(target){ placeSpotlightFor(target, step.pos||'bottom'); moveCursorTo(target, false);
+      hole.onclick = ()=>{ target.click(); setTimeout(next, 300); };
+    } else {
+      // Target not found → keep guidance center, but allow next
+      card.style.top='50%'; card.style.left='50%'; card.style.transform='translate(-50%,-50%)';
+      hole.style.top='40%'; hole.style.left='35%'; hole.style.width='30%'; hole.style.height='20%';
+    }
+  }
+  function next(){ currentStep++; showStep(); }
+  function skip(){ overlay.classList.remove('active'); $('.collection-picker').classList.add('hidden'); toast('Tutorial skipped'); }
+  function complete(){ overlay.classList.remove('active'); toast('Tutorial complete!'); }
+
+  // ===== Start flow =====
+  function startTutorial(id){
+    currentTutorial=id; currentStep=0; steps = TUTORIALS[id]||[];
+    $('#collectionPicker').classList.add('hidden');
+    setTimeout(showStep, 350);
+  }
+
+  // ===== Events =====
+  $('#nextBtn').addEventListener('click', next);
+  $('#skipBtn').addEventListener('click', skip);
+  $('#spotlightBG').addEventListener('click', next);
+  $('#collectionPicker').addEventListener('click', (e)=>{
+    const card = e.target.closest('.collection-card'); if(!card) return;
+    const id = card.getAttribute('data-tutorial');
+    if(id==='skip') return skip();
+    startTutorial(id);
+  });
+
+  // ===== Iframe bootstrapping =====
+  frame.addEventListener('load', ()=>{
+    // seed non-blank by default if possible
+    setTimeout(()=>{
+      setScenarioValue('hello') || setScenarioValue('blank');
+      // If Add Channel exists, open spotlight hint immediately
+      waitFor(SEL.addChannel, 800).then(el=>{ if(el){ overlay.classList.add('active'); placeSpotlightFor(el,'bottom'); } });
+    }, 350);
+  });
+
+  // ===== Minimal smoke tests (non-destructive) =====
+  (function TESTS(){
+    try { if(!frame) throw new Error('frame missing'); console.log('[TEST] frame ok'); } catch(e){ console.error(e); }
+    try { if(!document.getElementById('tutorialOverlay')) throw new Error('overlay missing'); console.log('[TEST] overlay ok'); } catch(e){ console.error(e); }
+  })();
+})();
+</script>
+</body>
+</html>

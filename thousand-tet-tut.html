@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>◎ TETRAD TUTORIAL</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#03180c;--panel:#052010;--border:#0c3a23;--text:#aef3c1;--text-muted:#5ea275;
+--accent:#56ff9f;--accent-glow:rgba(86,255,159,0.32);
+}
+body{font-family:'Courier New',monospace;background:var(--bg);color:var(--text);margin:0;padding:0;overflow:hidden}
+/* FULL IFRAME - NO HEADERS/FOOTERS */
+#mainFrame{width:100vw;height:100vh;border:none;display:block}
+/* SPOTLIGHT OVERLAY */
+.tutorial-overlay{position:fixed;inset:0;pointer-events:none;z-index:9998;display:none}
+.tutorial-overlay.active{display:block}
+.spotlight-bg{position:absolute;inset:0;background:rgba(3,24,12,0.1);pointer-events:none}
+.spotlight-hole{position:absolute;box-shadow:0 0 0 9999px rgba(3,24,12,0.1);border-radius:8px;pointer-events:auto;
+border:3px solid var(--accent);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 9999px rgba(3,24,12,0.1),0 0 20px var(--accent-glow)}
+50%{box-shadow:0 0 0 9999px rgba(3,24,12,0.1),0 0 40px var(--accent)}}
+/* INSTRUCTION CARD - LEGOS GRID STYLE */
+.instruction-card{position:fixed;background:rgba(5,32,16,0.95);border:2px solid var(--accent);border-radius:6px;
+padding:16px;max-width:280px;z-index:10001;pointer-events:auto;box-shadow:0 4px 16px rgba(0,0,0,0.8);
+font-family:'Courier New',monospace}
+.instruction-step{font-size:9px;color:var(--text-muted);letter-spacing:0.15em;margin-bottom:8px;
+display:flex;align-items:center;gap:8px}
+.instruction-step::before{content:'';display:inline-block;width:8px;height:8px;background:var(--accent);
+border-radius:2px;animation:pulse 2s ease-in-out infinite}
+.instruction-title{font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px;letter-spacing:0.05em;
+text-transform:uppercase;border-bottom:1px solid var(--accent);padding-bottom:6px}
+.instruction-text{font-size:10px;line-height:1.5;color:var(--text);margin-bottom:12px;white-space:pre-line;
+font-family:'Courier New',monospace}
+.instruction-actions{display:flex;gap:8px}
+.instruction-btn{flex:1;padding:8px;background:var(--accent);border:1px solid var(--accent);color:var(--bg);
+font-family:'Courier New',monospace;font-size:9px;font-weight:700;letter-spacing:0.05em;cursor:pointer;border-radius:3px;
+transition:all 0.2s;text-transform:uppercase}
+.instruction-btn:hover{background:transparent;color:var(--accent);transform:scale(1.05)}
+.instruction-btn.secondary{background:transparent;color:var(--text-muted);border-color:var(--border)}
+.instruction-btn.secondary:hover{color:var(--accent);border-color:var(--accent)}
+.instruction-btn:disabled{opacity:0.3;cursor:not-allowed}
+/* COLLECTION PICKER (INITIAL) - GRID AESTHETIC */
+.collection-picker{position:fixed;inset:0;background:var(--bg);z-index:10000;display:flex;
+flex-direction:column;align-items:center;justify-content:center;padding:20px;gap:24px}
+.collection-picker.hidden{display:none}
+.picker-title{font-size:10px;font-weight:700;color:var(--accent);letter-spacing:0.15em;
+text-transform:uppercase;font-family:'Courier New',monospace;border-bottom:1px solid var(--border);
+padding-bottom:8px;margin-bottom:0}
+.collection-grid{display:flex;flex-direction:column;gap:12px;width:100%;max-width:min(320px,calc(100vw - 40px))}
+.collection-card{background:var(--panel);border:2px solid var(--border);border-radius:4px;
+padding:16px 20px;cursor:pointer;text-align:left;transition:all 0.2s;display:flex;align-items:center;
+gap:12px;font-family:'Courier New',monospace}
+.collection-card:active{transform:scale(0.98)}
+.collection-card:hover{border-color:var(--accent);box-shadow:0 0 20px var(--accent-glow)}
+.collection-icon{font-size:20px;min-width:20px;text-align:center}
+.collection-name{font-size:10px;font-weight:700;color:var(--text);letter-spacing:0.05em;text-transform:uppercase}
+/* INTRO ANIMATION */
+.intro-screen{position:fixed;inset:0;background:var(--bg);z-index:10002;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;opacity:1;transition:opacity 0.8s ease-out}
+.intro-screen.hidden{opacity:0;pointer-events:none}
+.intro-logo{font-size:clamp(24px,8vw,48px);font-weight:700;color:var(--accent);letter-spacing:0.2em;text-transform:uppercase;animation:glowPulse 2s ease-in-out infinite}
+.intro-subtitle{font-size:clamp(10px,3vw,14px);color:var(--text-muted);letter-spacing:0.15em;text-transform:uppercase}
+.loading-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:120px;height:120px}
+.loading-cell{background:var(--panel);border:1px solid var(--border);border-radius:4px;animation:cellPulse 1.5s ease-in-out infinite}
+.loading-cell:nth-child(1){animation-delay:0s}
+.loading-cell:nth-child(2){animation-delay:0.1s}
+.loading-cell:nth-child(3){animation-delay:0.2s}
+.loading-cell:nth-child(4){animation-delay:0.3s}
+.loading-cell:nth-child(5){animation-delay:0.4s;background:var(--accent);border-color:var(--accent)}
+.loading-cell:nth-child(6){animation-delay:0.5s}
+.loading-cell:nth-child(7){animation-delay:0.6s}
+.loading-cell:nth-child(8){animation-delay:0.7s}
+.loading-cell:nth-child(9){animation-delay:0.8s}
+@keyframes glowPulse{0%,100%{text-shadow:0 0 20px var(--accent-glow),0 0 40px var(--accent-glow)}50%{text-shadow:0 0 40px var(--accent),0 0 80px var(--accent)}}
+@keyframes cellPulse{0%,100%{opacity:0.3;transform:scale(0.9)}50%{opacity:1;transform:scale(1)}}
+/* API VERIFICATION */
+.api-status{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--panel);border:2px solid var(--accent);border-radius:6px;padding:12px 20px;font-size:10px;font-weight:700;color:var(--accent);letter-spacing:0.05em;text-transform:uppercase;z-index:10003;opacity:0;transition:opacity 0.3s;pointer-events:none}
+.api-status.show{opacity:1}
+.api-status.success{border-color:var(--accent);color:var(--accent)}
+.api-status.error{border-color:#ff5656;color:#ff5656}
+/* MOBILE RESPONSIVE */
+@media(max-width:480px){
+.instruction-card{max-width:calc(100vw - 32px);padding:12px;font-size:9px}
+.instruction-title{font-size:11px}
+.instruction-text{font-size:9px;line-height:1.4}
+.instruction-btn{padding:6px;font-size:8px}
+.collection-card{padding:12px 16px}
+.collection-icon{font-size:16px}
+.collection-name{font-size:9px}
+}
+</style>
+</head>
+<body>
+<!-- INTRO ANIMATION -->
+<div class="intro-screen" id="introScreen">
+<div class="intro-logo">◎ HYPERCLAY</div>
+<div class="loading-grid">
+<div class="loading-cell"></div>
+<div class="loading-cell"></div>
+<div class="loading-cell"></div>
+<div class="loading-cell"></div>
+<div class="loading-cell"></div>
+<div class="loading-cell"></div>
+<div class="loading-cell"></div>
+<div class="loading-cell"></div>
+<div class="loading-cell"></div>
+</div>
+<div class="intro-subtitle">Loading Tutorial System...</div>
+</div>
+
+<!-- API VERIFICATION STATUS -->
+<div class="api-status" id="apiStatus">API Key Verified ✓</div>
+
+<!-- MAIN IFRAME - FULL SCREEN, NO OBSTRUCTION -->
+<iframe id="mainFrame" src="thousand-tetrad.html"></iframe>
+
+<!-- TUTORIAL OVERLAY (SPOTLIGHT + INSTRUCTION) -->
+<div class="tutorial-overlay" id="tutorialOverlay">
+<div class="spotlight-bg" onclick="skipStep()"></div>
+<div class="spotlight-hole" id="spotlightHole"></div>
+<div class="instruction-card" id="instructionCard">
+<div class="instruction-step" id="instructionStep">STEP 1/5</div>
+<div class="instruction-title" id="instructionTitle">Welcome</div>
+<div class="instruction-text" id="instructionText">Let's get started...</div>
+<div class="instruction-actions">
+<button class="instruction-btn secondary" onclick="prevStep()" id="backBtn">← BACK</button>
+<button class="instruction-btn" onclick="nextStep()" id="forwardBtn">FORWARD →</button>
+</div>
+<div class="instruction-actions" style="margin-top:8px">
+<button class="instruction-btn secondary" onclick="skipTutorial()">SKIP ALL</button>
+<button class="instruction-btn secondary" onclick="showHelp()">? HELP</button>
+</div>
+</div>
+</div>
+
+<!-- COLLECTION PICKER (INITIAL SCREEN) -->
+<div class="collection-picker" id="collectionPicker">
+<div class="picker-title">◎ CHOOSE TUTORIAL</div>
+<div class="collection-grid">
+<div class="collection-card" onclick="startTutorial('quickstart')">
+<div class="collection-icon">⚡</div>
+<div class="collection-name">QUICKSTART</div>
+</div>
+<div class="collection-card" onclick="startTutorial('studio')">
+<div class="collection-icon">⋔</div>
+<div class="collection-name">TETRAD STUDIO</div>
+</div>
+<div class="collection-card" onclick="startTutorial('advanced')">
+<div class="collection-icon">◎</div>
+<div class="collection-name">ADVANCED</div>
+</div>
+<div class="collection-card" onclick="skipTutorial()">
+<div class="collection-icon">→</div>
+<div class="collection-name">SKIP</div>
+</div>
+</div>
+</div>
+
+<script>
+// TUTORIAL STEPS - EACH TARGETS REAL UI ELEMENT
+const TUTORIALS={
+quickstart:[
+{target:'#cornerKey',title:'◎ API Key',text:'Get your OpenAI API key:\nplatform.openai.com/api-keys\n\nClick ◎ button to paste it.',position:'bottom'},
+{target:'#keyInput',title:'◎ Paste Key',text:'Paste your API key here.\n\nStored locally in your browser.\n\nClick SAVE.',position:'top'},
+{target:'.message-input',title:'▣ First Message',text:'Type a message using LEGOS:\n\nL ▣ Location\nE ○ Entity\nG ▲ Goal\nO ◆ Obstacle\nS ⟡ Shift\nU ◉ Solution\n\nExample: "A wizard enters the tavern"\n\nClick SEND.',position:'top'},
+{target:'.grid-cell',title:'○ Grid',text:'Entities appear on the 9×9 grid.\n\nClick any cell to see actions.',position:'top'},
+{target:'#cornerAdd',title:'＋ Channels',text:'Create new channels for:\n\n▣ Different scenarios\n○ Parallel timelines\n▲ Alternative perspectives\n\nClick ＋ to add.',position:'bottom'}
+],
+studio:[
+{target:'.grid-container',title:'Grid System',text:'The grid shows spatial relationships. Entities, goals, and obstacles are placed based on your narrative.',position:'top'},
+{target:'.message-input',title:'LEGOS System',text:'Use LEGOS in your messages: Location (where), Entity (who/what), Goal (want), Obstacle (blocks), Shift (change), Solution (resolve).',position:'top'},
+{target:'#cornerHelp',title:'Help Menu',text:'Click ? for tour, help, theme toggle, and fullscreen. Access anytime you need guidance.',position:'bottom'},
+{target:'.channel-header',title:'Channel Header',text:'Each channel has options: tetrad mode, reset, collapse, rename, delete. Click the header to access.',position:'bottom'}
+],
+advanced:[
+{target:'.grid-cell',title:'Element Perspective',text:'Right-click (or long-press) grid cells to run ELEMENT PERSPECTIVE - deep character analysis with emotional state, plot impact, and next actions.',position:'top'},
+{target:'#cornerKey',title:'Perspective Selector',text:'After selecting a scenario, use the 👁 SELECT PERSPECTIVE dropdown to choose which entity\'s viewpoint for tetrad generation.',position:'bottom'},
+{target:'.message-input',title:'Advanced LEGOS',text:'Combine multiple LEGOS elements in one message. The AI will parse and place them on the grid intelligently.',position:'top'},
+{target:'#cornerExchange',title:'Session Management',text:'Export sessions to backup your work. Import to restore or share scenarios with others.',position:'top'}
+]
+};
+
+let currentTutorial=null;
+let currentStep=0;
+let iframe=null;
+
+function init(){
+iframe=document.getElementById('mainFrame');
+
+// Show intro animation
+const introScreen=document.getElementById('introScreen');
+setTimeout(()=>{
+introScreen.classList.add('hidden');
+},2500); // 2.5s intro
+
+// Wait for iframe to load
+iframe.onload=()=>{
+console.log('[TUTORIAL] Iframe loaded');
+};
+}
+
+// API Verification - show status when key is saved
+function showAPIStatus(success,message){
+const status=document.getElementById('apiStatus');
+status.textContent=message;
+status.className='api-status show '+(success?'success':'error');
+setTimeout(()=>{
+status.classList.remove('show');
+},3000);
+}
+
+// Listen for API key save events from iframe
+window.addEventListener('message',(event)=>{
+if(event.data.type==='apiKeySaved'){
+showAPIStatus(true,'API Key Verified ✓');
+}else if(event.data.type==='apiKeyError'){
+showAPIStatus(false,'API Key Invalid ✗');
+}
+});
+
+function startTutorial(tutorialId){
+currentTutorial=tutorialId;
+currentStep=0;
+document.getElementById('collectionPicker').classList.add('hidden');
+setTimeout(()=>{
+showStep();
+updateButtons();
+},500); // Wait for iframe to be visible
+}
+
+function showStep(){
+const steps=TUTORIALS[currentTutorial];
+if(!steps||currentStep>=steps.length){
+completeTutorial();
+return;
+}
+
+const step=steps[currentStep];
+const overlay=document.getElementById('tutorialOverlay');
+const hole=document.getElementById('spotlightHole');
+const card=document.getElementById('instructionCard');
+
+// Update instruction content
+document.getElementById('instructionStep').textContent=`STEP ${currentStep+1}/${steps.length}`;
+document.getElementById('instructionTitle').textContent=step.title;
+document.getElementById('instructionText').textContent=step.text;
+
+// NO AUTO-ADVANCE - User controls everything
+try{
+const iframeDoc=iframe.contentDocument||iframe.contentWindow.document;
+const target=iframeDoc.querySelector(step.target);
+
+if(target){
+// Get target position relative to viewport
+const iframeRect=iframe.getBoundingClientRect();
+const targetRect=target.getBoundingClientRect();
+const absoluteTop=iframeRect.top+targetRect.top;
+const absoluteLeft=iframeRect.left+targetRect.left;
+
+// Position spotlight hole
+hole.style.top=absoluteTop+'px';
+hole.style.left=absoluteLeft+'px';
+hole.style.width=targetRect.width+'px';
+hole.style.height=targetRect.height+'px';
+
+// Position instruction card
+positionCard(card,{top:absoluteTop,left:absoluteLeft,width:targetRect.width,height:targetRect.height},step.position);
+
+// Make target clickable through overlay
+hole.style.pointerEvents='auto';
+
+// USER CONTROLS PACE - No auto-advance
+// User must click NEXT button to proceed
+hole.onclick=()=>{
+  // Allow clicking through to interact with highlighted element
+  if(target && target.tagName === 'BUTTON'){
+    target.click();
+  }
+};
+}else{
+console.warn('[TUTORIAL] Target not found:',step.target);
+// Show card in center if target not found
+card.style.top='50%';
+card.style.left='50%';
+card.style.transform='translate(-50%,-50%)';
+// Hide spotlight hole if no target
+hole.style.display='none';
+}
+}catch(e){
+console.error('[TUTORIAL] Error accessing iframe:',e);
+// Show card in center on error
+card.style.top='50%';
+card.style.left='50%';
+card.style.transform='translate(-50%,-50%)';
+hole.style.display='none';
+}
+
+// Always show overlay
+overlay.classList.add('active');
+// Reset hole display for next step
+setTimeout(()=>{
+if(hole.style.display==='none'){
+hole.style.display='block';
+}
+},100);
+}
+
+// No auto-advance - user controls the pace
+
+function positionCard(card,targetRect,position){
+const padding=16;
+const cardWidth=280; // Smaller card width
+
+// Smart positioning - avoid screen edges
+let top, left, bottom;
+
+switch(position){
+case 'top':
+bottom = window.innerHeight - targetRect.top + padding;
+left = Math.max(padding, Math.min(window.innerWidth - cardWidth - padding, targetRect.left));
+card.style.bottom = bottom + 'px';
+card.style.left = left + 'px';
+card.style.top = 'auto';
+card.style.transform = 'none';
+break;
+
+case 'bottom':
+top = targetRect.top + targetRect.height + padding;
+left = Math.max(padding, Math.min(window.innerWidth - cardWidth - padding, targetRect.left));
+
+// If too close to bottom, flip to top
+if(top + 200 > window.innerHeight){
+  bottom = window.innerHeight - targetRect.top + padding;
+  card.style.bottom = bottom + 'px';
+  card.style.top = 'auto';
+} else {
+  card.style.top = top + 'px';
+  card.style.bottom = 'auto';
+}
+card.style.left = left + 'px';
+card.style.transform = 'none';
+break;
+
+case 'center':
+card.style.top = '50%';
+card.style.left = '50%';
+card.style.transform = 'translate(-50%,-50%)';
+card.style.bottom = 'auto';
+break;
+
+default:
+top = targetRect.top + targetRect.height + padding;
+left = Math.max(padding, Math.min(window.innerWidth - cardWidth - padding, targetRect.left));
+card.style.top = top + 'px';
+card.style.left = left + 'px';
+card.style.transform = 'none';
+}
+}
+
+function nextStep(){
+currentStep++;
+showStep();
+updateButtons();
+}
+
+function prevStep(){
+if(currentStep>0){
+currentStep--;
+showStep();
+updateButtons();
+}
+}
+
+function updateButtons(){
+const steps=TUTORIALS[currentTutorial];
+const backBtn=document.getElementById('backBtn');
+const forwardBtn=document.getElementById('forwardBtn');
+
+// Disable BACK on first step
+if(currentStep===0){
+backBtn.disabled=true;
+backBtn.style.opacity='0.3';
+}else{
+backBtn.disabled=false;
+backBtn.style.opacity='1';
+}
+
+// Change FORWARD to FINISH on last step
+if(currentStep>=steps.length-1){
+forwardBtn.textContent='FINISH →';
+}else{
+forwardBtn.textContent='FORWARD →';
+}
+}
+
+function skipStep(){
+nextStep();
+}
+
+function skipTutorial(){
+document.getElementById('collectionPicker').classList.add('hidden');
+document.getElementById('tutorialOverlay').classList.remove('active');
+}
+
+function showHelp(){
+// Open documentation in new tab
+window.open('https://github.com/yourusername/thousand-tetrad/wiki', '_blank');
+// Or show inline help overlay
+alert('HELP:\n\n▣ LEGOS Framework\nL - Location (where)\nE - Entity (who/what)\nG - Goal (want)\nO - Obstacle (blocks)\nS - Shift (change)\nU - Solution (resolve)\n\n⋔ McLuhan\'s Four Laws\nEnhances, Obsolesces, Retrieves, Reverses\n\nFor full documentation, visit the wiki.');
+}
+
+function completeTutorial(){
+document.getElementById('tutorialOverlay').classList.remove('active');
+alert('Tutorial complete! You can now use Thousand Tetrad freely.');
+}
+
+init();
+</script>
+</body>
+</html>
