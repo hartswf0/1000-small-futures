@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LEGOS Theoretical Correspondences</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Courier New', monospace;
+  background: #0a1612;
+  color: #aef3c1;
+  padding: 2rem;
+  line-height: 1.6;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+h1 { 
+  color: #56ff9f; 
+  margin-bottom: 1rem;
+  font-size: 2rem;
+  border-bottom: 2px solid #1b6e3e;
+  padding-bottom: 0.5rem;
+}
+h2 { 
+  color: #56ff9f; 
+  margin: 2rem 0 1rem 0;
+  font-size: 1.3rem;
+}
+h3 {
+  color: #aef3c1;
+  margin: 1.5rem 0 0.5rem 0;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.framework {
+  background: rgba(86, 255, 159, 0.08);
+  border-left: 3px solid #56ff9f;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+.mapping {
+  background: rgba(27, 110, 62, 0.2);
+  padding: 1rem;
+  margin: 0.5rem 0;
+  border-radius: 4px;
+}
+.legos-component {
+  color: #56ff9f;
+  font-weight: bold;
+}
+.theory-component {
+  color: #f8d66a;
+  font-weight: bold;
+}
+.insight {
+  background: rgba(255, 215, 0, 0.1);
+  border-left: 3px solid #f8d66a;
+  padding: 0.8rem;
+  margin: 1rem 0;
+  font-style: italic;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+th, td {
+  border: 1px solid #1b6e3e;
+  padding: 0.75rem;
+  text-align: left;
+}
+th {
+  background: rgba(86, 255, 159, 0.15);
+  color: #56ff9f;
+}
+tr:hover {
+  background: rgba(86, 255, 159, 0.05);
+}
+.synthesis {
+  background: rgba(255, 61, 78, 0.1);
+  border: 2px solid #ff3d4e;
+  padding: 1.5rem;
+  margin: 2rem 0;
+}
+code {
+  background: rgba(0,0,0,0.3);
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  color: #f8d66a;
+}
+</style>
+</head>
+<body>
+
+<h1>◎ LEGOS Theoretical Correspondences</h1>
+<p style="margin-bottom: 2rem; color: #5ea275;">
+Mapping how 1000 Small Futures / LEGOS instantiates five theoretical frameworks: 
+Metabolarum (semiotic metabolism), Media Thermodynamics, MYTHOSLOG (formal ontology), 
+Myth-OS (cultural computation), and LLMA (cultural production engine).
+</p>
+
+<div class="synthesis">
+<h2>Core Thesis</h2>
+<p><strong>LEGOS is an implementation of executable theory</strong>—it operationalizes abstract frameworks 
+into functioning computational infrastructure. The grid, ring buffer, tetrad, and scene graph are not 
+just tools but <em>living instantiations</em> of metabolic, thermodynamic, and ontological principles.</p>
+</div>
+
+<h2>I. LEGOS ↔ Metabolarum (The Semiotic Life)</h2>
+
+<div class="framework">
+<h3>Framework Summary</h3>
+<p><span class="theory-component">Metabolarum</span> treats media as a living organism with metabolism: 
+ingestion, digestion, circulation, assimilation, excretion. Central problem is <strong>semiotic rot</strong>—
+the entropy of links, context, and meaning over time.</p>
+</div>
+
+<table>
+<tr>
+  <th>LEGOS Component</th>
+  <th>Metabolarum Function</th>
+  <th>Correspondence</th>
+</tr>
+<tr>
+  <td><span class="legos-component">Ring Buffer</span></td>
+  <td><span class="theory-component">Digestive Tract</span></td>
+  <td>Circular overwrite = metabolic homeostasis. Graceful degradation = healthy elimination.</td>
+</tr>
+<tr>
+  <td><span class="legos-component">Temporal Index</span></td>
+  <td><span class="theory-component">Metabolic Pathways</span></td>
+  <td>Tracks how information moves through system over time. Query = biopsy of metabolic state.</td>
+</tr>
+<tr>
+  <td><span class="legos-component">URL/Link Checking</span></td>
+  <td><span class="theory-component">Rot Detection</span></td>
+  <td>404s = semiotic necrosis. Broken references = entropy markers in knowledge graph.</td>
+</tr>
+<tr>
+  <td><span class="legos-component">LLM Remediation</span></td>
+  <td><span class="theory-component">Enzymatic Repair</span></td>
+  <td>Multimodal AI = enzyme kit. OCR, TTS, summarization = metabolic rescue functions.</td>
+</tr>
+<tr>
+  <td><span class="legos-component">Scene Graph</span></td>
+  <td><span class="theory-component">Semiotic Structure</span></td>
+  <td>Knowledge graph that can decay. Entities/relations = structural integrity of meaning.</td>
+</tr>
+<tr>
+  <td><span class="legos-component">Export/Import</span></td>
+  <td><span class="theory-component">Excretion/Ingestion</span></td>
+  <td>JSON export = metabolic output. Session import = feeding new material to system.</td>
+</tr>
+</table>
+
+<div class="insight">
+<strong>Key Insight:</strong> The ring buffer doesn't just store—it <em>digests</em>. 
+Compaction = catabolism. Old entries lose detail but preserve semantic essence. 
+This is computational orality as metabolism.
+</div>
+
+<h2>II. LEGOS ↔ Thermodynamics of Media</h2>
+
+<div class="framework">
+<h3>Framework Summary</h3>
+<p>Models media using thermodynamic principles: <span class="theory-component">prompts = fuel</span>, 
+<span class="theory-component">computation = heat</span>, 
+<span class="theory-component">outputs = decomposable waste</span>. 
+Explains generative dynamics and decay in hyper-abundant digital ecologies.</p>
+</div>
+
+<table>
+<tr>
+  <th>Thermodynamic Concept</th>
+  <th>LEGOS Implementation</th>
+  <th>Energy Flow</th>
+</tr>
+<tr>
+  <td><span class="theory-component">Fuel Input</span></td>
+  <td><span class="legos-component">Prompts / User Input</span></td>
+  <td>Natural language = potential energy. System instructions = chemical structure of fuel.</td>
+</tr>
+<tr>
+  <td><span class="theory-component">Combustion</span></td>
+  <td><span class="legos-component">LLM Generation</span></td>
+  <td>Token prediction = exothermic reaction. API calls = heat dissipation.</td>
+</tr>
+<tr>
+  <td><span class="theory-component">Useful Work</span></td>
+  <td><span class="legos-component">Grid Placements</span></td>
+  <td>Structured outputs = mechanical work. Scene graphs = organized energy.</td>
+</tr>
+<tr>
+  <td><span class="theory-component">Waste Heat</span></td>
+  <td><span class="legos-component">Unused Generations</span></td>
+  <td>Rejected outputs, failed placements = thermal loss. Telemetry tracks efficiency.</td>
+</tr>
+<tr>
+  <td><span class="theory-component">Entropy Management</span></td>
+  <td><span class="legos-component">Ring Buffer Compaction</span></td>
+  <td>Forgetting = entropy export. System must shed disorder to maintain coherence.</td>
+</tr>
+<tr>
+  <td><span class="theory-component">4 Energy Vectors</span></td>
+  <td><span class="legos-component">Tetrad Analysis</span></td>
+  <td>Enhance/Obsolesce/Retrieve/Reverse = energy transformation along basis vectors.</td>
+</tr>
+</table>
+
+<div class="insight">
+<strong>Key Insight:</strong> LEGOS implements a <em>heat engine for meaning</em>. 
+The tetrad is a four-stroke cycle: amplification (expansion), negation (compression), 
+retrieval (intake), reversal (exhaust). Each cycle produces semantic work.
+</div>
+
+<h2>III. LEGOS ↔ MYTHOSLOG (Formal Ontology)</h2>
+
+<div class="framework">
+<h3>Framework Summary</h3>
+<p><span class="theory-component">MYTHOSLOG</span> is a formal language for describing narrative structures: 
+entities (Narrative, Database, Metaphor, Mythos), morphisms (transformations), 
+operations (translate, render, reframe), and axioms.</p>
+</div>
+
+<div class="mapping">
+<h3>Direct Correspondences</h3>
+
+<p><strong>&lt;Database&gt;</strong> = <span class="legos-component">Grid (9×9)</span><br>
+→ Spatial structure for storing/relating data objects without temporal priority<br>
+→ Grid cells = entries with coordinates; spatial queries = database operations</p>
+
+<p><strong>&lt;Narrative&gt;</strong> = <span class="legos-component">Scene Generation</span><br>
+→ Temporal arrangement of events that produce meaning through sequence<br>
+→ Chat messages = narrative flow; grid changes over time = story</p>
+
+<p><strong>&lt;Metaphor&gt;</strong> = <span class="legos-component">Tetrad Engine</span><br>
+→ Semantic bridge transferring meaning across domains<br>
+→ Four laws = four metaphorical operations (amplify, negate, resurrect, invert)</p>
+
+<p><strong>&lt;Mythos&gt;</strong> = <span class="legos-component">Scenario Library</span><br>
+→ Recursive narrative patterns embedding values and cosmologies<br>
+→ 57 scenarios = 57 mythos templates; each scenario = cultural worldview</p>
+
+<p><strong>[translate]</strong> = <span class="legos-component">Neurosymbolic Bridge</span><br>
+→ Map spatial relations (database) into temporal sequence (narrative)<br>
+→ LLM interprets grid state → generates next scene → updates grid</p>
+
+<p><strong>&lt;WardThing&gt;</strong> = <span class="legos-component">Entity with Perspective</span><br>
+→ Posthuman entity embodying database logic of distributed self<br>
+→ Each grid entity has position, relations, viewpoint = distributed identity</p>
+</div>
+
+<div class="insight">
+<strong>Key Insight:</strong> LEGOS is a <em>functioning implementation</em> of MYTHOSLOG's ontology. 
+The grid IS the database. The chat IS the narrative. The tetrad IS the metaphor engine. 
+The whole system IS a myth-making apparatus.
+</div>
+
+<h2>IV. LEGOS ↔ Myth-OS (Cultural Computation)</h2>
+
+<div class="framework">
+<h3>Framework Summary</h3>
+<p><span class="theory-component">Myth-OS</span> proposes an operating system for navigating the 
+combinatorial plenum of infinite cultural generation. Key problems: cataloging Babel, 
+versioning Xanadu, transforming degeneracy into biodiversity.</p>
+</div>
+
+<table>
+<tr>
+  <th>Myth-OS Function</th>
+  <th>LEGOS Implementation</th>
+  <th>How It Works</th>
+</tr>
+<tr>
+  <td><span class="theory-component">Combinatorial GPS</span></td>
+  <td><span class="legos-component">Tetrad Recursion</span></td>
+  <td>Each tetrad maps 4 orthogonal directions in concept space. Recursion = depth-first navigation.</td>
+</tr>
+<tr>
+  <td><span class="theory-component">Generative Genealogy</span></td>
+  <td><span class="legos-component">Ring Buffer + Temporal Index</span></td>
+  <td>Every entry has timestamp, parent channel, fork point. Full provenance tracking.</td>
+</tr>
+<tr>
+  <td><span class="theory-component">Version Control for Culture</span></td>
+  <td><span class="legos-component">Multi-Channel Forking</span></td>
+  <td>Branch at any decision point. Compare outcomes across timelines. Merge insights.</td>
+</tr>
+<tr>
+  <td><span class="theory-component">Cataloging Babel</span></td>
+  <td><span class="legos-component">Cartridge System</span></td>
+  <td>57 scenarios = modular contexts. Each cartridge = bounded region of possibility space.</td>
+</tr>
+<tr>
+  <td><span class="theory-component">Degeneracy Management</span></td>
+  <td><span class="legos-component">Graceful Degradation</span></td>
+  <td>Ring buffer turns loss into feature. Compaction = productive mutation, not failure.</td>
+</tr>
+<tr>
+  <td><span class="theory-component">Ethical Sandboxing</span></td>
+  <td><span class="legos-component">System Instructions</span></td>
+  <td>Each scenario has embedded cultural protocols. Context constraints = ethical boundaries.</td>
+</tr>
+</table>
+
+<div class="insight">
+<strong>Key Insight:</strong> LEGOS is Myth-OS's first kernel. The grid = address space. 
+Ring buffer = process scheduler. Scenarios = executable myths. Tetrad = combinatorial navigator. 
+It's not metaphorical—it's infrastructural.
+</div>
+
+<h2>V. LEGOS ↔ LLMA (Cultural Production Engine)</h2>
+
+<div class="framework">
+<h3>Framework Summary</h3>
+<p><span class="theory-component">LLMA</span> = Large Language Model Apparatus = 
+{Model + Interface + Infrastructure + Myth}. 
+Argues LLMs are not tools but cultural production engines where culture becomes executable.</p>
+</div>
+
+<div class="mapping">
+<h3>Four-Layer Correspondence</h3>
+
+<p><strong>1. Model Layer</strong><br>
+<span class="legos-component">LLM API calls</span> = neural encoding of linguistic/cultural/aesthetic probabilities<br>
+→ GPT-4 = compressed map of collective symbolic labor<br>
+→ LEGOS doesn't replace model but <em>channels</em> it through structured protocols</p>
+
+<p><strong>2. Interface Layer</strong><br>
+<span class="legos-component">Grid + Chat + Tetrad UI</span> = mediating surface<br>
+→ Prompt box = where human and model exchange symbolic intent<br>
+→ Grid = makes abstract generation <em>legible and queryable</em></p>
+
+<p><strong>3. Infrastructure Layer</strong><br>
+<span class="legos-component">Ring buffer + Temporal index + Scene graph</span> = physical/logical substrate<br>
+→ Data structures = the pipes and valves of cultural metabolism<br>
+→ Export/import = infrastructure for cultural persistence</p>
+
+<p><strong>4. Myth Layer</strong><br>
+<span class="legos-component">Scenarios + Documentation</span> = narratives naturalizing the apparatus<br>
+→ 57 scenarios = stories that invite participation<br>
+→ OLOG format = self-reflexive myth-making (system observing itself)</p>
+</div>
+
+<h3>Operative Ekphrasis in LEGOS</h3>
+
+<p>LLMA's core mechanism: <code>Description → Procedure → Artifact</code></p>
+
+<table>
+<tr>
+  <th>Stage</th>
+  <th>LEGOS Implementation</th>
+  <th>Example</th>
+</tr>
+<tr>
+  <td><span class="theory-component">Description</span> (Speech Act)</td>
+  <td><span class="legos-component">User Prompt</span></td>
+  <td>"Clancy struggles with grief"</td>
+</tr>
+<tr>
+  <td><span class="theory-component">Procedure</span> (Computation)</td>
+  <td><span class="legos-component">LLM + System Instructions</span></td>
+  <td>Tokenize → Infer entities → Map to grid positions → Generate relations</td>
+</tr>
+<tr>
+  <td><span class="theory-component">Artifact</span> (Materialization)</td>
+  <td><span class="legos-component">Scene Graph on Grid</span></td>
+  <td>Clancy @ (2,1), Grief @ (4,5), Acceptance @ (6,3) with relationships</td>
+</tr>
+</table>
+
+<div class="insight">
+<strong>Key Insight:</strong> LEGOS makes <em>culture executable</em>. 
+The grid is not a display—it's a runtime environment. Entities don't represent characters—they ARE 
+computational agents with positions, perspectives, and relations. The system doesn't describe stories—
+it <em>executes</em> them.
+</div>
+
+<h2>VI. Synthesis: LEGOS as Theoretical Unification</h2>
+
+<div class="synthesis">
+<h3>The Meta-Pattern</h3>
+
+<p>All five frameworks share a core insight: <strong>Information systems are alive</strong>. 
+They have:</p>
+
+<ul style="margin-left: 2rem; margin-top: 1rem;">
+<li><strong>Metabolism</strong> (Metabolarum) — Ingestion, digestion, excretion</li>
+<li><strong>Thermodynamics</strong> (Media Thermo) — Energy flows, entropy management</li>
+<li><strong>Ontology</strong> (MYTHOSLOG) — Formal structure of entities and relations</li>
+<li><strong>Operating System</strong> (Myth-OS) — Scheduler, navigator, version control</li>
+<li><strong>Cultural Engine</strong> (LLMA) — Production apparatus with feedback loops</li>
+</ul>
+
+<p style="margin-top: 1rem;"><strong>LEGOS instantiates all five simultaneously</strong>:</p>
+
+<table style="margin-top: 1rem;">
+<tr>
+  <th>Framework</th>
+  <th>What LEGOS Implements</th>
+</tr>
+<tr>
+  <td>Metabolarum</td>
+  <td>Ring buffer = digestive system with rot detection and remediation</td>
+</tr>
+<tr>
+  <td>Media Thermodynamics</td>
+  <td>Prompt → LLM → Grid = fuel → heat → work cycle</td>
+</tr>
+<tr>
+  <td>MYTHOSLOG</td>
+  <td>Grid = database, Chat = narrative, Tetrad = metaphor, Scenarios = mythos</td>
+</tr>
+<tr>
+  <td>Myth-OS</td>
+  <td>Cartridges = Babel catalog, Forking = Xanadu versioning, Tetrad = combinatorial GPS</td>
+</tr>
+<tr>
+  <td>LLMA</td>
+  <td>Full stack: Model (LLM) + Interface (Grid/Chat) + Infrastructure (Ring/Index) + Myth (Scenarios)</td>
+</tr>
+</table>
+</div>
+
+<h2>VII. Novel Contribution: What LEGOS Adds</h2>
+
+<div class="framework">
+<p>LEGOS doesn't just <em>apply</em> these theories—it <strong>operationalizes</strong> them 
+into a single coherent system. The novel contributions:</p>
+
+<h3>1. Neurosymbolic Bridge</h3>
+<p>Neural (LLM) + Symbolic (Grid) = queryable culture. 
+You can ask "Who is near Clancy?" (spatial query) AND "What is Clancy feeling?" (neural interpretation). 
+This is unprecedented.</p>
+
+<h3>2. Tetrad as Latent Navigator</h3>
+<p>McLuhan's four laws become <em>basis vectors for latent space traversal</em>. 
+Not metaphorical—actual computational operations that force orthogonal exploration. 
+This is the first implementation of tetrad-as-infrastructure.</p>
+
+<h3>3. Grid as Executable Ontology</h3>
+<p>The 9×9 grid isn't display—it's <em>runtime environment</em>. 
+Entities have position, perspective, and agency. The scene graph is a knowledge graph 
+that can be queried, forked, and evolved. This is culture-as-code.</p>
+
+<h3>4. Ring Buffer as Computational Orality</h3>
+<p>Circular memory with graceful degradation = oral tradition implemented in silicon. 
+Old stories don't delete—they compress, retaining only what resonates. 
+This is algorithmic forgetting as feature, not bug.</p>
+
+<h3>5. Multi-Scale Perspective Taking</h3>
+<p>Generate scene → Take entity perspective → Run tetrad on perspective → Generate tetrad perspective. 
+Recursive depth previously impossible. LEGOS makes it navigable.</p>
+</div>
+
+<h2>VIII. Implementation Roadmap</h2>
+
+<div class="mapping">
+<h3>Phase 1: Metabolic Observatory (In Progress)</h3>
+<ul style="margin-left: 2rem;">
+<li>✅ Ring buffer with telemetry (tracks metabolic state)</li>
+<li>✅ Temporal index for queries (biopsy of system state)</li>
+<li>⚠️ Link rot detection (partial - need URL checking)</li>
+<li>❌ Automated remediation playbooks (planned)</li>
+</ul>
+
+<h3>Phase 2: Thermodynamic Dashboard</h3>
+<ul style="margin-left: 2rem;">
+<li>❌ Energy flow visualization (prompt → generation → output)</li>
+<li>❌ Efficiency metrics (useful work / total computation)</li>
+<li>❌ Waste heat analysis (rejected outputs, token usage)</li>
+<li>❌ Entropy tracking (grid state disorder over time)</li>
+</ul>
+
+<h3>Phase 3: Myth-OS Kernel</h3>
+<ul style="margin-left: 2rem;">
+<li>✅ Scenario cartridge system (57 executable myths)</li>
+<li>✅ Channel forking (version control for narratives)</li>
+<li>⚠️ Degeneracy cultivation (partial - graceful degradation exists)</li>
+<li>❌ Combinatorial genealogy graph (full provenance tree)</li>
+</ul>
+
+<h3>Phase 4: LLMA Full Stack</h3>
+<ul style="margin-left: 2rem;">
+<li>✅ Model layer (LLM integration)</li>
+<li>✅ Interface layer (Grid + Chat + Tetrad UI)</li>
+<li>✅ Infrastructure layer (Ring + Index + Scene graph)</li>
+<li>⚠️ Myth layer (scenarios exist, need reflexive documentation)</li>
+</ul>
+</div>
+
+<h2>IX. Research Questions</h2>
+
+<div class="insight">
+<h3>Critical Open Problems</h3>
+
+<p><strong>1. Can semiotic rot be measured?</strong><br>
+Design experiment: Generate 1000 scenes. Track link decay, context drift, meaning erosion over 6 months. 
+Measure: Does LEGOS remediation (tetrad, perspective) slow rot?</p>
+
+<p><strong>2. Is the tetrad thermodynamically optimal?</strong><br>
+Why 4 directions, not 3 or 5? Test hypothesis: Four laws = minimal complete basis for 
+conceptual work extraction. Compare energy efficiency of tetrad vs. other frameworks.</p>
+
+<p><strong>3. What is the carrying capacity of the grid?</strong><br>
+9×9 = 81 cells. Is this optimal for human cognition? Test: Vary grid size (5×5, 13×13, 20×20). 
+Measure: Cognitive load, insight generation, navigation ease.</p>
+
+<p><strong>4. Can the ring buffer become self-aware?</strong><br>
+Current: Manual compaction triggers. Future: System learns what to remember based on 
+future query patterns. This is autopoietic metabolism—system regulating its own digestion.</p>
+
+<p><strong>5. Is LEGOS a living system?</strong><br>
+Metabolarum claims media is alive. LEGOS has: intake (prompts), metabolism (LLM processing), 
+circulation (ring buffer), homeostasis (graceful degradation), reproduction (forking). 
+Is this metaphor or literal?</p>
+</div>
+
+<h2>X. Conclusion: LEGOS as Theoretical Instrument</h2>
+
+<div class="synthesis">
+<p><strong>LEGOS is not an application of theory—it is theory made executable.</strong></p>
+
+<p>Where academic frameworks propose <em>models</em>, LEGOS provides <em>infrastructure</em>. 
+Where theory describes <em>processes</em>, LEGOS implements <em>protocols</em>. 
+Where frameworks analyze <em>culture</em>, LEGOS <em>executes</em> it.</p>
+
+<p>This is the shift from <strong>theory-as-interpretation</strong> to <strong>theory-as-code</strong>:</p>
+
+<ul style="margin-left: 2rem; margin-top: 1rem;">
+<li>Metabolarum → Ring buffer + temporal index</li>
+<li>Media thermodynamics → Prompt/LLM/Grid energy cycle</li>
+<li>MYTHOSLOG → Grid/Chat/Tetrad/Scenario ontology</li>
+<li>Myth-OS → Cartridge/Fork/Navigate system</li>
+<li>LLMA → Full stack cultural production engine</li>
+</ul>
+
+<p style="margin-top: 1rem;">The question is no longer <em>"How does media metabolism work?"</em> 
+but <em>"Can we build it?"</em></p>
+
+<p><strong>LEGOS answers: Yes. And here's the code.</strong></p>
+</div>
+
+<p style="margin-top: 3rem; padding-top: 2rem; border-top: 2px solid #1b6e3e; color: #5ea275;">
+<strong>Document Status:</strong> Living document | Created: 2025.10.24<br>
+<strong>Related:</strong> <a href="OLOG_2025_10_24.md" style="color: #56ff9f;">OLOG #002</a> | 
+<a href="README.md" style="color: #56ff9f;">README</a> | 
+<a href="DATA_ARCHITECTURE.md" style="color: #56ff9f;">Data Architecture</a>
+</p>
+
+</body>
+</html>

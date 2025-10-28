@@ -2,15 +2,30 @@
 
 > **Tagline:** *Tools for thinking about media, narrative, belief, and culture*
 
-**LEGOS Framework** (Legible Emergent Generative Ontological Systems) — A collection of 14 computational engines for tetrad analysis, ring memory, temporal reasoning, and belief formation. Built as **anti-tools**: single-file HTML artifacts that expose their operations, invite modification, and resist extraction.
+**LEGOS Framework** (Legible Emergent Generative Ontological Systems) — A collection of 14 computational engines for systematic exploration, spatial reasoning, and temporal memory. Built as **anti-tools**: single-file HTML artifacts that expose their operations, invite modification, and resist extraction.
 
-**Status**: Operational, evolving | **Latest**: [OLOG #001](OLOG_2025_10_23.md) (2025.10.23)
+**What makes it different**: Natural language becomes spatial structure. One perspective becomes four. Linear chat becomes navigable timeline.
+
+**Status**: Operational, evolving | **Latest**: [OLOG #002](OLOG_2025_10_24.md) (2025.10.24) • [OLOG #001](OLOG_2025_10_23.md)
 
 ---
 
 ## Overview
 
 **1000 Small Futures** is a research project exploring computational tools that resist their own instrumentalization. We build **thinking instruments**—not apps, not products, but **media for analysis** that expose rather than conceal their operations.
+
+### How It's Different from ChatGPT
+
+| Feature | ChatGPT | LEGOS |
+|---------|---------|-------|
+| **Output** | Pure text | Text + spatial structure (9×9 grid) |
+| **Memory** | Context window (then forgets) | Ring buffer (circular, graceful degradation) |
+| **Exploration** | Single response path | 4 systematic directions (amplify, negate, retrieve, invert) |
+| **Viewpoints** | One narrator | Multiple entity perspectives |
+| **Time** | Linear chat | Navigable timeline with temporal queries |
+| **Structure** | Unstructured | Scene graphs as knowledge graphs |
+
+**Core innovation**: Language becomes spatial structure. You can query "Who is near Clancy?" or "What blocks the path to Acceptance?" This is neurosymbolic—neural interpretation grounded in symbolic structure.
 
 ### Core Components
 
@@ -51,7 +66,11 @@ open thousand-lives.html     # Belief simulator
 
 ## Documentation
 
-* **[OLOG #001](OLOG_2025_10_23.md)** — Synthetic anthropology field note (State of the Union)
+* **[OLOG #002](OLOG_2025_10_24.md)** — Tetrad as latent space navigation, neurosymbolic translation, framing problem (2025.10.24)
+* **[OLOG #001](OLOG_2025_10_23.md)** — Synthetic anthropology field note, ring buffer as computational orality (2025.10.23)
+* **[LOGOS as Center](logos-center.html)** — LEGOS as universal information framework; theories as instantiations of the same LOGOS pattern
+* **[Theoretical Correspondences](theory-map.html)** — How LEGOS implements Metabolarum, Media Thermodynamics, MYTHOSLOG, Myth-OS, and LLMA
+* **[Scenario Generator](scenario-generator.html)** — Universal prompt template to turn any topic into a LEGOS scenario
 * **[Scenario Library](SCENARIO_LIBRARY_DOCS.md)** — Complete documentation of 57 scenarios
 * **[Data Architecture](DATA_ARCHITECTURE.md)** — System architecture and design decisions
 * **[Ring Buffer Summary](THOUSAND_RING_SUMMARY.md)** — Ring memory system documentation
