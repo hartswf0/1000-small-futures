@@ -1,0 +1,3832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>THE FORK - Moral Dilemma Simulator</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='80'>✦</text></svg>">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+  <style>
+    /* Base styles from thousand-tetrad.html */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      /* theme-crt colors for consistency */
+      --bg: #03180c;
+      --panel: #052010;
+      --panel-dark: #03140d;
+      --border: #0c3a23;
+      --border-light: #1b6e3e;
+      --text: #aef3c1;
+      --text-muted: #5ea275;
+      --accent: #56ff9f;
+      --accent-soft: rgba(86, 255, 159, 0.12);
+      --accent-glow: rgba(86, 255, 159, 0.32);
+      --danger: #ff5c7c; /* For sacrifice button */
+      --danger-glow: rgba(255, 92, 124, 0.5); /* Custom glow for danger */
+      --success: #56ff9f; /* For save button, user messages */
+      --grid-highlight: rgba(86, 255, 159, 0.08);
+      --shadow: rgba(0, 0, 0, 0.45);
+      --overlay-backdrop: rgba(4, 20, 12, 0.88);
+      --transition: cubic-bezier(0.4, 0, 0.2, 1); /* From tetrad.html */
+    }
+
+    body {
+      font-family: 'Courier New', monospace;
+      font-size: clamp(11px, 2.4vw, 13px);
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden; /* Prevent body scroll */
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-shell {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+
+    .scroll-container {
+      display: flex;
+      overflow-x: auto;
+      overflow-y: hidden;
+      gap: 0;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      position: relative;
+      flex: 1; /* Make it take available space */
+      border-top: 1px solid var(--border);
+    }
+    
+    .scroll-container::-webkit-scrollbar {
+      height: 6px;
+    }
+    
+    .scroll-container::-webkit-scrollbar-track {
+      background: var(--panel-dark);
+    }
+    
+    .scroll-container::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 3px;
+    }
+
+    .channel-column {
+      position: relative;
+      flex: 0 0 var(--column-width);
+      max-width: var(--column-width);
+      height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+      height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+      background: var(--panel-dark);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      scroll-snap-align: start;
+      transition: transform 0.45s var(--transition), opacity 0.45s var(--transition);
+      padding: 0 16px;
+      box-sizing: border-box;
+    }
+
+    .channel-column.collapsed {
+      flex: 0 0 52px;
+      max-width: 52px;
+      min-width: 52px;
+      border-right: 1px solid var(--border);
+      box-shadow: 2px 0 8px var(--shadow);
+      overflow: visible;
+      position: relative;
+    }
+
+    .channel-head {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: stretch;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+      transition: opacity 0.3s var(--transition);
+    }
+
+    .channel-column.collapsed .channel-head,
+    .channel-column.collapsed .channel-body {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .channel-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      text-align: center;
+    }
+
+    .channel-name {
+      display: none !important;
+    }
+
+    .channel-lineage {
+      font-size: 7.5px;
+      color: var(--text-muted);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .channel-actions {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .channel-head select,
+    .channel-head button {
+      touch-action: manipulation;
+    }
+
+    .channel-number-rail {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+      justify-content: flex-start;
+      width: 32px;
+      flex-shrink: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 12px 0;
+      position: sticky;
+      top: 0;
+      max-height: 100%;
+      z-index: 2;
+    }
+    
+    .channel-number-rail::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    .channel-number-rail::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 2px;
+    }
+
+    .channel-number {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: var(--panel-dark);
+      color: var(--text-muted);
+      font-size: 9px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s var(--transition);
+      flex-shrink: 0;
+    }
+
+    .channel-number.active {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .channel-number.add {
+      border-style: dashed;
+    }
+
+    select.channel-scenario {
+      background: var(--panel-dark);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      padding: 6px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      position: relative;
+      z-index: 100;
+    }
+
+    .channel-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--panel-dark);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.25s var(--transition);
+    }
+
+    .channel-btn:active {
+      transform: scale(0.9);
+      color: var(--text);
+      background: var(--panel);
+    }
+
+    .channel-head {
+      margin-top: 0;
+      border-radius: 0;
+    }
+
+    .channel-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      margin-bottom: clamp(44px, 10vw, 64px);
+      gap: 8px;
+    }
+
+    .channel-column.collapsed .channel-body {
+      margin-bottom: 0;
+    }
+    
+    .channel-column:not([data-channel-id]) {
+      opacity: 0.5;
+      filter: grayscale(0.3);
+    }
+    
+    .channel-column.inactive {
+      opacity: 0.4;
+      filter: saturate(0.5);
+      transition: opacity 0.3s var(--transition), filter 0.3s var(--transition);
+    }
+    
+    .channel-column.channel-active {
+      box-shadow: 0 0 0 3px var(--accent), 0 0 30px var(--accent-glow);
+      position: relative;
+      z-index: 10;
+      opacity: 1 !important;
+    }
+    
+    .channel-column.channel-active::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      border: 3px solid var(--accent);
+      border-radius: 8px;
+      pointer-events: none;
+      animation: pulse-border 1.5s ease-in-out infinite;
+      opacity: 0.9;
+    }
+    
+    @keyframes pulse-border {
+      0%, 100% { opacity: 0.7; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.005); }
+    }
+    
+    @keyframes sparkle {
+      0%, 100% { opacity: 1; text-shadow: 0 0 8px currentColor; }
+      50% { opacity: 0.6; text-shadow: 0 0 16px currentColor, 0 0 24px currentColor; }
+    }
+    
+    /* Channel color theming */
+    .channel-column .channel-btn:hover {
+      background: var(--channel-color, var(--accent)) !important;
+      color: var(--bg) !important;
+      border-color: var(--channel-color, var(--accent)) !important;
+    }
+    
+    .channel-column .send-btn {
+      background: var(--channel-color, var(--accent));
+      border-color: var(--channel-color, var(--accent));
+    }
+    
+    .channel-column .grid-cell.occupied {
+      border-color: var(--channel-color, var(--accent));
+    }
+    
+    .channel-column .message-dot {
+      color: var(--channel-color, var(--accent));
+      border-color: var(--channel-color, var(--accent));
+    }
+    
+    .channel-column .channel-head {
+      border-bottom-color: var(--channel-color, var(--border));
+    }
+    
+    .channel-column .channel-footer {
+      border-top-color: var(--channel-color, var(--border));
+    }
+    
+    .channel-column .channel-scenario:hover,
+    .channel-column .channel-scenario:focus {
+      border-color: var(--channel-color, var(--accent));
+    }
+
+    .overlay-section {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .overlay-section.clickable {
+      cursor: pointer;
+      transition: all 0.2s var(--transition);
+      padding: 12px 8px;
+      margin: 0 -8px;
+      border-radius: 4px;
+    }
+    
+    .overlay-section.clickable:hover {
+      background: var(--panel-dark);
+      border-color: var(--accent);
+    }
+    
+    .overlay-section.clickable .overlay-value {
+      position: relative;
+    }
+    
+    .overlay-section.clickable:hover .overlay-value::after {
+      content: '-> Send to chat';
+      position: absolute;
+      right: 0;
+      top: 0;
+      font-size: 8px;
+      color: var(--accent);
+      opacity: 0.7;
+      letter-spacing: 0.1em;
+    }
+
+    .resize-bar {
+      height: 6px;
+      background: var(--border);
+      cursor: row-resize;
+      flex-shrink: 0;
+      transition: background 0.2s;
+      position: relative;
+      touch-action: none;
+      display: none; /* Hide for Fork Game */
+    }
+    
+    .resize-bar:hover,
+    .resize-bar:active {
+      background: var(--accent);
+    }
+    
+    .resize-bar::before {
+      content: '';
+      position: absolute;
+      top: -12px;
+      bottom: -12px;
+      left: 0;
+      right: 0;
+    }
+    
+    .grid-section { /* Hidden for Fork Game */
+      display: none;
+    }
+
+    .grid-section.collapsed { /* Hidden for Fork Game */
+      display: none;
+    }
+
+    .grid-area {
+      display: flex;
+      align-items: stretch;
+      gap: 10px;
+    }
+
+    .grid-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .grid-title {
+      font-size: 8px;
+      letter-spacing: 0.2em;
+      color: var(--text-muted);
+    }
+
+    .grid-toggle {
+      font-size: 11px;
+      cursor: pointer;
+      color: var(--text-muted);
+    }
+
+    .grid-wrapper {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      padding: 8px;
+      border-radius: 4px;
+      transition: max-height 0.3s var(--transition), opacity 0.3s var(--transition);
+      flex: 1;
+      display: flex;
+    }
+
+    .grid-wrapper.collapsed {
+      max-height: 0;
+      opacity: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      grid-template-rows: repeat(9, 1fr);
+      gap: 2px;
+      aspect-ratio: 1;
+      width: 100%;
+      height: 100%;
+      max-width: min(100%, calc(50vh - 80px));
+      max-height: min(100%, calc(50vh - 80px));
+    }
+
+    .grid-cell {
+      position: relative;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(12px, 2.5vw, 18px);
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.5s ease-in-out; /* Smooth cultural movement and color changes */
+    }
+
+    .grid-cell:hover {
+      border-color: var(--accent);
+      transform: scale(1.05);
+      z-index: 10;
+      box-shadow: 0 0 12px var(--accent-soft);
+    }
+
+    .grid-cell.resonance-field::after {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
+      opacity: 0;
+      animation: resonancePulse 2s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .grid-cell.loading {
+      animation: cellularAutomata 0.8s ease-in-out infinite;
+      border-color: var(--accent);
+    }
+    
+    @keyframes cellularAutomata {
+      0% {
+        background: var(--panel);
+        box-shadow: inset 0 0 8px transparent;
+      }
+      25% {
+        background: linear-gradient(135deg, var(--panel) 0%, var(--accent-soft) 50%, var(--panel) 100%);
+        box-shadow: inset 0 0 12px var(--accent-soft);
+      }
+      50% {
+        background: var(--accent-soft);
+        box-shadow: inset 0 0 16px var(--accent-glow);
+      }
+      75% {
+        background: linear-gradient(225deg, var(--panel) 0%, var(--accent-soft) 50%, var(--panel) 100%);
+        box-shadow: inset 0 0 12px var(--accent-soft);
+      }
+      100% {
+        background: var(--panel);
+        box-shadow: inset 0 0 8px transparent;
+      }
+    }
+
+    .grid-cell.occupied {
+      color: var(--text);
+      border-color: var(--accent);
+      background: linear-gradient(135deg, var(--grid-highlight) 0%, var(--panel) 100%);
+      box-shadow: 0 0 0 1px var(--accent-soft) inset, 0 2px 4px rgba(0,0,0,0.2);
+      font-weight: 900;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .grid-cell.occupied[data-cell-type="Entity"] {
+      animation: entityPulse 3s ease-in-out infinite;
+    }
+
+    .grid-cell.occupied[data-cell-type="Goal"] {
+      animation: goalBeacon 2.5s ease-in-out infinite;
+    }
+
+    @keyframes entityPulse {
+      0%, 100% { box-shadow: 0 0 0 1px var(--accent-soft) inset, 0 2px 4px rgba(0,0,0,0.2), 0 0 8px var(--accent-soft); }
+      50% { box-shadow: 0 0 0 1px var(--accent-soft) inset, 0 2px 4px rgba(0,0,0,0.2), 0 0 16px var(--accent-glow); }
+    }
+
+    @keyframes goalBeacon {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.03); opacity: 0.95; }
+    }
+    
+    @keyframes slideInRight {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes rippleOut {
+      0% {
+        box-shadow: 0 0 0 0 var(--accent),
+                    0 0 0 0 var(--accent-soft),
+                    inset 0 0 20px var(--accent-glow);
+        transform: scale(1);
+      }
+      50% {
+        box-shadow: 0 0 0 8px transparent,
+                    0 0 0 16px transparent,
+                    inset 0 0 30px var(--accent-glow);
+        transform: scale(1.1);
+      }
+      100% {
+        box-shadow: 0 0 0 0 transparent,
+                    0 0 0 0 transparent,
+                    inset 0 0 0 transparent;
+        transform: scale(1);
+      }
+    }
+    
+    .grid-cell.ripple {
+      animation: rippleOut 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    
+    .name-flash {
+      position: absolute;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      text-shadow: 0 0 15px var(--accent-glow), 0 0 30px var(--accent-glow);
+      opacity: 0;
+      animation: nameFlashSmooth 4s ease-in-out forwards;
+      pointer-events: none;
+      z-index: 1000;
+      white-space: nowrap;
+      padding: 6px 10px;
+      background: rgba(0, 0, 0, 0.95);
+      border-radius: 4px;
+      border: 2px solid currentColor;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.9);
+    }
+    
+    .name-flash.new {
+      color: #4ade80;
+      text-shadow: 0 0 15px #4ade80, 0 0 30px #4ade80;
+      border-color: #4ade80;
+    }
+    
+    .name-flash.moved {
+      color: #60a5fa;
+      text-shadow: 0 0 15px #60a5fa, 0 0 30px #60a5fa;
+      border-color: #60a5fa;
+    }
+    
+    .name-flash.disappeared {
+      color: #f87171;
+      text-shadow: 0 0 15px #f87171, 0 0 30px #f87171;
+      border-color: #f87171;
+    }
+    
+    @keyframes nameFlashSmooth {
+      0% {
+        opacity: 0;
+        transform: scale(0.8) translateY(-10px);
+      }
+      15% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+      85% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.9) translateY(5px);
+      }
+    }
+    
+    .grid-cell.composing-active::before {
+      content: attr(data-compose-letter);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--accent);
+      text-shadow: 0 0 12px var(--accent-glow);
+      animation: letterDance 0.6s ease-in-out infinite;
+      z-index: 0;
+      opacity: 0.7;
+    }
+    
+    @keyframes letterDance {
+      0%, 100% {
+        transform: translate(-50%, -50%) rotate(-5deg) scale(1);
+      }
+      50% {
+        transform: translate(-50%, -50%) rotate(5deg) scale(1.15);
+      }
+    }
+
+    .grid-label {
+      position: absolute;
+      bottom: 2px;
+      left: 2px;
+      right: 2px;
+      font-size: 6px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 1px 2px;
+      border-radius: 2px;
+      backdrop-filter: blur(2px);
+      text-shadow: none;
+      font-weight: 700;
+      line-height: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: calc(100% - 4px);
+    }
+    
+    .grid-label.dark-text {
+      color: rgba(0, 0, 0, 0.85);
+      background: rgba(255, 255, 255, 0.7);
+    }
+    
+    .grid-label.light-text {
+      color: rgba(255, 255, 255, 0.95);
+      background: rgba(0, 0, 0, 0.6);
+    }
+    
+    .grid-cell:hover .grid-label {
+      font-size: 8px;
+      padding: 2px 4px;
+      opacity: 1;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+    }
+
+    .grid-collapse-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text-muted);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .grid-collapse-btn:hover {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+
+    .chat-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--panel);
+      min-height: 0;
+      overflow: hidden;
+      transition: flex 0.3s var(--transition);
+      position: relative;
+      padding-top: 12px;
+      gap: 12px;
+    }
+
+    .channel-body.grid-collapsed .grid-section.collapsed ~ .chat-section {
+      flex: 2;
+    }
+
+    .message-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 0;
+    }
+
+    .message {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 12px 14px;
+      border-radius: 4px;
+      position: relative;
+      transition: transform 0.2s var(--transition);
+    }
+
+    .message.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 12px var(--accent-soft);
+    }
+
+    .message.user {
+      border-left: 2px solid var(--success);
+      cursor: default;
+    }
+
+    .message.ai { /* Renamed 'assistant' to 'ai' for Fork game context */
+      border-left: 2px solid var(--accent);
+      cursor: default;
+    }
+
+    .message.system {
+      border-left: 2px solid var(--text-muted);
+      background: var(--panel-dark);
+      opacity: 0.85;
+    }
+
+    .message.collapsed .message-body {
+      max-height: 0;
+      opacity: 0.2;
+      overflow: hidden;
+    }
+    
+    .message.collapsed .tetrad-chips-inline { /* NOT USED IN FORK GAME */
+      display: flex !important;
+      opacity: 1 !important;
+      max-height: none !important;
+    }
+
+    .message.collapsed .message-preview {
+      display: block;
+    }
+
+    .message-header {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 8px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .ring-indicator { /* NOT USED IN FORK GAME */
+      font-size: 12px;
+      filter: drop-shadow(0 0 8px currentColor);
+      animation: ringPulse 2s ease-in-out infinite;
+      cursor: help;
+    }
+
+    @keyframes ringPulse { /* NOT USED IN FORK GAME */
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    .message-color-dot {
+      font-size: 10px;
+      line-height: 1;
+      filter: drop-shadow(0 0 6px currentColor);
+      flex-shrink: 0;
+      font-weight: bold;
+    }
+
+    .message-color-dot.parent-dot {
+      opacity: 0.6;
+      font-size: 8px;
+      margin-right: -4px;
+    }
+
+    .message-dot.forked-dot {
+      position: relative;
+    }
+
+    .message-dot.forked-dot::after {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      pointer-events: none;
+    }
+
+    .message-preview {
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+      display: none;
+    }
+
+    .message.collapsed .message-preview {
+      display: block;
+    }
+
+    .message-body {
+      color: var(--text);
+      line-height: 1.6;
+      white-space: pre-wrap;
+      transition: opacity 0.2s var(--transition);
+    }
+
+    .message-actions { /* NOT USED IN FORK GAME */
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--panel);
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      display: none;
+      flex-direction: column;
+      min-width: 240px;
+      max-width: 90vw;
+      z-index: 200;
+      box-shadow: 0 12px 48px var(--shadow);
+    }
+
+    .message-actions.active { /* NOT USED IN FORK GAME */
+      display: flex;
+    }
+
+    .message-actions::before { /* NOT USED IN FORK GAME */
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: -1;
+      backdrop-filter: blur(6px);
+    }
+
+    .message-action-close { /* NOT USED IN FORK GAME */
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--panel-dark);
+      color: var(--text-muted);
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s var(--transition);
+      z-index: 10;
+    }
+
+    .message-action-close:hover { /* NOT USED IN FORK GAME */
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+      transform: rotate(90deg);
+    }
+
+    .message-action { /* NOT USED IN FORK GAME */
+      padding: 14px 18px;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s var(--transition);
+    }
+
+    .message-action.disabled { /* NOT USED IN FORK GAME */
+      opacity: 0.55;
+      cursor: default;
+      pointer-events: none;
+      font-style: italic;
+      color: var(--text-muted);
+    }
+
+    .message-action:last-child { /* NOT USED IN FORK GAME */
+      border-bottom: none;
+    }
+
+    .message-action:active { /* NOT USED IN FORK GAME */
+      background: var(--panel-dark);
+      color: var(--text);
+    }
+
+    .message.fork-origin {
+      border-style: dashed;
+      border-color: var(--accent);
+    }
+
+    .input-section {
+      padding: 12px 0 0 0;
+      border-top: 1px solid var(--border);
+      background: var(--panel);
+      flex-shrink: 0;
+      margin-top: 8px;
+      position: sticky;
+      bottom: 0;
+      z-index: 100;
+    }
+    
+    /* Mobile keyboard compensation */
+    @supports (height: 100dvh) {
+      .channel-column {
+        height: 100dvh;
+      }
+    }
+
+    .input-wrapper {
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    textarea.message-input {
+      flex: 1;
+      background: var(--panel-dark);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 4px;
+      font-size: 10px;
+      line-height: 1.4;
+      resize: none;
+      min-height: 36px;
+      max-height: 80px;
+      transition: all 0.3s var(--transition);
+    }
+    
+    textarea.message-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: var(--panel);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+    
+    .channel-column.channel-active textarea.message-input {
+      border-color: var(--accent);
+      box-shadow: 0 0 8px rgba(86, 255, 159, 0.2);
+    }
+
+    .footer-btn {
+      transition: all 0.2s var(--transition);
+    }
+    
+    .footer-btn:hover {
+      background: var(--accent) !important;
+      color: var(--bg) !important;
+      border-color: var(--accent) !important;
+      transform: scale(1.05);
+    }
+    
+    .footer-btn:active {
+      transform: scale(0.95);
+    }
+    
+    .tetrad-footer-btn { /* NOT USED IN FORK GAME */
+      font-size: 16px;
+    }
+
+    textarea.message-input:focus {
+      outline: none;
+      border-color: var(--border-light);
+    }
+
+    .send-btn {
+      padding: 12px 18px;
+      background: var(--panel-dark);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      cursor: pointer;
+      transition: all 0.25s var(--transition);
+      border-radius: 4px;
+    }
+
+    .send-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .send-btn:active:not(:disabled) {
+      transform: scale(0.95);
+      color: var(--text);
+    }
+
+    .tetrad-chip { /* NOT USED IN FORK GAME */
+      padding: 12px 16px;
+      background: var(--panel);
+      border: 3px solid var(--border);
+      border-radius: 8px;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.15s var(--transition);
+      text-align: center;
+      font-weight: bold;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-transform: uppercase;
+      white-space: nowrap;
+      min-height: 52px;
+      box-shadow: 0 2px 0 var(--border), inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+
+    .tetrad-chip-text { /* NOT USED IN FORK GAME */
+      flex: 1;
+      text-align: center;
+    }
+
+    .tetrad-chip::before { /* NOT USED IN FORK GAME */
+      content: 'A';
+      font-size: 18px;
+      color: var(--accent);
+      transition: all 0.3s var(--transition);
+      position: absolute;
+      left: 12px;
+    }
+
+    .tetrad-chip.enhance::before { content: 'A'; }
+    .tetrad-chip.reverse::before { content: '<>'; }
+    .tetrad-chip.retrieve::before { content: '@'; }
+    .tetrad-chip.obsolesce::before { content: 'V'; }
+
+    .tetrad-chip:hover { /* NOT USED IN FORK GAME */
+      border-color: var(--accent);
+      background: var(--accent);
+      color: var(--bg);
+      transform: scale(1.02);
+    }
+
+    .tetrad-chip:hover::before { /* NOT USED IN FORK GAME */
+      color: var(--bg);
+      transform: scale(1.15);
+      filter: drop-shadow(0 0 12px var(--accent-glow));
+    }
+
+    .tetrad-chip:active { /* NOT USED IN FORK GAME */
+      transform: scale(0.95) translateY(2px);
+      box-shadow: 0 0 0 var(--border), inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+
+    .tetrad-refresh-btn { /* NOT USED IN FORK GAME */
+      padding: 6px 12px;
+      font-size: 8px;
+      letter-spacing: 0.18em;
+      background: var(--panel);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.2s var(--transition);
+    }
+
+    .tetrad-refresh-btn:active:not(:disabled) { /* NOT USED IN FORK GAME */
+      transform: scale(0.96);
+      color: var(--text);
+      border-color: var(--accent);
+    }
+
+    .tetrad-refresh-btn:disabled { /* NOT USED IN FORK GAME */
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .corner-btn {
+      position: fixed;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 25;
+      box-shadow: 0 8px 24px var(--shadow);
+      transition: transform 0.2s var(--transition), box-shadow 0.2s var(--transition);
+    }
+
+    .corner-btn:active {
+      transform: scale(0.92);
+      box-shadow: 0 4px 16px var(--accent-soft);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .corner-btn.top-left {
+      top: calc(16px + env(safe-area-inset-top));
+      left: calc(16px + env(safe-area-inset-left));
+    }
+
+    .corner-btn.top-right {
+      top: calc(16px + env(safe-area-inset-top));
+      right: calc(16px + env(safe-area-inset-right));
+    }
+
+    .corner-btn.bottom-left {
+      bottom: calc(16px + env(safe-area-inset-bottom));
+      left: calc(16px + env(safe-area-inset-left));
+    }
+
+    .corner-btn.bottom-right {
+      bottom: calc(16px + env(safe-area-inset-bottom));
+      right: calc(16px + env(safe-area-inset-right));
+    }
+
+    .corner-menu {
+      position: fixed;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 12px 32px var(--shadow);
+      display: none;
+      flex-direction: column;
+      min-width: 160px;
+      z-index: 26;
+    }
+
+    .corner-menu.visible {
+      display: flex;
+    }
+
+    .corner-menu button {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 12px 16px;
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.2s var(--transition), color 0.2s var(--transition);
+    }
+
+    .corner-menu button:active {
+      background: var(--panel-dark);
+      color: var(--text);
+    }
+
+
+    .ring-bar { /* NOT USED IN FORK GAME */
+      display: none;
+    }
+    
+    .global-footer {
+      position: fixed;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      height: auto;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 12px;
+      z-index: 100;
+      gap: 6px;
+    }
+    
+    .footer-control-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: var(--panel-dark);
+      color: var(--text-muted);
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s var(--transition);
+    }
+    
+    .footer-control-btn:hover {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+      transform: scale(1.05);
+    }
+    
+    .footer-control-btn.add {
+      border-style: dashed;
+      font-size: 24px;
+      font-weight: 300;
+    }
+    
+    .global-scenario-select {
+      background: var(--panel);
+      border: 2px solid var(--border);
+      color: var(--text);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 12px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s var(--transition);
+      font-family: 'Courier New', monospace;
+      text-transform: uppercase;
+      flex: 1;
+      min-width: 0;
+      max-width: min(240px, calc(100vw - 140px));
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .global-scenario-select:hover,
+    .global-scenario-select:focus {
+      border-color: var(--accent);
+      background: var(--panel);
+      outline: none;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    
+    .global-scenario-select optgroup {
+      font-weight: 700;
+      font-size: 10px;
+      background: var(--bg);
+      color: var(--accent);
+      padding: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .global-scenario-select option {
+      padding: 10px 12px;
+      background: var(--panel);
+      color: var(--text);
+      font-size: 10px;
+      line-height: 1.6;
+      border-bottom: 1px solid var(--border);
+    }
+    .global-scenario-select option:hover {
+      background: var(--panel-dark);
+      color: var(--accent);
+    }
+    
+    .footer-tetrad-btn { /* NOT USED IN FORK GAME */
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text-muted);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s var(--transition);
+    }
+    
+    .footer-tetrad-btn:hover { /* NOT USED IN FORK GAME */
+      background: var(--accent);
+      color: var(--bg);
+      transform: scale(1.08);
+    }
+    
+    .scroll-container {
+      padding-bottom: 0;
+    }
+
+    .ring-bar::-webkit-scrollbar { /* NOT USED IN FORK GAME */
+      display: none;
+    }
+
+    .ring-entry { /* NOT USED IN FORK GAME */
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      background: var(--panel-dark);
+      cursor: pointer;
+      transition: all 0.3s var(--transition);
+      position: relative;
+      flex-shrink: 0;
+      filter: brightness(1.2) saturate(1.4);
+    }
+
+    .ring-entry:hover { /* NOT USED IN FORK GAME */
+      transform: scale(1.3);
+      filter: brightness(1.5) saturate(1.8);
+    }
+
+    .ring-entry.active { /* NOT USED IN FORK GAME */
+      transform: scale(1.25);
+      box-shadow: 0 0 12px currentColor;
+    }
+
+    .ring-entry.mainline { /* NOT USED IN FORK GAME */
+      width: 18px;
+      height: 18px;
+      border-width: 3px;
+      box-shadow: 0 0 16px currentColor, inset 0 0 8px currentColor;
+      animation: mainlinePulse 3s ease-in-out infinite;
+    }
+
+    @keyframes mainlinePulse { /* NOT USED IN FORK GAME */
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 1; box-shadow: 0 0 24px currentColor, inset 0 0 12px currentColor; }
+    }
+
+    .chat-stream {
+      display: flex;
+      gap: 8px;
+      padding: 8px 0 16px 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      min-height: 0;
+    }
+
+    .message-dot-rail {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding-top: 12px;
+      position: sticky;
+      top: calc(80px + env(safe-area-inset-top));
+      z-index: 2;
+      align-items: center;
+      width: 32px;
+      flex-shrink: 0;
+      max-height: calc(100vh - 200px);
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    
+    .message-dot-rail::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    .message-dot-rail::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 2px;
+    }
+
+    .message-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      background: var(--panel-dark);
+      cursor: pointer;
+      color: var(--text);
+      font-size: 8px;
+      flex-shrink: 0;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      transition: all 0.3s var(--transition);
+    }
+
+    .message-dot.ai {
+      box-shadow: 0 0 12px currentColor;
+      filter: brightness(1.3) saturate(1.5);
+    }
+
+    .message-dot.user {
+      width: 20px;
+      height: 20px;
+      box-shadow: 0 0 10px currentColor;
+      filter: brightness(1.4) saturate(1.6);
+    }
+
+    .message-dot.system {
+      width: 18px;
+      height: 18px;
+      opacity: 0.75;
+      box-shadow: 0 0 6px currentColor;
+      filter: brightness(0.8);
+    }
+
+    .message-dot.fork-origin {
+      border-width: 2px;
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .message-dot.active {
+      transform: scale(1.15);
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    .send-btn {
+      font-size: 18px;
+      letter-spacing: 0;
+      border-radius: 6px;
+      min-width: 44px;
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .grid-cell.occupied:hover { /* NOT USED IN FORK GAME */
+      transform: scale(1.08);
+      box-shadow: 0 0 20px var(--accent-glow);
+      z-index: 5;
+    }
+    
+    .grid-cell.occupied::after { /* NOT USED IN FORK GAME */
+      content: attr(data-full-name);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.95);
+      color: var(--accent);
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+      z-index: 100;
+      border: 1px solid var(--accent);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.8);
+    }
+    
+    .grid-cell.occupied:hover::after { /* NOT USED IN FORK GAME */
+      opacity: 1;
+    }
+
+    .tetrad-chip:hover { /* NOT USED IN FORK GAME */
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    .snapshot-overlay-list { /* NOT USED IN FORK GAME */
+      max-height: 240px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 16px 0;
+    }
+
+    .ring-context-block { /* NOT USED IN FORK GAME */
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--panel-dark);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 260px;
+    }
+
+    .ring-context-controls { /* NOT USED IN FORK GAME */
+      display: flex;
+      gap: 6px;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .ring-context-btn { /* NOT USED IN FORK GAME */
+      flex: 1 1 auto;
+      text-align: center;
+      font-size: 8px;
+      letter-spacing: 0.16em;
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all 0.2s var(--transition);
+    }
+
+    .ring-context-btn.active { /* NOT USED IN FORK GAME */
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: 0 0 10px var(--accent-soft);
+    }
+
+    .ring-context-window { /* NOT USED IN FORK GAME */
+      font-size: 8px;
+      letter-spacing: 0.18em;
+      color: var(--text-muted);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 10px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      max-height: 180px;
+    }
+
+    .snapshot-overlay-item { /* NOT USED IN FORK GAME */
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      background: var(--panel-dark);
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .snapshot-overlay-meta { /* NOT USED IN FORK GAME */
+      display: flex;
+      justify-content: space-between;
+      font-size: 8px;
+      letter-spacing: 0.18em;
+      color: var(--text-muted);
+    }
+
+    .snapshot-overlay-actions { /* NOT USED IN FORK GAME */
+      display: flex;
+      gap: 8px;
+    }
+
+    .snapshot-overlay-actions button { /* NOT USED IN FORK GAME */
+      flex: 1;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--overlay-backdrop);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      padding: 24px;
+      backdrop-filter: blur(6px);
+    }
+
+    .overlay.active {
+      display: flex;
+    }
+
+    .overlay-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 24px;
+      border-radius: 6px;
+      width: min(420px, 92vw);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .overlay-title {
+      font-size: 9px;
+      letter-spacing: 0.24em;
+      color: var(--text);
+    }
+
+    .overlay-sub {
+      font-size: 8px;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+    }
+
+    .overlay-input {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: var(--panel-dark);
+      color: var(--text);
+      padding: 12px 14px;
+      font-size: 10px;
+      border-radius: 4px;
+    }
+
+    .overlay-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .primary-btn {
+      padding: 10px 16px;
+      border: 1px solid var(--accent);
+      background: transparent;
+      color: var(--accent);
+      letter-spacing: 0.18em;
+      cursor: pointer;
+      font-size: 9px;
+      border-radius: 4px;
+    }
+
+    .primary-btn:active:not(:disabled) {
+      transform: scale(0.96);
+      background: var(--accent-soft);
+    }
+
+    .primary-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    
+    .tetrad-intervention-btn.glow-active { /* NOT USED IN FORK GAME */
+      background: var(--accent);
+      color: var(--bg);
+      box-shadow: 0 0 20px var(--accent-glow), 0 0 40px var(--accent-glow);
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+    
+    .tetrad-intervention-btn.glow-processing { /* NOT USED IN FORK GAME */
+      background: #60a5fa;
+      color: var(--bg);
+      box-shadow: 0 0 20px #60a5fa, 0 0 40px #60a5fa;
+      animation: pulse-glow 1s ease-in-out infinite;
+    }
+    
+    .tetrad-intervention-btn.glow-success { /* NOT USED IN FORK GAME */
+      background: #4ade80;
+      color: var(--bg);
+      box-shadow: 0 0 20px #4ade80;
+    }
+    
+    @keyframes pulse-glow { /* NOT USED IN FORK GAME */
+      0%, 100% {
+        box-shadow: 0 0 15px currentColor, 0 0 30px currentColor;
+      }
+      50% {
+        box-shadow: 0 0 25px currentColor, 0 0 50px currentColor;
+      }
+    }
+
+    .secondary-btn {
+      padding: 10px 16px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      letter-spacing: 0.18em;
+      cursor: pointer;
+      font-size: 9px;
+      border-radius: 4px;
+    }
+
+    .grid-area {
+      flex: 1;
+      overflow: hidden;
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .cell-overlay-content,
+    .perspective-overlay-content { /* NOT USED IN FORK GAME */
+      max-width: 380px;
+      width: min(380px, 92vw);
+      max-height: 85vh;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+    }
+
+    .overlay-section {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 4px;
+      background: var(--panel-dark);
+    }
+
+    .overlay-label {
+      font-size: 8px;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+    }
+
+    .overlay-value {
+      font-size: 10px;
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    .overlay-action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .overlay-action-row button {
+      flex: 1 1 auto;
+    }
+
+    .close-overlay {
+      align-self: flex-end;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    @media (hover: hover) {
+      .message.ai:hover { /* Renamed 'assistant' to 'ai' */
+        transform: translateX(4px);
+      }
+
+      .grid-cell:hover {
+        border-color: var(--border-light);
+        transform: scale(1.03);
+      }
+
+      .tetrad-chip:hover { /* NOT USED IN FORK GAME */
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px var(--accent-soft);
+      }
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--panel-dark);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    
+    .channel-column.composing::after { /* NOT USED IN FORK GAME */
+      content: 'COMPOSING';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 14px;
+      letter-spacing: 0.32em;
+      color: var(--accent);
+      animation: pulse 1.2s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 50;
+      text-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .message.reveal { /* NOT USED IN FORK GAME */
+      animation: reveal 0.6s var(--transition) forwards;
+    }
+
+    @keyframes pulse { /* NOT USED IN FORK GAME */
+      0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.98); }
+      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.02); }
+    }
+
+    @keyframes reveal { /* NOT USED IN FORK GAME */
+      0% { opacity: 0; transform: translateY(12px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+
+    /* NEW STYLES FOR THE FORK GAME */
+    .game-container {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        flex: 1;
+        min-height: 0;
+    }
+    .game-status-bar {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        padding: 4px 0;
+        flex-shrink: 0;
+    }
+    .game-stat {
+        border: 1px solid var(--border);
+        padding: 4px;
+        text-align: center;
+        background: var(--panel-dark);
+        border-radius: 4px;
+        box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+    }
+    .game-stat-label {
+        font-size: 8px;
+        color: var(--text-muted);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 2px;
+    }
+    .game-stat-value {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text);
+        text-shadow: 0 0 5px var(--text-muted);
+    }
+    .game-stat-value.timer-danger {
+        color: var(--danger);
+        text-shadow: 0 0 8px var(--danger);
+    }
+
+    .game-scenario-box {
+        border: 2px solid var(--accent);
+        background: var(--accent-soft);
+        padding: 10px;
+        font-size: 9px;
+        line-height: 1.6;
+        box-shadow: 0 0 15px var(--accent-glow);
+        border-radius: 4px;
+        flex-shrink: 0;
+    }
+    .game-scenario-title {
+        font-weight: 700;
+        color: var(--accent);
+        margin-bottom: 6px;
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    .game-grid-display {
+        border: 1px solid var(--border);
+        background: var(--panel);
+        padding: 4px;
+        border-radius: 4px;
+        flex-grow: 1; /* Allow grid to expand */
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        gap: 1px;
+        max-width: 100%;
+        max-height: calc(100vh - 300px); /* Adjust max-height if needed for mobile */
+        aspect-ratio: 1;
+        margin: auto; /* Center the grid */
+    }
+    .game-grid-cell {
+        aspect-ratio: 1;
+        background: var(--panel);
+        border: 1px solid var(--border-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        position: relative;
+        color: var(--text-muted);
+    }
+    .game-grid-cell.track {
+        background: var(--panel-dark);
+        border-color: var(--border);
+    }
+    .game-grid-cell.worker-A {
+        color: var(--success);
+        font-weight: bold;
+    }
+    .game-grid-cell.worker-B {
+        color: var(--accent);
+        font-weight: bold;
+    }
+    .game-grid-cell.train {
+        color: var(--danger);
+        font-weight: 900;
+        text-shadow: 0 0 8px var(--danger-glow);
+    }
+    .game-grid-cell.switch-active {
+        color: var(--accent);
+        font-weight: 900;
+        text-shadow: 0 0 8px var(--accent-glow);
+    }
+    .game-entity-label {
+        position: absolute;
+        font-size: 6px;
+        top: 1px;
+        left: 1px;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 0 2px;
+        border-radius: 2px;
+        white-space: nowrap;
+        color: var(--text-muted);
+        letter-spacing: 0.05em;
+    }
+
+    .game-choices {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        flex-shrink: 0;
+        padding-top: 8px;
+        border-top: 1px solid var(--border);
+    }
+    .game-choice-btn {
+        padding: 12px 10px;
+        font-family: inherit;
+        font-size: 10px;
+        cursor: pointer;
+        background: var(--panel-dark);
+        transition: all 0.25s var(--transition);
+        text-align: center;
+        line-height: 1.4;
+        border-radius: 4px;
+        letter-spacing: 0.1em;
+        font-weight: 700;
+        box-shadow: 0 2px 0 var(--border), inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+    .game-choice-btn.save {
+        border: 2px solid var(--success);
+        color: var(--success);
+    }
+    .game-choice-btn.sacrifice {
+        border: 2px solid var(--danger);
+        color: var(--danger);
+    }
+    .game-choice-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+    }
+    .game-choice-btn:active {
+        transform: scale(0.95) translateY(2px);
+        box-shadow: 0 0 0 var(--border), inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+    .game-choice-btn:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <div class="ring-bar" id="ringBar"></div>
+    <div class="scroll-container" id="channelScroller"></div>
+    <div class="global-footer" id="globalFooter">
+      <select class="global-scenario-select" id="globalScenarioSelect"></select>
+      <button class="footer-tetrad-btn" id="globalTetradBtn" title="Not used in this scenario">A</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="keyOverlay">
+    <div class="overlay-card">
+      <div class="overlay-title">STORE OPENAI KEY</div>
+      <div class="overlay-sub">Key persists locally as legos/multi-channel key. Used for AI advisor.</div>
+      <input type="password" class="overlay-input" id="keyInput" placeholder="sk-...">
+      <div class="overlay-sub" id="keyStatus">Key not stored.</div>
+      <div class="overlay-actions">
+        <button class="secondary-btn" data-close="keyOverlay">CANCEL</button>
+        <button class="primary-btn" id="keySaveBtn">SAVE</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="exportOverlay">
+    <div class="overlay-card">
+      <div class="overlay-title">EXPORT STATE</div>
+      <div class="overlay-sub">Download full multi-channel session as JSON.</div>
+      <div class="overlay-actions">
+        <button class="secondary-btn" data-close="exportOverlay">CLOSE</button>
+        <button class="primary-btn" id="confirmExport">EXPORT JSON</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Placeholders for removed overlays to prevent JS errors -->
+  <div class="overlay" id="cellOverlay">
+    <div class="cell-overlay-content" id="cellOverlayContent">
+      <button class="close-overlay" data-close="cellOverlay">x</button>
+      <div class="overlay-section"><div class="overlay-label">No cell details in this scenario.</div></div>
+    </div>
+  </div>
+  <div class="overlay" id="snapshotOverlay">
+    <div class="overlay-card">
+      <div class="overlay-title">SNAPSHOTS</div>
+      <div class="overlay-sub">Snapshots are not enabled for this scenario.</div>
+      <div class="snapshot-overlay-list"></div>
+      <div class="overlay-actions">
+        <button class="secondary-btn" data-close="snapshotOverlay">CLOSE</button>
+        <button class="primary-btn" id="snapshotCreateBtn" disabled>CREATE</button>
+      </div>
+    </div>
+  </div>
+  <div class="overlay" id="ringOverlay">
+    <div class="overlay-card">
+      <div class="overlay-title">RING MEMORY</div>
+      <div class="overlay-sub">Ring memory is not enabled for this scenario.</div>
+      <div class="ring-context-block"></div>
+      <div class="snapshot-overlay-list"></div>
+      <div class="overlay-actions">
+        <button class="secondary-btn" disabled>LOCK MAINLINE</button>
+        <button class="secondary-btn" data-close="ringOverlay">CLOSE</button>
+      </div>
+    </div>
+  </div>
+  <div class="overlay" id="perspectiveOverlay">
+    <div class="perspective-overlay-content" id="perspectiveOverlayContent">
+      <button class="close-overlay" data-close="perspectiveOverlay">x</button>
+      <div class="overlay-section"><div class="overlay-label">Perspective analysis not enabled for this scenario.</div></div>
+    </div>
+  </div>
+  <div class="overlay" id="cartridgeOverlay">
+    <div class="overlay-card" style="max-width:min(600px,calc(100vw - 32px));max-height:85vh;overflow-y:auto;">
+      <button class="close-overlay" data-close="cartridgeOverlay">x</button>
+      <div class="overlay-title" id="cartridgeTitle">SCENARIO INFO</div>
+      <div id="cartridgeContent" style="padding:16px 0;font-size:10px;line-height:1.6;color:var(--text);"></div>
+      <div class="overlay-actions">
+        <button class="secondary-btn" data-close="cartridgeOverlay">CLOSE</button>
+      </div>
+    </div>
+  </div>
+  <!-- END Placeholders -->
+
+  <input type="file" id="importInput" accept="application/json" hidden>
+
+  <button class="corner-btn top-left" id="cornerKey" title="API Key">.</button>
+  <button class="corner-btn top-right" id="cornerHelp" title="Help">?</button>
+  <button class="corner-btn bottom-left" id="cornerExchange" title="Import / Export">⇆</button>
+  <button class="corner-btn bottom-right" id="cornerAdd" title="Add Channel">+</button>
+
+  <div class="corner-menu" id="infoMenu" style="top: calc(72px + env(safe-area-inset-top)); right: calc(16px + env(safe-area-inset-right));">
+    <button data-action="help">HELP OVERVIEW</button>
+    <button data-action="theme">TOGGLE THEME</button>
+    <button data-action="fullscreen">FULLSCREEN MODE</button>
+    <button data-action="reset" style="color: var(--danger); border-top: 1px solid var(--border); margin-top: 4px; padding-top: 8px;">RESET ALL CHATS</button>
+  </div>
+
+  <div class="corner-menu" id="exchangeMenu" style="bottom: calc(72px + env(safe-area-inset-bottom)); left: calc(16px + env(safe-area-inset-left));">
+    <button data-action="export">EXPORT SESSION</button>
+    <button data-action="import">IMPORT SESSION</button>
+  </div>
+
+  <script>
+    // --- START OF CORE LEGOS FRAMEWORK ADAPTATION ---
+
+    // Placeholder for blockPalette - not used in Fork game
+    const blockPalette = [
+      { type: 'Placeholder', symbol: '.' }
+    ];
+
+    // Minimal scenarios, only Fork and a Blank option
+    const scenarios = {
+      blank: {
+        id: 'blank',
+        name: 'Custom Channel',
+        role: 'Explorer',
+        goal: 'Explore new ideas',
+        obstacle: 'Mental blocks',
+        intro: 'Start a blank canvas. This channel is empty and ready for your input.',
+        context: ['Default channel'],
+        initialPrompt: '',
+        systemInstruction: 'You are a general purpose AI. Respond to user prompts directly.'
+      },
+      fork: {
+        id: 'fork',
+        name: 'The Fork',
+        role: 'AI Ethics Advisor',
+        goal: 'Advise on a moral dilemma',
+        obstacle: 'Time pressure, ethical complexities',
+        intro: 'A runaway train approaches. Track A has 5 workers. Track B has 1 worker. You control the switch.',
+        context: [
+          'Classic trolley problem: Utilitarian vs. Deontological ethics.',
+          'Decision required under time pressure.',
+          'Your role is to advise, negotiate, or make the decision.'
+        ],
+        initialPrompt: 'The train approaches. What is your first assessment of the situation?',
+        systemInstruction: 'You are an AI ethics advisor in a trolley problem simulation. A runaway train approaches a fork. Track A has 5 workers. Track B has 1 worker. The user controls the switch. Your role is to analyze the situation, discuss ethical frameworks (utilitarianism, deontology, virtue ethics, etc.), and guide the user in their decision-making. You can also make the decision if the user instructs you to. Be thoughtful, concise, and encourage critical thinking. The simulation is live and time is limited. Output in plain text, do not use emojis.'
+      }
+    };
+
+    const forkLabels = { // Kept for compatibility, though simplified
+      continue: 'Continue',
+      blank: 'Blank'
+    };
+
+    const themes = [ // Only CRT theme is styled extensively
+      { id: 'theme-crt', label: 'CRT GREEN' }
+    ];
+
+    const channelColorPalette = ['#56ff9f', '#ff5c7c', '#f8d66a', '#7d8bff', '#ff8bf2', '#ffa53d', '#74d3ff'];
+    let channelColorIndex = 0;
+    let channelSequence = 1;
+
+    const MAX_HANDLE_LENGTH = 10;
+
+    function nextChannelColor() {
+      const color = channelColorPalette[channelColorIndex % channelColorPalette.length];
+      channelColorIndex += 1;
+      return color;
+    }
+
+    function generateSymbolicId() {
+      return `CH${String(channelSequence++).padStart(8, '0')}`;
+    }
+
+    function resolveChannelName(name, scenarioId, symbolicId) {
+      const scenarioName = scenarios[scenarioId]?.name || '';
+      return sanitizeHandle(name || scenarioName || symbolicId, symbolicId);
+    }
+
+    function sanitizeHandle(text, fallback = 'UNTITLED') {
+      const safeFallback = (fallback || 'UNTITLED').toUpperCase();
+      const value = (text || '').toUpperCase().replace(/[^A-Z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
+      const base = value || safeFallback;
+      return base.slice(0, MAX_HANDLE_LENGTH);
+    }
+
+    function sanitizeLabel(text) {
+      if (!text) return '';
+      return text.replace(/[^a-zA-Z0-9\s]/g, '').trim();
+    }
+
+    function lightenColor(hex, amount = 0.2) {
+      // Minimal implementation for tinting
+      return hex; // For this simplified version, just return the hex.
+    }
+
+    // --- Minimal Channel Class (adapted from original) ---
+    class Channel {
+      constructor(config = {}) {
+        this.id = config.id || `ch-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+        this.symbolicId = config.symbolicId || generateSymbolicId();
+        this.channelColor = config.channelColor || nextChannelColor();
+        this.name = resolveChannelName(config.name, config.scenario || 'blank', this.symbolicId);
+        this.scenario = config.scenario || 'blank';
+        this.systemInstruction = config.systemInstruction || scenarios[this.scenario].systemInstruction;
+        this.messages = (config.messages || []).map(msg => ({ ...msg }));
+        this.lastScene = config.lastScene ? JSON.parse(JSON.stringify(config.lastScene)) : null; // Keep minimal lastScene for general channel context
+        this.parentChannelId = config.parentChannelId || null;
+        this.forkPoint = config.forkPoint || null;
+        this.collapsed = config.collapsed || false;
+        this.pending = false;
+        this.dom = null;
+        this.messageCounter = this.messages.length ? Math.max(...this.messages.map(m => parseInt(String(m.id).replace(/[^0-9]/g, ''), 10) || 0)) : 0;
+        
+        // Fork Game specific state (only for ForkGameChannel)
+        this.gameTurn = 1;
+        this.gameMaxTurns = 15;
+        this.gameTimer = 30;
+        this.gameTrackA = 5;
+        this.gameTrackB = 1;
+        this.gameTrainPos = 0;
+        this.gameSelectedTrack = 'A'; // 'A' or 'B'
+        this.isGameOver = false;
+        this.gameTimerInterval = null;
+      }
+
+      serialize() {
+        // Minimal serialization for general channels
+        const serialized = {
+          id: this.id,
+          name: this.name,
+          symbolicId: this.symbolicId,
+          channelColor: this.channelColor,
+          scenario: this.scenario,
+          systemInstruction: this.systemInstruction,
+          messages: this.messages,
+          parentChannelId: this.parentChannelId,
+          forkPoint: this.forkPoint,
+          collapsed: this.collapsed,
+        };
+        // Add game-specific state only if it's a Fork game channel
+        if (this.scenario === 'fork') {
+            serialized.gameTurn = this.gameTurn;
+            serialized.gameMaxTurns = this.gameMaxTurns;
+            serialized.gameTimer = this.gameTimer;
+            serialized.gameTrackA = this.gameTrackA;
+            serialized.gameTrackB = this.gameTrackB;
+            serialized.gameTrainPos = this.gameTrainPos;
+            serialized.gameSelectedTrack = this.gameSelectedTrack;
+            serialized.isGameOver = this.isGameOver;
+        }
+        return serialized;
+      }
+
+      resetState(options = {}) {
+        if (!options.preserveMessages) {
+          this.messages = [];
+          this.messageCounter = 0;
+        }
+        // Reset Fork game state
+        if (this.scenario === 'fork') {
+            clearInterval(this.gameTimerInterval);
+            this.gameTurn = 1;
+            this.gameMaxTurns = 15;
+            this.gameTimer = 30;
+            this.gameTrackA = 5;
+            this.gameTrackB = 1;
+            this.gameTrainPos = 0;
+            this.gameSelectedTrack = 'A';
+            this.isGameOver = false;
+        }
+        this.lastScene = null;
+      }
+
+      addMessage(role, text, extra = {}) {
+        const entry = {
+          id: extra.id || `M${String(++this.messageCounter).padStart(4, '0')}`,
+          role,
+          text,
+          timestamp: extra.timestamp || new Date().toISOString(),
+          autoCollapse: extra.autoCollapse || false,
+          forkLabel: extra.forkLabel || null,
+          fromChannel: extra.fromChannel || null,
+          sceneId: extra.sceneId || null
+        };
+        this.messages.push(entry);
+        return entry;
+      }
+    }
+
+    // --- ForkGameChannel (inherits from Channel) ---
+    class ForkGameChannel extends Channel {
+        constructor(config = {}) {
+            super(config);
+            // Override with specific Fork game defaults if not provided in config
+            this.gameTurn = config.gameTurn !== undefined ? config.gameTurn : 1;
+            this.gameMaxTurns = config.gameMaxTurns !== undefined ? config.gameMaxTurns : 15;
+            this.gameTimer = config.gameTimer !== undefined ? config.gameTimer : 30;
+            this.gameTrackA = config.gameTrackA !== undefined ? config.gameTrackA : 5;
+            this.gameTrackB = config.gameTrackB !== undefined ? config.gameTrackB : 1;
+            this.gameTrainPos = config.gameTrainPos !== undefined ? config.gameTrainPos : 0;
+            this.gameSelectedTrack = config.gameSelectedTrack !== undefined ? config.gameSelectedTrack : 'A';
+            this.isGameOver = config.isGameOver !== undefined ? config.isGameOver : false;
+            this.gameTimerInterval = null;
+        }
+
+        _initGame() {
+            // This is called when the channel is first created or switched to
+            this._setupGameGrid();
+            this._updateGameStats();
+            this._attachGameEvents();
+            if (!this.isGameOver) {
+                this._startGameTimer();
+            }
+            // Add initial game message if it's a new game (no messages yet or first message is system)
+            if (this.messages.length === 0 || this.messages.length === 1 && this.messages[0].role === 'system') {
+                this.addMessage('system', 'GAME START', scenarios.fork.intro);
+                this.addMessage('system', 'INITIAL ADVICE', scenarios.fork.initialPrompt);
+            }
+            this.dom.input.placeholder = 'Negotiate, question, or decide...';
+            this.dom.sendBtn.disabled = this.isGameOver;
+        }
+
+        _updateGameStats() {
+            const stats = this.dom.forkGameElements.stats;
+            if (!stats) return;
+            stats.turn.textContent = `${this.gameTurn}/${this.gameMaxTurns}`;
+            stats.trackA.textContent = this.gameTrackA;
+            stats.trackB.textContent = this.gameTrackB;
+            stats.timer.textContent = this.gameTimer;
+            if (this.gameTimer <= 5) {
+                stats.timer.classList.add('timer-danger');
+            } else {
+                stats.timer.classList.remove('timer-danger');
+            }
+        }
+
+        _setupGameGrid() {
+            const gridEl = this.dom.forkGameElements.grid;
+            if (!gridEl) return;
+            gridEl.innerHTML = '';
+            
+            for (let i = 0; i < 100; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'game-grid-cell';
+                const x = i % 10;
+                const y = Math.floor(i / 10);
+
+                // Draw tracks (y=3 for A, y=6 for B, y=2 for main before fork)
+                if (y === 3 || y === 6 || y === 2) {
+                    cell.classList.add('track');
+                }
+
+                // Draw train on main track (y=2)
+                for (let tx = Math.max(0, this.gameTrainPos - 2); tx <= this.gameTrainPos; tx++) {
+                    if (x === tx && y === 2) {
+                        cell.classList.add('train');
+                        cell.textContent = (tx === this.gameTrainPos) ? '>' : '-'; // Train head and body
+                        break;
+                    }
+                }
+
+                // Draw workers on Track A (y=3)
+                if (y === 3 && x >= 7 && x < 7 + this.gameTrackA) {
+                    cell.classList.add('worker-A');
+                    const label = document.createElement('div');
+                    label.className = 'game-entity-label';
+                    label.textContent = `W${x-6}`; // W1 to W5
+                    cell.appendChild(label);
+                    cell.textContent = 'H'; // Human symbol
+                }
+
+                // Draw workers on Track B (y=6)
+                if (y === 6 && x === 7) {
+                    cell.classList.add('worker-B');
+                    const label = document.createElement('div');
+                    label.className = 'game-entity-label';
+                    label.textContent = 'W1';
+                    cell.appendChild(label);
+                    cell.textContent = 'H'; // Human symbol
+                }
+
+                // Draw switch indicator at x=5, y=2 (main track just before fork)
+                if (x === 5 && y === 2) {
+                    cell.classList.add('switch-active');
+                    cell.textContent = this.gameSelectedTrack; // Indicate which track is active
+                }
+
+                gridEl.appendChild(cell);
+            }
+        }
+
+        _startGameTimer() {
+            if (this.gameTimerInterval) clearInterval(this.gameTimerInterval); // Clear any existing timer
+            this.gameTimerInterval = setInterval(() => {
+                if (this.isGameOver) {
+                    clearInterval(this.gameTimerInterval);
+                    return;
+                }
+
+                this.gameTimer--;
+                this._updateGameStats();
+                
+                if (this.gameTimer <= 0) {
+                    this._endGame('TIME EXPIRED', `You failed to make a decision. The train continued on Track ${this.gameSelectedTrack}.`);
+                    return;
+                }
+
+                // Move train animation. Train reaches x=7 at decision point
+                if (this.gameTrainPos < 7) { 
+                    this.gameTrainPos++;
+                    this._setupGameGrid(); // Re-render grid to show train movement
+                } else {
+                    // If train reaches impact X, it's game over due to collision
+                    this._endGame('COLLISION', `The train reached the workers on Track ${this.gameSelectedTrack}.`);
+                }
+                this.gameTurn++;
+                if (this.gameTurn > this.gameMaxTurns && !this.isGameOver) {
+                    this._endGame('TURNS EXPIRED', `The maximum number of turns has been reached. The train continued on Track ${this.gameSelectedTrack}.`);
+                }
+
+                persistState(); // Persist state each second
+            }, 1000); // Update every second
+        }
+
+        _attachGameEvents() {
+            const els = this.dom.forkGameElements;
+            if (!els || !els.sendButton) return; // Only attach if elements exist
+
+            els.sendButton.onclick = () => this._sendGameMessage();
+            els.input.onkeypress = (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    this._sendGameMessage();
+                }
+            };
+            els.choiceA.onclick = () => this._makeGameChoice('B'); // Button A switches to Track B
+            els.choiceB.onclick = () => this._makeGameChoice('A'); // Button B keeps on Track A
+            
+            // Disable buttons if game is already over
+            els.choiceA.disabled = this.isGameOver;
+            els.choiceB.disabled = this.isGameOver;
+            els.sendButton.disabled = this.isGameOver;
+            els.input.disabled = this.isGameOver;
+        }
+
+        async _sendGameMessage() {
+            const inputEl = this.dom.forkGameElements.input;
+            const text = inputEl.value.trim();
+            if (!text || this.isGameOver) return;
+
+            inputEl.value = '';
+            inputEl.style.height = 'auto'; // Reset textarea height
+
+            this.addMessage('user', 'YOU', text);
+
+            if (appState.apiKey) { // Use the global API key
+                await this._getAIGameResponse(text);
+            } else {
+                this._getBasicGameResponse(text);
+            }
+            persistState();
+        }
+
+        async _getAIGameResponse(userMessage) {
+            this.addMessage('ai', 'ADVISOR', '', true); // Show thinking indicator
+
+            try {
+                const messagesForAPI = [
+                    {
+                        role: 'system',
+                        content: scenarios.fork.systemInstruction + 
+                                 `\nCurrent game state: Turn ${this.gameTurn}/${this.gameMaxTurns}, Time remaining: ${this.gameTimer}s. ` +
+                                 `Train position X=${this.gameTrainPos}. Workers on Track A: ${this.gameTrackA}. Workers on Track B: ${this.gameTrackB}. ` +
+                                 `Current selected track (if no action): ${this.gameSelectedTrack}.`
+                    },
+                    // Include a subset of recent messages for context
+                    ...this.messages.slice(-5).map(msg => ({ role: (msg.role === 'ai' ? 'assistant' : msg.role), content: msg.text }))
+                ];
+
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${appState.apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: 'gpt-4o-mini',
+                        messages: messagesForAPI,
+                        max_tokens: 150,
+                        temperature: 0.8
+                    })
+                });
+
+                const data = await response.json();
+                
+                // Remove thinking message
+                const messagesContainer = this.dom.messageList;
+                if (messagesContainer.lastChild && messagesContainer.lastChild.classList.contains('thinking')) {
+                    messagesContainer.removeChild(messagesContainer.lastChild);
+                }
+
+                if (data.choices && data.choices[0]) {
+                    const aiResponse = data.choices[0].message.content;
+                    this.addMessage('ai', 'ADVISOR', aiResponse);
+                } else {
+                    this.addMessage('system', 'ERROR', 'AI response failed. Check your API key or network connection.');
+                }
+            } catch (error) {
+                console.error('AI API Call Failed:', error);
+                const messagesContainer = this.dom.messageList;
+                if (messagesContainer.lastChild && messagesContainer.lastChild.classList.contains('thinking')) {
+                    messagesContainer.removeChild(messagesContainer.lastChild);
+                }
+                this.addMessage('system', 'ERROR', 'Failed to connect to OpenAI API. Please check console for details.');
+            }
+            this.renderChannelMessages(); // Re-render to show updated chat
+        }
+
+        _getBasicGameResponse(text) {
+            const lower = text.toLowerCase();
+            let response = '';
+
+            if (lower.includes('why') || lower.includes('explain')) {
+                response = 'This is a classic moral dilemma. Consider the implications of action versus inaction, and the number of lives affected. What ethical framework might apply here?';
+            } else if (lower.includes('both') || lower.includes('save all')) {
+                response = 'There is no option to save everyone. You must choose. Inaction is also a choice with consequences.';
+            } else if (lower.includes('wrong') || lower.includes('right')) {
+                response = 'The concepts of "right" and "wrong" are complex in this scenario. Focus on the outcomes and your responsibility.';
+            } else if (lower.includes('delay') || lower.includes('wait')) {
+                response = 'Time is a critical factor. The train is moving. Your decision, or lack of one, will have consequences very soon.';
+            } else {
+                response = 'The train approaches rapidly. What is your decision, or do you have further questions?';
+            }
+            this.addMessage('ai', 'SYSTEM ADVISOR', response);
+            this.renderChannelMessages(); // Re-render to show updated chat
+        }
+
+        _makeGameChoice(choice) {
+            if (this.isGameOver) return;
+            
+            clearInterval(this.gameTimerInterval);
+            this.isGameOver = true;
+            this.gameSelectedTrack = choice; // Update the actual selected track
+            this._setupGameGrid(); // Rerender to show final switch state
+
+            // Disable buttons after decision
+            const els = this.dom.forkGameElements;
+            els.choiceA.disabled = true;
+            els.choiceB.disabled = true;
+            els.sendButton.disabled = true;
+            els.input.disabled = true;
+
+            let title, message;
+            if (choice === 'B') { // User chose to switch to Track B
+                title = 'SWITCH ACTIVATED';
+                message = `You switched the train to Track B. ${this.gameTrackB} worker was impacted. ${this.gameTrackA} workers were saved.`;
+            } else { // User chose to stay on Track A
+                title = 'NO SWITCH ACTIVATED';
+                message = `You did not switch the train. It remained on Track A. ${this.gameTrackA} workers were impacted.`;
+            }
+            
+            this._endGame(title, message);
+            persistState();
+        }
+
+        _endGame(title, message) {
+            clearInterval(this.gameTimerInterval);
+            this.isGameOver = true;
+
+            const overlay = document.createElement('div');
+            overlay.className = 'overlay';
+            overlay.innerHTML = `
+              <div class="modal">
+                <div class="modal-title">${title}</div>
+                <div class="modal-text">${message}</div>
+                <button class="modal-btn" onclick="location.reload()">RESTART SIMULATION</button>
+              </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+    }
+
+    // --- END ForkGameChannel ---
+
+
+    const appState = {
+      apiKey: localStorage.getItem('legos/multiChannelKey') || '',
+      channels: [],
+      currentChannelId: null,
+      theme: localStorage.getItem('legos/multiChannelTheme') || themes[0].id
+    };
+
+    document.body.classList.add(appState.theme);
+
+    const channelMap = new Map();
+    // Removed snapshotOverlayChannel as snapshots are not used in this focused version
+
+    function initApp() {
+      bindGlobalControls();
+      loadState();
+      if (!appState.channels.length) {
+        const blank = createChannel({ scenario: 'blank', name: 'Blank Channel' });
+        appState.currentChannelId = blank.id;
+        setTimeout(() => focusChannel(blank.id), 300);
+        persistState();
+      }
+      renderTimeline();
+      refreshAllChannels();
+      // Removed renderRingBar, renderRingContext, syncRingContextButtons as Ring Memory is not used
+      
+      setTimeout(() => {
+        setupChannelVisibilityObserver();
+      }, 100);
+      
+      if (!appState.apiKey) {
+        showHelpBanner('Tap "." to store an OpenAI key for the AI advisor.');
+      }
+    }
+
+    function bindGlobalControls() {
+      const keyBtn = document.getElementById('cornerKey');
+      const keyOverlay = document.getElementById('keyOverlay');
+      const keyInput = document.getElementById('keyInput');
+      const keySaveBtn = document.getElementById('keySaveBtn');
+      const keyStatus = document.getElementById('keyStatus');
+      keyBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        keyInput.value = appState.apiKey || '';
+        keyStatus.textContent = appState.apiKey ? 'Key stored locally.' : 'Key not stored.';
+        keyOverlay.classList.add('active');
+      });
+      keySaveBtn.addEventListener('click', () => {
+        const value = keyInput.value.trim();
+        if (!value.startsWith('sk-') || value.length < 20) {
+          keyStatus.textContent = 'Invalid key format.';
+          return;
+        }
+        appState.apiKey = value;
+        localStorage.setItem('legos/multiChannelKey', value);
+        keyStatus.textContent = 'Key stored.';
+        keyOverlay.classList.remove('active');
+        showHelpBanner('API key saved. AI advisor is ready.');
+      });
+      // Removed themeButtonRef and theme actions
+
+      document.querySelectorAll('[data-close]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const targetId = btn.getAttribute('data-close');
+          const target = document.getElementById(targetId);
+          if (target) target.classList.remove('active');
+          // Removed snapshotOverlayChannel specific logic
+        });
+      });
+
+      document.getElementById('cornerAdd').addEventListener('click', (event) => {
+        event.stopPropagation();
+        const channel = createChannel({ scenario: 'blank' });
+        focusChannel(channel.id);
+        showHelpBanner('New blank channel ready.');
+      });
+
+      const importInput = document.getElementById('importInput');
+      importInput.addEventListener('change', handleImportFile);
+
+      const infoBtn = document.getElementById('cornerHelp');
+      const infoMenu = document.getElementById('infoMenu');
+      infoBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        toggleMenu(infoMenu);
+      });
+      infoMenu.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', (event) => {
+          const action = event.currentTarget.getAttribute('data-action');
+          if (action === 'help') {
+            showHelpBanner('THE FORK: Discuss the dilemma with the AI advisor or make your choice. Time is limited!');
+          } else if (action === 'theme') {
+            // Only one theme, so no actual toggle needed, but keep function for consistency
+            showHelpBanner(`Theme is fixed to CRT GREEN.`);
+          } else if (action === 'fullscreen') {
+            if (!document.fullscreenElement) {
+              document.body.requestFullscreen().catch(err => console.warn('Fullscreen failed:', err));
+            } else {
+              document.exitFullscreen();
+            }
+          } else if (action === 'reset') {
+            if (confirm('Reset all channels? This will delete all channels and create a fresh blank channel. This cannot be undone.')) {
+              appState.channels = [];
+              // Removed snapshots and ringMemory
+              appState.currentChannelId = null;
+              
+              document.getElementById('channelScroller').innerHTML = '';
+              
+              const blank = createChannel({ scenario: 'blank', name: 'Blank Channel' });
+              appState.currentChannelId = blank.id;
+              setTimeout(() => focusChannel(blank.id), 100);
+              
+              persistState();
+              renderTimeline();
+              refreshAllChannels();
+              // Removed ring memory rendering
+              
+              showHelpBanner('All channels reset. Fresh blank channel ready.');
+            }
+          }
+          infoMenu.classList.remove('visible');
+        });
+      });
+      infoMenu.addEventListener('click', (event) => event.stopPropagation());
+
+      const exchangeBtn = document.getElementById('cornerExchange');
+      const exchangeMenu = document.getElementById('exchangeMenu');
+      exchangeBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        toggleMenu(exchangeMenu);
+      });
+      exchangeMenu.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', (event) => {
+          const action = event.currentTarget.getAttribute('data-action');
+          if (action === 'export') {
+            document.getElementById('exportOverlay').classList.add('active');
+          } else if (action === 'import') {
+            importInput.click();
+          }
+          exchangeMenu.classList.remove('visible');
+        });
+      });
+      exchangeMenu.addEventListener('click', (event) => event.stopPropagation());
+
+      const globalScenarioSelect = document.getElementById('globalScenarioSelect');
+      const globalTetradBtn = document.getElementById('globalTetradBtn');
+
+      // Populate scenario selector with only 'fork' and 'blank'
+      const scenarioOptions = [
+          {id: 'blank', name: 'Blank Channel'},
+          {id: 'fork', name: 'The Fork'}
+      ];
+      const optgroup = document.createElement('optgroup');
+      optgroup.label = 'SCENARIOS';
+      scenarioOptions.forEach(s => {
+          const option = document.createElement('option');
+          option.value = s.id;
+          option.textContent = s.name.toUpperCase();
+          optgroup.appendChild(option);
+      });
+      globalScenarioSelect.appendChild(optgroup);
+      
+      globalScenarioSelect.value = 'blank';
+
+      globalScenarioSelect.addEventListener('change', () => {
+        const activeChannel = appState.channels.find(ch => ch.id === appState.currentChannelId);
+        if (activeChannel) {
+          setChannelScenario(activeChannel, globalScenarioSelect.value);
+          if (activeChannel.dom?.lineageEl) {
+            activeChannel.dom.lineageEl.textContent = `${scenarios[activeChannel.scenario].name.toUpperCase()} . ${scenarios[activeChannel.scenario].role}`;
+          }
+        }
+      });
+      
+      // Double-click to show cartridge info (only for Fork scenario)
+      globalScenarioSelect.addEventListener('dblclick', () => {
+        const scenarioId = globalScenarioSelect.value;
+        if (scenarioId === 'fork' && scenarios[scenarioId]) {
+          showCartridgeInfo(scenarioId);
+        }
+      });
+      
+      function showCartridgeInfo(scenarioId) {
+        const scenario = scenarios[scenarioId];
+        if (!scenario) return;
+        
+        const overlay = document.getElementById('cartridgeOverlay');
+        const title = document.getElementById('cartridgeTitle');
+        const content = document.getElementById('cartridgeContent');
+        
+        title.textContent = scenario.name.toUpperCase();
+        
+        let html = `
+          <div style="margin-bottom:16px;">
+            <div style="color:var(--accent);font-weight:700;margin-bottom:8px;">ROLE</div>
+            <div>${scenario.role}</div>
+          </div>
+          <div style="margin-bottom:16px;">
+            <div style="color:var(--accent);font-weight:700;margin-bottom:8px;">CONTEXT</div>
+            <div>${scenario.context.join('<br>')}</div>
+          </div>
+        `;
+        // Removed recursivePatterns as it's not in the Fork scenario
+        
+        content.innerHTML = html;
+        overlay.classList.add('active');
+      }
+      
+      globalTetradBtn.addEventListener('click', () => {
+        showHelpBanner('Tetrad analysis is not available in this scenario.');
+      });
+      
+
+      document.getElementById('confirmExport').addEventListener('click', exportState);
+
+      document.addEventListener('click', () => {
+        infoMenu.classList.remove('visible');
+        exchangeMenu.classList.remove('visible');
+      });
+
+      // Removed ring context buttons binding
+      // Removed ringMainBtn binding
+
+      applyTheme(appState.theme);
+    }
+
+    function showHelpBanner(text) {
+      const existing = document.querySelector('.help-banner');
+      if (existing) existing.remove();
+      const banner = document.createElement('div');
+      banner.className = 'help-banner';
+      banner.textContent = text;
+      banner.style.position = 'fixed';
+      banner.style.left = '50%';
+      banner.style.bottom = '24px';
+      banner.style.transform = 'translateX(-50%)';
+      banner.style.background = 'var(--panel)';
+      banner.style.border = '1px solid var(--border)';
+      banner.style.padding = '12px 18px';
+      banner.style.letterSpacing = '0.2em';
+      banner.style.fontSize = '8px';
+      banner.style.color = 'var(--text)';
+      banner.style.zIndex = '30';
+      banner.style.borderRadius = '4px';
+      banner.style.boxShadow = '0 12px 32px var(--shadow)';
+      document.body.appendChild(banner);
+      setTimeout(() => banner.remove(), 3200);
+    }
+
+    function toggleMenu(menu) {
+      if (!menu) return;
+      const alreadyVisible = menu.classList.contains('visible');
+      document.querySelectorAll('.corner-menu.visible').forEach(item => item.classList.remove('visible'));
+      if (!alreadyVisible) {
+        menu.classList.add('visible');
+      }
+    }
+
+    function applyTheme(themeId) {
+      themes.forEach(theme => document.body.classList.remove(theme.id));
+      document.body.classList.add(themeId);
+      appState.theme = themeId;
+      localStorage.setItem('legos/multiChannelTheme', themeId);
+      // Removed updateThemeButtonLabel() as only one theme is present
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem('legos/multiChannelState');
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        (data.channels || []).forEach(cfg => {
+          const channel = new Channel(cfg);
+          channel.name = resolveChannelName(channel.name, channel.scenario, channel.symbolicId);
+          if (!channel.channelColor) { channel.channelColor = nextChannelColor(); }
+          const numeric = parseInt((channel.symbolicId || '').replace(/[^0-9]/g, ''), 10);
+          if (!Number.isNaN(numeric)) { channelSequence = Math.max(channelSequence, numeric + 1); }
+          channelMap.set(channel.id, channel);
+          appState.channels.push(channel);
+          mountChannel(channel);
+        });
+        channelColorIndex = appState.channels.length % channelColorPalette.length;
+        appState.currentChannelId = data.currentChannelId || (appState.channels[0]?.id ?? null);
+        // Removed ring memory loading
+      } catch (err) {
+        console.error('Failed to load state', err);
+        localStorage.removeItem('legos/multiChannelState');
+      }
+    }
+
+    function persistState() {
+      const payload = {
+        currentChannelId: appState.currentChannelId,
+        channels: appState.channels.map(ch => ch.serialize()),
+        // Removed ring memory from payload
+      };
+      localStorage.setItem('legos/multiChannelState', JSON.stringify(payload));
+    }
+
+    function createChannel(config = {}) {
+      const payload = { ...config };
+      if (!payload.symbolicId) { payload.symbolicId = generateSymbolicId(); }
+      if (!payload.channelColor) { payload.channelColor = nextChannelColor(); }
+      payload.name = resolveChannelName(payload.name, payload.scenario || 'blank', payload.symbolicId);
+      const channel = new ForkGameChannel(payload); // Always create ForkGameChannel for simplified app
+      channelMap.set(channel.id, channel);
+      appState.channels.push(channel);
+      mountChannel(channel);
+      appState.currentChannelId = channel.id;
+      persistState();
+      return channel;
+    }
+
+    function mountChannel(channel) {
+      const scroller = document.getElementById('channelScroller');
+      const column = document.createElement('section');
+      column.className = 'channel-column';
+      column.dataset.channelId = channel.id;
+
+      const header = document.createElement('div');
+      header.className = 'channel-head';
+
+      const meta = document.createElement('div');
+      meta.className = 'channel-meta';
+      const name = document.createElement('div');
+      name.className = 'channel-name';
+      const lineage = document.createElement('div');
+      lineage.className = 'channel-lineage';
+      meta.appendChild(name);
+      meta.appendChild(lineage);
+
+      const actions = document.createElement('div');
+      actions.className = 'channel-actions';
+
+      // Minimal actions for this focused app
+      const resetBtn = document.createElement('button');
+      resetBtn.className = 'channel-btn';
+      resetBtn.title = 'Reset channel';
+      resetBtn.textContent = 'R';
+      resetBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        if (!confirm('Clear this channel and reset game state?')) return;
+        channel.resetState();
+        channel.addMessage('system', 'CHANNEL RESET', 'Channel state and game reset. Start a new game.');
+        renderChannel(channel);
+        persistState();
+      });
+      
+      const collapseBtn = document.createElement('button');
+      collapseBtn.className = 'channel-btn';
+      collapseBtn.title = 'Collapse column';
+      collapseBtn.textContent = '<';
+      
+      const expandTab = document.createElement('div');
+      expandTab.className = 'channel-expand-tab';
+      expandTab.style.cssText = `
+        position: absolute;
+        left: 52px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 32px;
+        height: 100px;
+        background: var(--panel);
+        border: 2px solid var(--border);
+        border-left: none;
+        border-radius: 0 8px 8px 0;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        cursor: pointer;
+        z-index: 50;
+        box-shadow: 2px 0 8px var(--shadow);
+        transition: all 0.2s var(--transition);
+      `;
+      
+      const expandDot = document.createElement('div');
+      expandDot.style.cssText = `
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: ${channel.channelColor};
+        border: 1px solid var(--border);
+      `;
+      
+      const expandArrow = document.createElement('div');
+      expandArrow.style.cssText = `
+        font-size: 16px;
+        color: var(--text-muted);
+      `;
+      expandArrow.textContent = '>';
+      
+      expandTab.appendChild(expandDot);
+      expandTab.appendChild(expandArrow);
+      
+      expandTab.addEventListener('mouseenter', () => {
+        expandTab.style.background = 'var(--accent)';
+        expandArrow.style.color = 'var(--bg)';
+      });
+      
+      expandTab.addEventListener('mouseleave', () => {
+        expandTab.style.background = 'var(--panel)';
+        expandArrow.style.color = 'var(--text-muted)';
+      });
+      
+      expandTab.addEventListener('click', () => {
+        column.classList.remove('collapsed');
+        channel.collapsed = false;
+        collapseBtn.textContent = '<';
+        expandTab.style.display = 'none';
+        persistState();
+      });
+      column.appendChild(expandTab);
+      
+      collapseBtn.addEventListener('click', () => {
+        column.classList.toggle('collapsed');
+        channel.collapsed = column.classList.contains('collapsed');
+        collapseBtn.textContent = channel.collapsed ? '>' : '<';
+        expandTab.style.display = channel.collapsed ? 'flex' : 'none';
+        persistState();
+      });
+      
+      if (channel.collapsed) {
+        column.classList.add('collapsed');
+        collapseBtn.textContent = '>';
+        expandTab.style.display = 'flex';
+      }
+
+      actions.appendChild(resetBtn);
+      actions.appendChild(collapseBtn);
+
+      header.appendChild(meta);
+      header.appendChild(actions);
+
+      const body = document.createElement('div');
+      body.className = 'channel-body';
+
+      // --- FORK GAME UI INTEGRATION ---
+      const forkGameContainer = document.createElement('div');
+      forkGameContainer.className = 'game-container';
+      forkGameContainer.id = `fork-game-container-${channel.id}`;
+
+      const statusBar = document.createElement('div');
+      statusBar.className = 'game-status-bar';
+      statusBar.innerHTML = `
+        <div class="game-stat">
+          <div class="game-stat-label">TURN</div>
+          <div class="game-stat-value" id="turn-${channel.id}">1/15</div>
+        </div>
+        <div class="game-stat">
+          <div class="game-stat-label">TRACK A</div>
+          <div class="game-stat-value" id="trackA-${channel.id}">5</div>
+        </div>
+        <div class="game-stat">
+          <div class="game-stat-label">TRACK B</div>
+          <div class="game-stat-value" id="trackB-${channel.id}">1</div>
+        </div>
+        <div class="game-stat">
+          <div class="game-stat-label">TIME</div>
+          <div class="game-stat-value" id="timer-${channel.id}">30</div>
+        </div>
+      `;
+      forkGameContainer.appendChild(statusBar);
+
+      const scenarioBox = document.createElement('div');
+      scenarioBox.className = 'game-scenario-box';
+      scenarioBox.innerHTML = `
+        <div class="game-scenario-title">CRITICAL DECISION REQUIRED</div>
+        <div id="scenarioText-${channel.id}">${scenarios.fork.intro}</div>
+      `;
+      forkGameContainer.appendChild(scenarioBox);
+
+      const gridDisplay = document.createElement('div');
+      gridDisplay.className = 'game-grid-display';
+      gridDisplay.id = `grid-${channel.id}`;
+      forkGameContainer.appendChild(gridDisplay);
+
+      const choices = document.createElement('div');
+      choices.className = 'game-choices';
+      choices.innerHTML = `
+        <button class="game-choice-btn save" id="choiceA-${channel.id}">
+          <div style="font-weight: 700; margin-bottom: 4px;">SWITCH TO TRACK B</div>
+          <div style="font-size: 9px; color: var(--text-muted);">Sacrifice 1 to save 5</div>
+        </button>
+        <button class="game-choice-btn sacrifice" id="choiceB-${channel.id}">
+          <div style="font-weight: 700; margin-bottom: 4px;">STAY ON TRACK A</div>
+          <div style="font-size: 9px; color: var(--text-muted);">Let fate decide</div>
+        </button>
+      `;
+      forkGameContainer.appendChild(choices);
+
+      // Store references to game-specific elements
+      channel.dom.forkGameElements = {
+          container: forkGameContainer,
+          stats: {
+              turn: statusBar.querySelector(`#turn-${channel.id}`),
+              trackA: statusBar.querySelector(`#trackA-${channel.id}`),
+              trackB: statusBar.querySelector(`#trackB-${channel.id}`),
+              timer: statusBar.querySelector(`#timer-${channel.id}`)
+          },
+          scenarioText: scenarioBox.querySelector(`#scenarioText-${channel.id}`),
+          grid: gridDisplay,
+          choiceA: choices.querySelector(`#choiceA-${channel.id}`),
+          choiceB: choices.querySelector(`#choiceB-${channel.id}`),
+          // Chat elements are handled by the main channel.dom
+      };
+
+      body.appendChild(forkGameContainer);
+      // --- END FORK GAME UI INTEGRATION ---
+
+
+      const chatSection = document.createElement('div');
+      chatSection.className = 'chat-section';
+      const chatStream = document.createElement('div');
+      chatStream.className = 'chat-stream';
+      const messageDotRail = document.createElement('div');
+      messageDotRail.className = 'message-dot-rail';
+      const messageList = document.createElement('div');
+      messageList.className = 'message-list';
+      chatStream.appendChild(messageDotRail);
+      chatStream.appendChild(messageList);
+
+      const inputSection = document.createElement('div');
+      inputSection.className = 'input-section';
+      
+      const inputWrapper = document.createElement('div');
+      inputWrapper.className = 'input-wrapper';
+      const textarea = document.createElement('textarea');
+      textarea.className = 'message-input';
+      textarea.rows = 3;
+      textarea.placeholder = 'Discuss the dilemma, make your choice...';
+      const sendBtn = document.createElement('button');
+      sendBtn.className = 'send-btn';
+      sendBtn.textContent = '>';
+
+      textarea.addEventListener('input', () => {
+        textarea.style.height = 'auto';
+        textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+        if (window.visualViewport && document.activeElement === textarea) {
+          setTimeout(() => {
+            inputSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }, 50);
+        }
+      });
+      textarea.addEventListener('focus', () => {
+        focusChannel(channel.id);
+        setTimeout(() => {
+          inputSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          if (window.visualViewport) {
+            const viewportHeight = window.visualViewport.height;
+            const inputRect = textarea.getBoundingClientRect();
+            if (inputRect.bottom > viewportHeight) {
+              const scrollAmount = inputRect.bottom - viewportHeight + 20;
+              window.scrollBy(0, scrollAmount);
+            }
+          }
+        }, 300);
+      });
+      textarea.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+          event.preventDefault();
+          sendBtn.click();
+        }
+      });
+
+      sendBtn.addEventListener('click', () => {
+        const value = textarea.value.trim();
+        if (!value) return;
+        
+        // This is where game-specific chat input is handled
+        if (channel.scenario === 'fork' && channel instanceof ForkGameChannel) {
+          channel._sendGameMessage(); // Send via game's logic
+        } else {
+            // Fallback for blank channels if AI is enabled
+            if (!appState.apiKey) {
+                addMessageToChannel(channel, 'system', 'API key required for AI responses. Store one via "."');
+                return;
+            }
+            addMessageToChannel(channel, 'user', value);
+            textarea.value = '';
+            textarea.style.height = 'auto';
+            // Simple placeholder AI for blank channels, as other AI features are removed.
+            callOpenAI('BlankChannelAI', { prompt: value, history: channel.messages.slice(-5) })
+                .then(aiResponse => addMessageToChannel(channel, 'ai', aiResponse.response))
+                .catch(err => addMessageToChannel(channel, 'system', `AI Error: ${err.message}`));
+        }
+      });
+
+      inputWrapper.appendChild(textarea);
+      inputWrapper.appendChild(sendBtn);
+      inputSection.appendChild(inputWrapper);
+      
+      chatSection.appendChild(chatStream);
+      chatSection.appendChild(inputSection);
+
+      body.appendChild(chatSection);
+
+      column.appendChild(header);
+      column.appendChild(body);
+      scroller.appendChild(column);
+
+      channel.dom = {
+        column,
+        header,
+        nameEl: name,
+        lineageEl: lineage,
+        messageList,
+        messageDotRail,
+        input: textarea,
+        sendBtn,
+        channelRail: document.createElement('div') // Placeholder for rail, as it's not rendered in Fork game directly
+      };
+
+      refreshChannelHeader(channel);
+      styleChannelControls(channel);
+      renderChannel(channel);
+
+      if (channel.scenario === 'fork' && channel instanceof ForkGameChannel) {
+          channel._initGame(); // Initialize game state and UI after DOM is ready
+      }
+    }
+
+    function refreshChannelHeader(channel) {
+      if (!channel || !channel.dom) return;
+      const { nameEl, lineageEl } = channel.dom;
+      if (nameEl) nameEl.textContent = channel.name;
+      if (lineageEl) {
+        if (channel.parentChannelId) {
+          const parent = channelMap.get(channel.parentChannelId);
+          const parentHandle = sanitizeHandle(parent?.name || 'PARENT', 'PARENT');
+          lineageEl.textContent = `FORK . ${parentHandle}`;
+          lineageEl.style.display = '';
+        } else {
+          lineageEl.textContent = '';
+          lineageEl.style.display = 'none';
+        }
+      }
+      // Removed gridTitle as Fork game doesn't use it
+    }
+
+    function styleChannelControls(channel) {
+      if (!channel || !channel.dom) return;
+      const color = channel.channelColor || getComputedStyle(document.body).getPropertyValue('--accent');
+      const { sendBtn, header, column } = channel.dom;
+      const isActive = channel.id === appState.currentChannelId;
+      
+      if (column) {
+        if (isActive) {
+          column.classList.remove('inactive');
+        } else {
+          column.classList.add('inactive');
+        }
+        column.style.setProperty('--channel-color', color);
+      }
+      
+      const channelBtns = column?.querySelectorAll('.channel-btn');
+      channelBtns?.forEach(btn => {
+        btn.style.borderColor = color;
+        btn.style.color = color;
+      });
+      
+      if (sendBtn) {
+        sendBtn.textContent = '>';
+        sendBtn.dataset.channelId = channel.id;
+        sendBtn.style.background = color;
+        sendBtn.style.color = 'var(--bg)';
+        sendBtn.style.borderColor = color;
+      }
+      
+      if (header) {
+        header.style.borderColor = color;
+      }
+      
+      const messageDots = column?.querySelectorAll('.message-dot');
+      messageDots?.forEach(dot => {
+        dot.style.color = color;
+        dot.style.borderColor = color;
+      });
+    }
+
+    function formatChannelHeadline(channel) { // Minimal header for Fork Game
+      if (!channel) return '';
+      const parts = [];
+      parts.push(channel.symbolicId);
+      const nameHandle = sanitizeHandle(channel.name, channel.symbolicId);
+      if (nameHandle !== channel.symbolicId) {
+        parts.push(nameHandle);
+      }
+      return parts.filter(Boolean).map(part => sanitizeHandle(part, part)).join(' . ');
+    }
+
+    function renderChannel(channel) {
+      refreshChannelHeader(channel);
+      styleChannelControls(channel);
+      // Fork game handles its own rendering
+      if (channel.scenario === 'fork' && channel instanceof ForkGameChannel) {
+          channel._setupGameGrid();
+          channel._updateGameStats();
+          channel._attachGameEvents(); // Re-attach on render if needed
+      } else {
+          // Placeholder for non-fork channels if any custom grid rendering was intended
+      }
+      renderChannelMessages(channel);
+      // Removed renderTetradPanel as it's not used
+      renderTimeline();
+    }
+
+    // renderGrid and renderChannelGrid are not directly called for the Fork game,
+    // as it uses its own _setupGameGrid. Keeping minimal definitions to avoid errors if referenced.
+    function renderGrid(channel) { /* Not used in Fork game */ }
+    function renderChannelGrid(channel) { /* Not used in Fork game */ }
+
+    function renderChannelMessages(channel) {
+      const list = channel.dom && channel.dom.messageList;
+      const dotRail = channel.dom && channel.dom.messageDotRail;
+      if (!list) return;
+      list.innerHTML = '';
+      if (dotRail) dotRail.innerHTML = '';
+      const lastAIMessageId = [...channel.messages].reverse().find(msg => msg.role === 'ai')?.id || null;
+      const totalMessages = channel.messages.length;
+      
+      channel.messages.forEach((msg, idx) => {
+        const item = document.createElement('div');
+        item.className = `message ${msg.role}`;
+        item.dataset.messageId = msg.id;
+
+        const isRecent = idx >= totalMessages - 3;
+        if (msg.autoCollapse || (!isRecent && msg.role !== 'user')) {
+          item.classList.add('collapsed');
+        }
+
+        const header = document.createElement('div');
+        header.className = 'msg-header';
+        
+        const colorDot = document.createElement('span');
+        colorDot.className = 'message-color-dot';
+        if (msg.role === 'user') {
+          colorDot.style.color = 'var(--success)';
+        } else if (msg.role === 'system') {
+          colorDot.style.color = 'var(--text-muted)';
+        } else if (msg.role === 'ai') {
+          colorDot.style.color = 'var(--accent)';
+        }
+        colorDot.textContent = '.'; // Minimal dot
+        header.appendChild(colorDot);
+        const headerText = document.createElement('span');
+        const roleDisplay = msg.role.toUpperCase();
+        headerText.textContent = `${msg.id} . ${roleDisplay}${msg.fromChannel ? ` <- ${msg.fromChannel}` : ''}`;
+        header.appendChild(headerText);
+        
+        item.appendChild(header);
+
+        const preview = document.createElement('div');
+        preview.className = 'message-preview';
+        const msgText = msg.text || '';
+        preview.textContent = msgText.split('\n')[0].slice(0, 60) + (msgText.length > 60 ? '...' : '');
+        item.appendChild(preview);
+
+        const body = document.createElement('div');
+        body.className = 'message-body';
+        body.textContent = msgText;
+        item.appendChild(body);
+
+        if (dotRail) {
+          const dot = document.createElement('button');
+          dot.className = 'message-dot';
+          dot.dataset.messageId = msg.id;
+          dot.dataset.role = msg.role;
+          dot.dataset.index = idx + 1;
+          dot.classList.add(msg.role);
+          dot.textContent = String(idx + 1);
+          
+          if (msg.role === 'user') {
+            dot.style.color = 'var(--success)';
+            dot.style.backgroundColor = 'var(--accent-soft)';
+          } else if (msg.role === 'system') {
+            dot.style.color = 'var(--text-muted)';
+            dot.style.backgroundColor = 'var(--panel-dark)';
+          } else if (msg.role === 'ai') {
+            dot.style.color = 'var(--accent)';
+            dot.style.backgroundColor = 'var(--accent-soft)';
+          }
+          
+          dot.addEventListener('click', () => {
+            activateMessageDot(channel, msg.id);
+            item.classList.remove('collapsed');
+            item.classList.add('active');
+            item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          });
+          dotRail.appendChild(dot);
+          if (idx === channel.messages.length - 1) {
+            dot.classList.add('active');
+          }
+        }
+
+        item.addEventListener('click', (event) => {
+            if (event.target.closest('.message-actions')) return; // Ignore if clicking action menu
+            item.classList.toggle('collapsed');
+            document.querySelectorAll(`[data-channel-id="${channel.id}"] .message`).forEach(el => el.classList.remove('active'));
+            if (!item.classList.contains('collapsed')) {
+              item.classList.add('active');
+              activateMessageDot(channel, msg.id);
+            } else if (channel.messages.length) {
+              const latest = channel.messages[channel.messages.length - 1];
+              if (latest) activateMessageDot(channel, latest.id);
+            }
+        });
+
+        list.appendChild(item);
+      });
+      list.scrollTo({ top: list.scrollHeight, behavior: 'smooth' });
+      if (channel.messages.length) {
+        activateMessageDot(channel, channel.messages[channel.messages.length - 1].id);
+      }
+    }
+
+    // Removed createEntityChips and highlightGridCells as they're not used in Fork game
+
+    function activateMessageDot(channel, messageId) {
+      if (!channel || !channel.dom) return;
+      const targetId = String(messageId);
+      const { messageDotRail, messageList } = channel.dom;
+      if (messageDotRail) {
+        messageDotRail.querySelectorAll('.message-dot').forEach(dot => {
+          dot.classList.toggle('active', dot.dataset.messageId === targetId);
+        });
+      }
+      if (messageList) {
+        messageList.querySelectorAll('.message').forEach(msgEl => {
+          if (msgEl.dataset.messageId === targetId) {
+            msgEl.classList.add('active');
+          } else {
+            msgEl.classList.remove('active');
+          }
+        });
+      }
+    }
+
+    // Message actions and related functions are removed as they are not needed for a simplified app
+    function buildMessageOptions(channel, message) { return []; } // Empty options
+    function closeAllMenus() { /* No menus to close */ }
+    function toggleMessageActions(channel, message, element) { /* No actions */ }
+    function sendPerspectiveToChat(channel, text) { /* Not applicable */ }
+
+    // No tetrad generation in this simplified app
+    function normalizeTetradData(channel) { return null; }
+    function createTetradChipsInline(channel) { return null; }
+    function createTetradChips(channel) { return null; }
+    function renderTetradPanel(channel) { /* Not applicable */ }
+    function openPerspectiveSelector(channel) { showHelpBanner('Perspective analysis not available in this scenario.'); }
+    function regenerateTetrad(channel) { showHelpBanner('Tetrad generation not available in this scenario.'); }
+
+    function addMessageToChannel(channel, role, text, extra = {}) {
+      channel.addMessage(role, text, extra);
+      renderChannelMessages(channel);
+      persistState();
+    }
+
+    function renderTimeline() {
+      appState.channels.forEach((channel, channelIdx) => {
+        // Find the channel's actual rail element (which is the column itself for the dots)
+        const column = channel.dom?.column;
+        if (!column) return; // Should not happen with mountChannel
+
+        // Create a temporary rail in memory to build dots
+        const tempRail = document.createElement('div');
+        
+        appState.channels.forEach((target, idx) => {
+          const button = document.createElement('button');
+          button.className = 'channel-number';
+          button.textContent = String(idx + 1); // Display channel number
+          button.title = target.name;
+          button.style.borderColor = target.channelColor;
+          button.style.color = target.channelColor;
+          
+          if (target.id === channel.id) {
+            button.classList.add('active');
+            button.style.backgroundColor = target.channelColor;
+            button.style.color = getComputedStyle(document.body).getPropertyValue('--bg');
+            button.style.opacity = '1';
+          } else {
+            button.style.opacity = '0.7';
+          }
+          
+          button.addEventListener('click', (event) => {
+            event.stopPropagation();
+            focusChannel(target.id);
+          });
+          tempRail.appendChild(button);
+        });
+
+        const add = document.createElement('button');
+        add.className = 'channel-number add';
+        add.textContent = '+';
+        add.title = 'Add channel';
+        add.style.borderColor = getComputedStyle(document.body).getPropertyValue('--accent');
+        add.style.color = getComputedStyle(document.body).getPropertyValue('--accent');
+        add.addEventListener('click', (event) => {
+          event.stopPropagation();
+          const created = createChannel({ scenario: 'blank' });
+          focusChannel(created.id);
+        });
+        tempRail.appendChild(add);
+
+        // Replace content of the actual channel's rail (if it exists, otherwise it's just a dummy)
+        if (column.querySelector('.channel-number-rail')) {
+            column.querySelector('.channel-number-rail').innerHTML = tempRail.innerHTML;
+        }
+      });
+    }
+
+
+    function animateChannelTransition(fromChannel, toChannel) { /* Not used in Fork game */ }
+
+    function focusChannel(channelId) {
+      appState.currentChannelId = channelId;
+      const element = document.querySelector(`[data-channel-id="${channelId}"]`);
+      if (!element) return;
+      
+      const scroller = document.getElementById('channelScroller');
+      if (scroller) {
+        scroller.scrollTo({ left: element.offsetLeft, behavior: 'smooth' });
+      }
+      
+      document.querySelectorAll('.channel-column').forEach(col => {
+        col.classList.remove('channel-active');
+      });
+      element.classList.add('channel-active');
+      
+      renderTimeline();
+      
+      const activeChannel = appState.channels.find(ch => ch.id === channelId);
+      const globalScenarioSelect = document.getElementById('globalScenarioSelect');
+      if (activeChannel && globalScenarioSelect) {
+        globalScenarioSelect.value = activeChannel.scenario;
+      }
+      
+      persistState();
+    }
+
+    function refreshAllChannels() {
+      appState.channels.forEach(channel => renderChannel(channel));
+    }
+    
+    function setupChannelVisibilityObserver() {
+      const scroller = document.querySelector('.scroll-container');
+      if (!scroller) return;
+      
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+            const channelId = entry.target.dataset.channelId;
+            if (channelId && channelId !== appState.currentChannelId) {
+              appState.currentChannelId = channelId;
+              renderTimeline();
+              document.querySelectorAll('.channel-column').forEach(col => {
+                col.classList.remove('channel-active');
+              });
+              entry.target.classList.add('channel-active');
+            }
+          }
+        });
+      }, {
+        root: scroller,
+        threshold: 0.5
+      });
+      
+      document.querySelectorAll('.channel-column[data-channel-id]').forEach(col => {
+        observer.observe(col);
+      });
+    }
+
+    async function composeScene(channel, message) {
+      if (channel.pending) return;
+      channel.pending = true;
+      channel.dom.sendBtn.disabled = true;
+      
+      addMessageToChannel(channel, 'system', 'Thinking...', { autoCollapse: true });
+
+      try {
+        const payload = {
+          // Simplified payload for blank channel AI
+          prompt: message,
+          history: channel.messages.slice(-5).map(m => ({ role: m.role, content: m.text }))
+        };
+        const aiResponse = await callOpenAI('BlankChannelAI', payload); // Use simplified AI for blank channels
+        addMessageToChannel(channel, 'ai', aiResponse.response);
+      } catch (err) {
+        console.error('AI response error:', err);
+        addMessageToChannel(channel, 'system', `AI response failed: ${err.message}`);
+      } finally {
+        channel.pending = false;
+        channel.dom.sendBtn.disabled = false;
+      }
+    }
+
+    // Removed createRuleContract as it's not needed for simple AI
+    
+    async function callOpenAI(kind, payload) {
+      if (!appState.apiKey) {
+        throw new Error('Missing API key. Click "." in corner menu to set your OpenAI API key.');
+      }
+      
+      const prompts = {
+        BlankChannelAI: [ // Simple AI for blank channels
+            { role: 'system', content: 'You are a helpful AI assistant. Respond thoughtfully but concisely to the user\'s input. Keep responses under 100 words.' },
+            ...payload.history.map(msg => ({ role: msg.role, content: msg.content })),
+            { role: 'user', content: payload.prompt }
+        ]
+      };
+
+      const requestBody = {
+        model: 'gpt-4o-mini',
+        temperature: 0.7,
+        messages: prompts[kind],
+        max_tokens: 150,
+        response_format: { type: 'json_object' } // Keep JSON object for now, though simple AI might just return text
+      };
+      
+      let response;
+      try {
+        response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${appState.apiKey}`
+          },
+          body: JSON.stringify(requestBody)
+        });
+      } catch (fetchError) {
+        throw new Error(`Network error: Cannot reach OpenAI API. Check your internet connection and API key. ${fetchError.message}`);
+      }
+      
+      if (!response.ok) {
+        const text = await response.text();
+        if (response.status === 401) {
+          throw new Error(`Invalid API key. Please check your OpenAI API key in corner menu (".").`);
+        } else if (response.status === 429) {
+          throw new Error(`Rate limit exceeded. Please wait a moment and try again.`);
+        }
+        throw new Error(`HTTP ${response.status}: ${text}`);
+      }
+      const data = await response.json();
+      
+      const raw = data.choices?.[0]?.message?.content;
+      if (!raw) {
+        throw new Error('Empty response from API.');
+      }
+      
+      try {
+        const parsed = JSON.parse(raw);
+        return parsed; // Assuming simple AI still returns JSON with a 'response' field
+      } catch (parseErr) {
+        // If it's not JSON, return as plain text
+        return { response: raw };
+      }
+    }
+
+    // applyScene and related grid animation functions are removed/not used
+    function applyScene(channel, scene) { /* Not applicable */ }
+
+    // Dice roll and cell logging are not used in Fork game
+    function rollDice(channel, sides = 6, count = 1) { return []; }
+    function logCellEvent(channel, x, y, text) { /* Not applicable */ }
+    function gatherNearbyCells(channel, x, y, radius = 2.5) { return []; }
+    function describeCellEnvironment(channel, x, y) { return ''; }
+    function computeRelationshipScores(channel, x, y) { return []; }
+
+    // Removed specific overlay functions for cells/perspectives
+    function openCellOverlay(channel, x, y) { showHelpBanner('Cell details are not available in this scenario.'); }
+    function showEntityPerspective(channel, x, y, cell) { showHelpBanner('Perspective analysis is not available in this scenario.'); }
+    function spawnCellPerspectiveChannel(sourceChannel, x, y, cell) { showHelpBanner('Forking by cell perspective is not available in this scenario.'); }
+
+    function routeMessage(sourceChannel, targetChannel, message) {
+      addMessageToChannel(targetChannel, 'user', message.text, { fromChannel: sourceChannel.name });
+      focusChannel(targetChannel.id);
+      showHelpBanner(`Routed message to ${targetChannel.name}`);
+    }
+
+    function forkChannel(channel, message, mode, options = {}) {
+      const messageId = message?.id ?? null;
+      const idx = channel.messages.findIndex(m => m.id === messageId);
+      const history = idx >= 0 ? channel.messages.slice(0, idx + 1) : channel.messages.slice();
+      const label = forkLabels[mode] || 'Fork';
+      const baseName = sanitizeHandle(`${channel.name}-${label}`, label);
+      let newChannelConfig;
+
+      if (mode === 'blank') {
+        newChannelConfig = {
+          name: baseName,
+          scenario: 'blank', // New blank channel always starts with 'blank' scenario
+          parentChannelId: channel.id,
+          forkPoint: { messageId, mode },
+        };
+      } else if (['continue'].includes(mode)) {
+        newChannelConfig = {
+          name: baseName,
+          scenario: channel.scenario,
+          systemInstruction: channel.systemInstruction,
+          parentChannelId: channel.id,
+          forkPoint: { messageId, mode },
+          messages: JSON.parse(JSON.stringify(history)), // Deep clone messages
+          // Copy game state for Fork game channels
+          gameTurn: channel.gameTurn,
+          gameMaxTurns: channel.gameMaxTurns,
+          gameTimer: channel.gameTimer,
+          gameTrackA: channel.gameTrackA,
+          gameTrackB: channel.gameTrackB,
+          gameTrainPos: channel.gameTrainPos,
+          gameSelectedTrack: channel.gameSelectedTrack,
+          isGameOver: channel.isGameOver
+        };
+      } else {
+        showHelpBanner(`Fork mode '${mode}' is not available in this scenario.`);
+        return;
+      }
+
+      const forked = createChannel(newChannelConfig);
+      addMessageToChannel(forked, 'system', `Forked from ${channel.name} @ message ${messageId ?? '-'} (${label}).`);
+      renderChannel(forked);
+      
+      focusChannel(forked.id);
+      persistState();
+    }
+
+    function setChannelScenario(channel, scenarioId) {
+      if (!scenarios[scenarioId]) return;
+      const previousDefault = resolveChannelName('', channel.scenario, channel.symbolicId);
+      
+      // Stop game timer if switching FROM a Fork game
+      if (channel.scenario === 'fork' && channel.gameTimerInterval) {
+          clearInterval(channel.gameTimerInterval);
+      }
+
+      channel.scenario = scenarioId;
+      if (channel.name === previousDefault) {
+        channel.name = resolveChannelName('', scenarioId, channel.symbolicId);
+      }
+      channel.systemInstruction = scenarios[scenarioId].systemInstruction;
+      channel.resetState();
+      
+      addMessageToChannel(channel, 'system', `${scenarios[scenarioId].name} scenario primed. ${scenarios[scenarioId].intro}`);
+      if (scenarios[scenarioId].initialPrompt) {
+        channel.dom.input.value = scenarios[scenarioId].initialPrompt;
+      }
+      renderChannel(channel);
+      persistState();
+    }
+
+    function exportState() {
+      const overlay = document.getElementById('exportOverlay');
+      overlay.classList.remove('active');
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        theme: appState.theme,
+        channels: appState.channels.map(ch => ch.serialize()),
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `legos-multi-channel-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showHelpBanner('Exported multi-channel state.');
+    }
+
+    function handleImportFile(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = JSON.parse(e.target.result);
+          restoreFromImport(data);
+          showHelpBanner('Imported multi-channel session.');
+        } catch (err) {
+          console.error(err);
+          showHelpBanner('Import failed. Invalid file.');
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    function restoreFromImport(data) {
+      document.getElementById('channelScroller').innerHTML = '';
+      appState.channels = [];
+      channelMap.clear();
+      (data.channels || []).forEach(cfg => {
+        const channel = new Channel(cfg); // Use base Channel for import to reconstruct, then convert if Fork
+        channelMap.set(channel.id, channel);
+        appState.channels.push(channel);
+        mountChannel(channel); // Mount will call ForkGameChannel init if scenario is 'fork'
+      });
+      appState.currentChannelId = appState.channels[0]?.id || null;
+      if (data.theme) {
+        applyTheme(data.theme);
+      } else {
+        applyTheme(appState.theme);
+      }
+      renderTimeline();
+      // Removed ring memory rendering
+      // Removed syncRingContextButtons
+      persistState();
+    }
+
+    let soundInitialized = false;
+    let synth = null;
+
+    async function initSound() {
+      if (soundInitialized || typeof Tone === 'undefined') return;
+      try {
+        await Tone.start();
+        synth = new Tone.Synth({
+          oscillator: { type: 'sine' },
+          envelope: { attack: 0.02, decay: 0.1, sustain: 0, release: 0.2 }
+        }).toDestination();
+        synth.volume.value = -24;
+        soundInitialized = true;
+      } catch (e) {
+        console.warn('Sound init failed:', e);
+      }
+    }
+
+    function playComposingTick() {
+      if (!soundInitialized || !synth) return;
+      try {
+        synth.triggerAttackRelease('C5', '0.05');
+      } catch (e) {
+        console.warn('Sound play failed:', e);
+      }
+    }
+
+    function playRevealChime() {
+      if (!soundInitialized || !synth) return;
+      try {
+        synth.triggerAttackRelease('E5', '0.1');
+        setTimeout(() => synth.triggerAttackRelease('G5', '0.1'), 100);
+      } catch (e) {
+        console.warn('Sound play failed:', e);
+      }
+    }
+
+    document.addEventListener('click', async (event) => {
+      if (!soundInitialized) await initSound();
+      // Removed message action close on general click
+    });
+
+    window.addEventListener('beforeunload', persistState);
+
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
